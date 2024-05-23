@@ -1,40 +1,37 @@
-import React, { createContext, useState, useEffect} from 'react';
-
+import React, { createContext, useState, useEffect } from "react";
 
 const Context = createContext();
 
 function FetchData({ children }) {
-    const [serverUrl, setServerUrl] = useState('');//
-    const [username, setUsername] = useState('');//
-    const [password, setPassword] = useState('');//
-    const [name, setName] = useState('');
-    const [error, setError] = useState(null);
-    const [liveCategories, setLiveCategories] = useState([]);
-    const [urlPlayer, setUrlPlayer] = useState('');
-    const [userInfo, setUserInfo] = useState({});
+  const [serverUrl, setServerUrl] = useState(""); //http://falconiptvpro.xyz:80 http://nasasmartv.com:8080
+  const [username, setUsername] = useState(""); //16099570263 abdulkaderxalwaki
+  const [password, setPassword] = useState(""); //05654272532 2449585kk
+  const [name, setName] = useState("");
+  const [error, setError] = useState(null);
+  const [liveCategories, setLiveCategories] = useState([]);
+  const [urlPlayer, setUrlPlayer] = useState("");
+  const [userInfo, setUserInfo] = useState({});
 
-    useEffect(() => {
-      const fetchData = async () => {
-          const url = `${serverUrl}/player_api.php?username=${username}&password=${password}`;
-          if (localStorage.getItem('user') === null) {
-            setError('Please enter all fields');
-              return;
-          } else {
-            try {
-              const userInfoResponse = await fetch(`${url}&action=user_info`);
-              const userInfoData = await userInfoResponse.json();
-              setUserInfo(userInfoData);
-              const liveCategoriesResponse = await fetch(`${url}&action=get_live_categories`);
-              const liveCategoriesData = await liveCategoriesResponse.json();
-              setLiveCategories(liveCategoriesData);
-          } catch (error) {
-              console.error("Error fetching data:", error);
-              setError(error);
-          }
-          }
-          
-      };
-      fetchData();
+  useEffect(() => {
+    if (!localStorage.getItem("user")) return;
+    
+
+    const fetchData = async () => {
+      const url = `${serverUrl}/player_api.php?username=${username}&password=${password}`;
+      try {
+        const userInfoResponse = await fetch(`${url}&action=user_info`);
+        const userInfoData = await userInfoResponse.json();
+        setUserInfo(userInfoData);
+        const liveCategoriesResponse = await fetch(
+          `${url}&action=get_live_categories`
+        );
+        const liveCategoriesData = await liveCategoriesResponse.json();
+        setLiveCategories(liveCategoriesData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
   }, [serverUrl, username, password]);
 
   return (
@@ -54,13 +51,13 @@ function FetchData({ children }) {
         setLiveCategories,
         urlPlayer,
         setUrlPlayer,
-        userInfo, 
-        setUserInfo
+        userInfo,
+        setUserInfo,
       }}
     >
       {children}
     </Context.Provider>
-  )
+  );
 }
 
 export { Context, FetchData };

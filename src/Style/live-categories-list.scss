@@ -1,20 +1,16 @@
 .live-categories-container{
-    width: 100%;
+    width: 85%;
     height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 999;
     display: flex;
-    background-color: black;
+    background-image: url('https://png.pngtree.com/background/20230516/original/pngtree-an-image-of-a-theater-with-someone-standing-in-the-middle-picture-image_2615237.jpg');
+    background-size: cover;
     color: white;
+    position: fixed;
+    top: 0;
+    right: 0;
     .iptv-player{
         width: 100%;
         height: 31%;
-        position: relative;
-        display: flex;
-        justify-content: start;
-        align-items: start;
         img{
             width: 100%;
             height: 100%;
@@ -93,7 +89,9 @@
                 color: #ffffff;
             }
 
-
+            img{
+                margin-right: 10px;
+            }
         }
     }
 }

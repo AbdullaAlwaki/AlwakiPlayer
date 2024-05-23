@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Context } from '../Util/createContext';
+import ReactPlayer from 'react-player';
 
-const SeriesList = ({ serverUrl, username, password, setUrlPlayer }) => {
+import '../Style/SeriesList.scss';
+
+const SeriesList = () => {
     const [seriesCategories, setSeriesCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [seriesList, setSeriesList] = useState([]);
     const [selectedSeries, setSelectedSeries] = useState(null);
     const [episodesList, setEpisodesList] = useState([]);
+    const { serverUrl, urlPlayer, fullScreen, username, password, setUrlPlayer
+     } = useContext(Context);
 
     useEffect(() => {
         const fetchSeriesCategories = async () => {
@@ -57,6 +63,12 @@ const SeriesList = ({ serverUrl, username, password, setUrlPlayer }) => {
     return (
         <div>
             <h2>Series Categories</h2>
+            <div className="iptv-player" onClick={fullScreen}>
+            {urlPlayer ? 
+            <ReactPlayer url={urlPlayer} playing width={'100%'} height={'100%'} controls thumbnail="https://alwakistore.onrender.com/static/media/logo.9c361039574df7e0f672.png"/>
+        : <img src="https://alwakistore.onrender.com/static/media/logo.9c361039574df7e0f672.png" alt=""  />
+      }
+    </div>
             <ul>
                 {seriesCategories.map(category => (
                     <li key={category.category_id} onClick={() => handleCategoryClick(category.category_id)}>
