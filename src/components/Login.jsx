@@ -7,6 +7,10 @@ export default function Login() {
   const {
     error,
     setError,
+    setServerUrl,
+    setUsername,
+    setPassword,
+    setName,
   } = useContext(Context);
 
   const getInformation = (e) => {
@@ -23,16 +27,10 @@ export default function Login() {
       });
       
       setError(null);
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          serverUrl: urlArr[0],
-          username: obj.username,
-          password: obj.password,
-          name,
-        })
-      );
-      window.location.reload();
+      setServerUrl(`${urlArr[0]}`);
+      setUsername(obj.username);
+      setPassword(obj.password);
+      setName(name);
     } else {
       setError("Invalid URL");
     }
@@ -51,17 +49,11 @@ export default function Login() {
       setError("Please fill all the fields");
       return;
     }
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        serverUrl,
-        username,
-        password,
-        name,
-      })
-    );
+    setServerUrl(serverUrl);
+    setUsername(username);
+    setPassword(password);
+    setName(name);
     setError(null);
-    window.location.reload();
   };
 
   return (

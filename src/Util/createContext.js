@@ -13,26 +13,58 @@ function FetchData({ children }) {
   const [userInfo, setUserInfo] = useState({});
 
   useEffect(() => {
-    if (!localStorage.getItem("user")) return;
-    
-
-    const fetchData = async () => {
-      const url = `${serverUrl}/player_api.php?username=${username}&password=${password}`;
+    const url = `${serverUrl}/player_api.php?username=${username}&password=${password}`;
+    if (!serverUrl || !username || !password) {
+      return;   
+    }
+    fetch(`${url}&action=user_info`)
+      .then((response) => response.json())
+      .then((data) => {
+    localStorage.setItem("user", JSON.stringify({...data, user : name}))
+      })
+      .catch((error) => setError(error));
+    const fetchData = async () => { 
       try {
-        const userInfoResponse = await fetch(`${url}&action=user_info`);
-        const userInfoData = await userInfoResponse.json();
-        setUserInfo(userInfoData);
+
+
         const liveCategoriesResponse = await fetch(
           `${url}&action=get_live_categories`
         );
         const liveCategoriesData = await liveCategoriesResponse.json();
-        setLiveCategories(liveCategoriesData);
+        localStorage.setItem("liveCategories", JSON.stringify(liveCategoriesData));
+
+        const vodCategoriesResponse = await fetch(
+          `${url}&action=get_vod_categories`
+        );
+        const vodCategoriesData = await vodCategoriesResponse.json();
+        localStorage.setItem("vodCategories", JSON.stringify(vodCategoriesData));
+
+        const seriesCategoriesResponse = await fetch(
+          `${url}&action=get_series_categories`
+        );
+        const seriesCategoriesData = await seriesCategoriesResponse.json();
+        localStorage.setItem("seriesCategories", JSON.stringify(seriesCategoriesData));
+
+        const liveStreamsResponse = await fetch(
+          `${url}&action=get_live_streams`
+        );
+        const liveStreamsData = await liveStreamsResponse.json();
+        localStorage.setItem("liveStreams", JSON.stringify(liveStreamsData));
+
+
+
+        const seriesStreamsResponse = await fetch(
+          `${url}&action=get_series`
+        );
+        const seriesStreamsData = await seriesStreamsResponse.json();
+        localStorage.setItem("seriesStreams", JSON.stringify(seriesStreamsData));
+        
       } catch (error) {
-        console.error(error);
+        setError(error);
       }
     };
     fetchData();
-  }, [serverUrl, username, password]);
+  }, [serverUrl, username, password, name]);
 
   return (
     <Context.Provider

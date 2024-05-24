@@ -10,7 +10,7 @@ export default function ListDivision() {
 
   return (
     <div className="list-division"> 
-      <div className="logo">
+      <div className="logo" onClick={() => navigate("/")}>
         <img
           src="https://alwakistore.onrender.com/static/media/logo.9c361039574df7e0f672.png"
           alt=""

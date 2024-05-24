@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
@@ -7,21 +7,13 @@ import MoviesList from "./components/MoviesList";
 import SeriesList from "./components/SeriesList";
 import ListDivision from "./components/ListDivision";
 import Login from "./components/Login";
-import { Context } from "./Util/createContext";
 
 
 
 function App() {
-  const { setServerUrl, setUsername, setPassword, setName } = useContext(Context);
 
   if (!localStorage.getItem("user")) {
     return <Login />;
-  } else {
-    const info = JSON.parse(localStorage.getItem("user"));
-    setServerUrl(info.serverUrl);
-    setUsername(info.username);
-    setPassword(info.password);
-    setName(info.name);
   }
   
 
