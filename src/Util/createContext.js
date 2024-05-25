@@ -7,64 +7,55 @@ function FetchData({ children }) {
   const [username, setUsername] = useState(""); //16099570263 abdulkaderxalwaki
   const [password, setPassword] = useState(""); //05654272532 2449585kk
   const [name, setName] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [liveCategories, setLiveCategories] = useState([]);
   const [urlPlayer, setUrlPlayer] = useState("");
   const [userInfo, setUserInfo] = useState({});
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     const url = `${serverUrl}/player_api.php?username=${username}&password=${password}`;
     if (!serverUrl || !username || !password) {
       return;   
     }
-    fetch(`${url}&action=user_info`)
-      .then((response) => response.json())
-      .then((data) => {
-    localStorage.setItem("user", JSON.stringify({...data, user : name}))
-      })
-      .catch((error) => setError(error));
     const fetchData = async () => { 
       try {
-
-
         const liveCategoriesResponse = await fetch(
           `${url}&action=get_live_categories`
         );
         const liveCategoriesData = await liveCategoriesResponse.json();
-        localStorage.setItem("liveCategories", JSON.stringify(liveCategoriesData));
-
+        liveCategoriesData.unshift({ category_id: "0", category_name: "All" });
+        sessionStorage.setItem("liveCategories", JSON.stringify(liveCategoriesData));
+        
         const vodCategoriesResponse = await fetch(
           `${url}&action=get_vod_categories`
         );
         const vodCategoriesData = await vodCategoriesResponse.json();
-        localStorage.setItem("vodCategories", JSON.stringify(vodCategoriesData));
-
+        vodCategoriesData.unshift({ category_id: "0", category_name: "All" });
+        sessionStorage.setItem("vodCategories", JSON.stringify(vodCategoriesData));
+        
+/*         const vodStreamsResponse = await fetch(
+          `${url}&action=get_vod_streams`
+        );
+        const vodStreamsData = await vodStreamsResponse.json();
+        sessionStorage.setItem("vodStreams", JSON.stringify(vodStreamsData));
+        console.log(vodStreamsData); */
+        
         const seriesCategoriesResponse = await fetch(
           `${url}&action=get_series_categories`
         );
         const seriesCategoriesData = await seriesCategoriesResponse.json();
-        localStorage.setItem("seriesCategories", JSON.stringify(seriesCategoriesData));
+        seriesCategoriesData.unshift({ category_id: "0", category_name: "All" });
+        sessionStorage.setItem("seriesCategories", JSON.stringify(seriesCategoriesData));
 
-        const liveStreamsResponse = await fetch(
-          `${url}&action=get_live_streams`
-        );
-        const liveStreamsData = await liveStreamsResponse.json();
-        localStorage.setItem("liveStreams", JSON.stringify(liveStreamsData));
-
-
-
-        const seriesStreamsResponse = await fetch(
-          `${url}&action=get_series`
-        );
-        const seriesStreamsData = await seriesStreamsResponse.json();
-        localStorage.setItem("seriesStreams", JSON.stringify(seriesStreamsData));
-        
+        setError(null);
       } catch (error) {
         setError(error);
       }
     };
     fetchData();
-  }, [serverUrl, username, password, name]);
+  }, [serverUrl, username, password]);
 
   return (
     <Context.Provider
@@ -85,6 +76,8 @@ function FetchData({ children }) {
         setUrlPlayer,
         userInfo,
         setUserInfo,
+        loading,
+        setLoading,
       }}
     >
       {children}

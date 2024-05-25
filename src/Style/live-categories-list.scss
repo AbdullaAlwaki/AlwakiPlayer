@@ -1,97 +1,84 @@
-.live-categories-container{
-    width: 85%;
-    height: 100%;
-    display: flex;
-    background-image: url('https://png.pngtree.com/background/20230516/original/pngtree-an-image-of-a-theater-with-someone-standing-in-the-middle-picture-image_2615237.jpg');
-    background-size: cover;
-    color: white;
-    position: fixed;
-    top: 0;
-    right: 0;
-    .iptv-player{
+.live-categories-container {
+  width: 85%;
+  height: 100%;
+  display: flex;
+  position: fixed;
+  top: 0;
+  right: 0;
+  .live-categories-list {
+    width: 50%;
+    overflow: auto;
+    ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    .live-categories {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+      .category-item {
         width: 100%;
-        height: 31%;
-        img{
-            width: 100%;
-            height: 100%;
+        height: 25px;
+        padding: 10px;
+        list-style-type: none;
+        text-align: start;
+        font-size: large;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-bottom: 2px solid #ff0000;
+        border-right: 2px solid #ff0000;
+        font-size: large;
+        font-weight: bold;
+        cursor: pointer;
+        &:hover {
+          background: #ff0000;
+          color: #ffffff;
         }
+      }
     }
-
-    .live-categories-list{
-        width: 50%;
-        overflow: auto;
-        ms-overflow-style: none;
-        scrollbar-width: none;
-        &::-webkit-scrollbar {
-            display: none;
-        }
-        .live-categories{
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 0;
-            padding: 0;
-            .category-item{
-                width: 100%;
-                height: 25px;
-                padding: 10px;
-                list-style-type: none;
-                text-align: start;
-                font-size: large;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                border-bottom: 2px solid #ff0000;
-                border-right: 2px solid #ff0000;
-                font-size: large;
-                font-weight: bold;
-                cursor: pointer;
-                &:hover{
-                    background: #ff0000;
-                    color: #ffffff;
-                }
-
-            }
-        }
+  }
+  .live-stream-item {
+    width: 50%;
+    overflow: auto;
+    ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
     }
-    .live-stream-item{
-        width: 50%;
-        overflow: auto;
-        ms-overflow-style: none;
-        scrollbar-width: none;
-        &::-webkit-scrollbar {
-            display: none;
-        }
-        .live-streams{
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 0;
-            padding: 0;
-        }
-        .stream-item{
-            width: 100%;
-            height: 25px;
-            padding: 10px;
-            list-style-type: none;
-            text-align: start;
-            font-size: large;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            border-bottom: 2px solid #ff0000;
-            border-right: 2px solid #ff0000;
-            font-size: large;
-            font-weight: bold;
-            cursor: pointer;
-            &:hover{
-                background: #ff0000;
-                color: #ffffff;
-            }
-
-            img{
-                margin-right: 10px;
-            }
-        }
+    .live-streams {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
     }
+    .stream-item {
+      width: 100%;
+      height: 25px;
+      padding: 10px;
+      list-style-type: none;
+      text-align: start;
+      font-size: large;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-bottom: 2px solid #ff0000;
+      border-right: 2px solid #ff0000;
+      font-size: large;
+      font-weight: bold;
+      cursor: pointer;
+      &:hover {
+        background: #ff0000;
+        color: #ffffff;
+      }
+
+      img {
+        margin-right: 10px;
+      }
+    }
+  }
 }

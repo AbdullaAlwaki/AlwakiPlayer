@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import IconTv from "../assets/icon-tv.png";
 import IconMovie from "../assets/icon-movie.png";
 import IconSeries from "../assets/icon-series.png";
+import Logo from "../assets/logo.png";
 import "../Style/ListDivision.scss";
 
 export default function ListDivision() {
@@ -12,7 +13,7 @@ export default function ListDivision() {
     <div className="list-division"> 
       <div className="logo" onClick={() => navigate("/")}>
         <img
-          src="https://alwakistore.onrender.com/static/media/logo.9c361039574df7e0f672.png"
+          src={Logo}
           alt=""
         />
       </div>

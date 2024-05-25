@@ -1,0 +1,52 @@
+.movie-categories-container {
+  width: 85%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  right: 0;
+  h2 {
+    text-align: center;
+    width: 100%;
+  }
+  .player-container {
+    width: 100%;
+  }
+  .movie-categories-list {
+    width: 50%;
+    overflow: auto;
+    ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    .movie-categories {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+        .movie-category{
+            width: 100%;
+            height: 25px;
+            padding: 10px;
+            list-style-type: none;
+            text-align: start;
+            font-size: large;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-bottom: 2px solid #ff0000;
+            border-right: 2px solid #ff0000;
+            font-size: large;
+            font-weight: bold;
+            cursor: pointer;
+            &:hover {
+                background: #ff0000;
+                color: #ffffff;
+            }
+        }
+    }
+  }
+}

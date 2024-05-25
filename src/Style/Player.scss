@@ -1,0 +1,41 @@
+.player-container{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background-color: #000000;
+    .loading{
+        width: 200px;
+        height:100px;
+        position: absolute;
+        &:before{
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("../assets/logo.png");
+            background-size: 200px 100px;
+            background-repeat: no-repeat;
+        }
+        &:after{
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("../assets/logo.png");
+            background-size: 200px 100px;
+            background-repeat: no-repeat;
+            animation: l9 1s infinite;
+            transform: perspective(300px) translateZ(0px);
+        }
+        @keyframes l9 {
+            to {transform:perspective(300px) translateZ(100px);opacity:0}
+        }
+    }
+    .error{
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        position: absolute;
+    }
+}

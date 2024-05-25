@@ -4,19 +4,18 @@ import { Context } from "../Util/createContext";
 import "../Style/Login.scss";
 
 export default function Login() {
-  const {
-    error,
-    setError,
-    setServerUrl,
-    setUsername,
-    setPassword,
-    setName,
-  } = useContext(Context);
+  const { error, setError, setLoading, setName, loading } = useContext(Context);
 
   const getInformation = (e) => {
     e.preventDefault();
+    setLoading(true);
     const url = e.target.url.value;
     const name = e.target.Name.value;
+
+    if (!url || !name) {
+      setError("Please fill all the fields");
+      return;
+    }
     if (url.includes("get.php")) {
       const urlArr = url.split("/get.php?");
       const params = urlArr[1].split("&");
@@ -25,18 +24,30 @@ export default function Login() {
         const [key, value] = param.split("=");
         obj[key] = value;
       });
-      
-      setError(null);
-      setServerUrl(`${urlArr[0]}`);
-      setUsername(obj.username);
-      setPassword(obj.password);
+
       setName(name);
+      fetch(
+        `${urlArr[0]}/player_api.php?username=${obj.username}&password=${obj.password}&action=user_info`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.user_info.auth === 1) {
+            localStorage.setItem(
+              "user",
+              JSON.stringify({ ...data, profile: name })
+            );
+            setLoading(false);
+            setError(null);
+            window.location.reload();
+          } else if (data.user_info.auth === 0) {
+            setError("Invalid URL");
+          }
+        })
+        .catch((error) => setError(error));
     } else {
       setError("Invalid URL");
     }
   };
-
-
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -44,16 +55,28 @@ export default function Login() {
     const serverUrl = e.target.serverUrl.value;
     const username = e.target.username.value;
     const password = e.target.password.value;
-    console.log(name, serverUrl, username, password);
+
     if (!serverUrl || !username || !password) {
       setError("Please fill all the fields");
       return;
     }
-    setServerUrl(serverUrl);
-    setUsername(username);
-    setPassword(password);
+
     setName(name);
-    setError(null);
+    fetch(
+      `${serverUrl}/player_api.php?username=${username}&password=${password}&action=user_info`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.user_info.auth === 1) {
+          localStorage.setItem("user", JSON.stringify({ ...data, profile: name }));
+          setError(null);
+          setLoading(false);
+          window.location.reload();
+        } else if (data.user_info.auth === 0) {
+          setError("Invalid Credentials");
+        }
+      })
+      .catch((error) => setError(error));
   };
 
   return (
@@ -89,8 +112,16 @@ export default function Login() {
         <input type="text" id="url" placeholder="Your server url" />
         <button>Save Login</button>
       </form>
-
+      {loading && <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >Loading...</div>}
       {error && <div>{error}</div>}
     </div>
   );
 }
+

@@ -1,10 +1,11 @@
 import React, { useState, useEffect,useContext } from 'react';
 import { Context } from '../Util/createContext';
+import Logo from '../assets/logo.png';
 
 
 const LiveStreamsList = ({ categoryId }) => {
   const [liveStreams, setLiveStreams] = useState([]);
-  const  { serverUrl, username, password, setUrlPlayer } = useContext(Context);
+  const  { serverUrl, username, password, setUrlPlayer, setError, setLoading } = useContext(Context);
     useEffect(() => {
 
     const fetchData = async () => {
@@ -30,6 +31,9 @@ const LiveStreamsList = ({ categoryId }) => {
     fetchData();
   }, [categoryId, serverUrl, username, password]);
   const handleStreamClick = (streamId) => {
+    setLoading(true);
+    setError(null);
+    setUrlPlayer(null);
     const streamUrl = `${serverUrl}/live/${username}/${password}/${streamId}.m3u8`;
     setUrlPlayer(streamUrl);
   };
@@ -41,7 +45,7 @@ const LiveStreamsList = ({ categoryId }) => {
             <img src={
               stream.stream_icon
                 ? `${stream.stream_icon}`
-                : 'https://alwakistore.onrender.com/static/media/logo.9c361039574df7e0f672.png'
+                : {Logo}
             } width="20" height="20" alt="" />
             {stream.name}
           </li>
