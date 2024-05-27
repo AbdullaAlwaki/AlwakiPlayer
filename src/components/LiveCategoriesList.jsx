@@ -7,39 +7,27 @@ import "../Style/live-categories-list.scss";
 const LiveCategoriesList = () => {
   const [liveCategories, setLiveCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [liveStreamsData, setLiveStreamsData] = useState([]);
-  const {
-    serverUrl,
-    username,
-    password,
-    urlPlayer,
-    setError,
-    error,
-    setLoading,
-    loading,
-  } = useContext(Context);
-
+  const { serverUrl, username, password } = useContext(Context);
+  const liveCategoriesLocal = JSON.parse(
+    sessionStorage.getItem("liveCategories")
+  );
   useEffect(() => {
-    const liveCategoriesLocal = JSON.parse(
-      sessionStorage.getItem("liveCategories"));
     if (liveCategoriesLocal) {
+      if (liveCategoriesLocal[1].category_name == "Favorites") {
+        liveCategoriesLocal[1].count = Object.keys(
+          JSON.parse(localStorage.getItem("favoriteListLive")) || {}
+        ).length;
+      }
       setLiveCategories(liveCategoriesLocal);
     }
+  }, [serverUrl, username, password]);
 
-    fetch(
-      `${serverUrl}/player_api.php?username=${username}&password=${password}&&action=get_live_streams`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        setLiveStreamsData(data);
-      });
-  }, []);
   const handleCategoryClick = async (categoryId) => {
     if (selectedCategory !== categoryId) {
       setSelectedCategory(categoryId);
     }
   };
-  
+
   return (
     <div className="live-categories-container">
       <div className="live-categories-list">
@@ -50,7 +38,10 @@ const LiveCategoriesList = () => {
               onClick={() => handleCategoryClick(category.category_id)}
               className="category-item"
             >
-              {category.category_name}
+              <span className="category-name">{category.category_name}</span>
+              {category.count && (
+                <span className="category-count">{category.count}</span>
+              )}
             </li>
           ))}
         </ul>
@@ -58,11 +49,7 @@ const LiveCategoriesList = () => {
       {selectedCategory && <LiveStreamsList categoryId={selectedCategory} />}
 
       <div className="iptv-player">
-          <Player
-            urlPlayer={urlPlayer}
-            setLoading={setLoading}
-            setError={setError}
-          />
+        <Player />
       </div>
     </div>
   );

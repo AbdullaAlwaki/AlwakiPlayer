@@ -6,15 +6,16 @@
   position: fixed;
   top: 0;
   right: 0;
-  h2 {
-    text-align: center;
-    width: 100%;
-  }
   .player-container {
     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
   .movie-categories-list {
-    width: 50%;
+    width: 100%;
     overflow: auto;
     ms-overflow-style: none;
     scrollbar-width: none;
@@ -27,26 +28,74 @@
       justify-content: center;
       margin: 0;
       padding: 0;
-        .movie-category{
-            width: 100%;
-            height: 25px;
-            padding: 10px;
-            list-style-type: none;
-            text-align: start;
-            font-size: large;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            border-bottom: 2px solid #ff0000;
-            border-right: 2px solid #ff0000;
-            font-size: large;
-            font-weight: bold;
-            cursor: pointer;
-            &:hover {
-                background: #ff0000;
-                color: #ffffff;
-            }
+      .movie-category {
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        list-style-type: none;
+        text-align: start;
+        font-size: large;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-bottom: 2px solid #ff0000;
+        border-right: 2px solid #ff0000;
+        font-size: large;
+        font-weight: bold;
+        cursor: pointer;
+        &:hover {
+          background: #ff0000;
+          color: #ffffff;
         }
+        .movies-list {
+          list-style-type: none;
+          display: flex;
+          flex-wrap: wrap;
+          padding: 0;
+          margin: 0;
+          .movie {
+            width: 23%;
+            height: 100%;
+            padding: 10px;
+            .movie-name {
+              font-size: large;
+              font-weight: bold;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              word-wrap: break-word;
+              text-align: center;
+              margin: 0;
+              padding: 0;
+              width: 100%;
+              height: 50px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+            .movie-icon {
+              width: 100%;
+              height: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              position: relative;
+              top: 0;
+              left: 0;
+              border: 2px solid #ff0000;
+              border-radius: 10px;
+              overflow: hidden;
+              cursor: pointer;
+              z-index: 1;
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

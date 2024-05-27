@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [data, setData] = useState([]);
-  const { setServerUrl, setUsername, setPassword, setName,
+  const { setServerUrl, setUsername, setPassword, setName, loading,
     serverUrl
    } =
     useContext(Context);
@@ -30,6 +30,8 @@ export default function Home() {
 
   return (
     <div className="iptv-container">
+
+      {loading && <div className="loading">Loading...</div>}
       <div>
         <h1>Welcome to IPTV</h1>
         <div>
