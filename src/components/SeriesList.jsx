@@ -10,7 +10,9 @@ const SeriesList = () => {
   const [seriesList, setSeriesList] = useState([]);
   const [selectedSeries, setSelectedSeries] = useState(null);
   const [episodesList, setEpisodesList] = useState([]);
-  const { serverUrl, urlPlayer, fullScreen, username, password, setUrlPlayer } =
+  const { serverUrl, urlPlayer, fullScreen, username, password, setUrlPlayer, 
+    setError
+   } =
     useContext(Context);
 
   useEffect(() => {
@@ -20,6 +22,54 @@ const SeriesList = () => {
     if (seriesCategories) {
       setSeriesCategories(seriesCategories);
       return;
+    } else {
+      const fetchSeriesData = async () => {
+        try {
+          const seriesCategoriesResponse = await fetch(
+            `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`
+          );
+          const seriesCategoriesData = await seriesCategoriesResponse.json();
+          seriesCategoriesData.unshift(
+            { category_id: "0", category_name: "All" },
+            { category_id: "1", category_name: "Favorites" }
+          );
+  
+          const fetchCountForCategory = async (category) => {
+            try {
+              const response = await fetch(
+                `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_series&category_id=${category.category_id}`
+              );
+              const data = await response.json();
+              return data.length;
+            } catch (error) {
+              setError("Error fetching movies count for category:", error);
+            }
+          };
+  
+          const seriesAllStreamsData = await Promise.all(
+            seriesCategoriesData.map(async (category) => {
+              const count = await fetchCountForCategory(category);
+              return { [category.category_id]: count };
+            })
+          );
+  
+          const seriesCategoryWithCount = seriesCategoriesData.map((category) => {
+            const count = seriesAllStreamsData.find(
+              (count) => category.category_id in count
+            )[category.category_id];
+            return { ...category, count: count };
+          });
+          sessionStorage.setItem(
+            "seriesCategories",
+            JSON.stringify(seriesCategoryWithCount)
+          );
+          setSeriesCategories(seriesCategoryWithCount);
+        } catch (error) {
+          setError(error);
+        }
+      };
+      fetchSeriesData();
+
     }
   }, [serverUrl, username, password]);
 

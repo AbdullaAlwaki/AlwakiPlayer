@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Context } from "../Util/createContext";
-import Logo from "../assets/logo.png";
-import star from "../assets/star.png";
-import fillStar from "../assets/fillStar.png";
+import { Context } from "../../Util/createContext";
+import Logo from "../../assets/logo.png";
+import star from "../../assets/star.png";
+import fillStar from "../../assets/fillStar.png";
 
 const LiveStreamsList = ({ categoryId }) => {
   const [liveStreams, setLiveStreams] = useState([]);

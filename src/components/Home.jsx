@@ -1,42 +1,19 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Context } from "../Util/createContext";
-
-import "../Style/Home.scss";
 import { useNavigate } from "react-router-dom";
 
+import "../Style/Home.scss";
+
 export default function Home() {
-  const [data, setData] = useState([]);
-  const { setServerUrl, setUsername, setPassword, setName, loading,
-    serverUrl
-   } =
-    useContext(Context);
-
+  const { name, loading } = useContext(Context);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const localStor = JSON.parse(localStorage.getItem("user"));
-    if (localStor !== null) {
-      const info = JSON.parse(localStorage.getItem("user"));
-      setServerUrl(
-        `${info.server_info.server_protocol}://${info.server_info.url}:${info.server_info.port}`
-      );
-      setUsername(info.user_info.username);
-      setPassword(info.user_info.password);
-      setName(info.name);
-    }
-
-    setData(localStor);
-  }, [serverUrl]);
 
   return (
     <div className="iptv-container">
-
       {loading && <div className="loading">Loading...</div>}
       <div>
         <h1>Welcome to IPTV</h1>
-        <div>
-          <h2>Hi {data.profile}</h2>
-        </div>
+        <div><h2>Hi {name}</h2></div>
 
         <div>
           <h2>Choose your favorite</h2>

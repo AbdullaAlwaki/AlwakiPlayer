@@ -53,7 +53,7 @@ const Player = () => {
           onEnded={() => setLoading(false)}
           onPause={() => setLoading(false)}
           onError={(error) => {
-            setError(error);
+            setError("Error loading video");
             setLoading(false);
           }}
         />
