@@ -5,10 +5,11 @@ import { Context } from "./Util/createContext";
 import Home from "./components/Home";
 import LiveList from "./components/Live/LiveCategoriesList";
 import MoviesList from "./components/Movie/MoviesCategoriesList";
-import SeriesList from "./components/SeriesList";
+import MovieData from "./components/Movie/MovieData";
+import SeriesList from "./components/Series/SeriesCategoriesList";
+import SeriesData from "./components/Series/SeriesData";
 import ListDivision from "./components/ListDivision";
 import Login from "./components/Login";
-import MovieData from "./components/Movie/MovieData";
 
 
 
@@ -44,6 +45,7 @@ function App() {
         <Route path="/movies" element={<MoviesList />} />
         <Route path="/movies/:id" element={<MovieData />} />
         <Route path="/series" element={<SeriesList />} />
+        <Route path="/series/:id" element={<SeriesData />} />
       </Routes>
     </div>
   );

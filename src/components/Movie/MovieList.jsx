@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import Logo from "../../assets/logo.png";
 import star from "../../assets/star.png";
@@ -6,23 +7,12 @@ import fillStar from "../../assets/fillStar.png";
 import "../../Style/MoviesList.scss";
 
 export default function Movie({ moviesList, favoriteList }) {
-  const { serverUrl, username, password, setUrlPlayer, setError } =
-    useContext(Context);
+  const { setError } = useContext(Context);
+  const navigate = useNavigate();
 
   const handleMovieClick = async (movieId) => {
     setError(null);
-    try {
-      const response = await fetch(
-        `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_info&vod_id=${movieId}`
-      );
-      const data = await response.json();
-      const streamUrl =
-        data.movie_data.direct_source ||
-        `${serverUrl}/movie/${username}/${password}/${movieId}.${data.movie_data.container_extension}`;
-      setUrlPlayer(streamUrl);
-    } catch (error) {
-      setError("Error fetching movie details:", error);
-    }
+    navigate(`/movies/${movieId}`);
   };
 
   const inFavorite = (stream) => {
@@ -61,8 +51,6 @@ export default function Movie({ moviesList, favoriteList }) {
             <span className="movie-icon">
               <img
                 src={movie.stream_icon ? `${movie.stream_icon}` : { Logo }}
-                width="20"
-                height="20"
                 alt=""
               />
             </span>
@@ -74,7 +62,7 @@ export default function Movie({ moviesList, favoriteList }) {
               <img
                 src={inFavorite(movie) ? fillStar : star}
                 alt=""
-                width={"20px"}
+                width={"30px"}
               />
             </span>
           </li>
