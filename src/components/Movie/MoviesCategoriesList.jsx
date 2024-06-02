@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Context } from "../../Util/createContext";
 import MovieList from "./MovieList";
 import "../../Style/MoviesList.scss";
@@ -7,79 +7,88 @@ const MoviesCategoriesList = () => {
   const [movieCategories, setMovieCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [moviesList, setMoviesList] = useState([]);
-  const { serverUrl, username, password, setError, setLoading, loading } =
+  const [close, setClose] = useState(false);
+  const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
-
-  let favoriteList =
+  const favoriteList =
     JSON.parse(localStorage.getItem("favoriteListMovie")) || [];
-
   const vodCategories = JSON.parse(sessionStorage.getItem("vodCategories"));
-console.log(favoriteList);
+  const movieDataListRef = useRef(null);
   useEffect(() => {
+    const fetchVodData = async () => {
+      setLoading(true);
+      try {
+        const vodCategoriesResponse = await fetch(
+          `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`
+        );
+        const vodCategoriesData = await vodCategoriesResponse.json();
+        vodCategoriesData.unshift(
+          { category_id: "0", category_name: "All" },
+          { category_id: "1", category_name: "Favorites" }
+        );
+        setMovieCategories(vodCategoriesResponse);
+
+        const fetchCountForCategory = async (category) => {
+          try {
+            const response = await fetch(
+              `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${category.category_id}`
+            );
+            const data = await response.json();
+            return data.length;
+          } catch (error) {
+            setError("Error fetching movies count for category:", error);
+            return 0;
+          }
+        };
+
+        const vodAllStreamsData = await Promise.all(
+          vodCategoriesData.map(async (category) => {
+            const count = await fetchCountForCategory(category);
+            return { [category.category_id]: count };
+          })
+        );
+
+        const vodCategoryWithCount = vodCategoriesData.map((category) => {
+          const count = vodAllStreamsData.find(
+            (count) => category.category_id in count
+          )[category.category_id];
+          return { ...category, count: count };
+        });
+
+        sessionStorage.setItem(
+          "vodCategories",
+          JSON.stringify(vodCategoryWithCount)
+        );
+        setMovieCategories(vodCategoryWithCount);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (vodCategories) {
       if (vodCategories[1].category_name === "Favorites") {
         vodCategories[1].count = favoriteList.length;
       }
       setMovieCategories(vodCategories);
     } else {
-      const fetchVodData = async () => {
-        setLoading(true);
-        try {
-          const vodCategoriesResponse = await fetch(
-            `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`
-          );
-          const vodCategoriesData = await vodCategoriesResponse.json();
-          setMovieCategories(vodCategoriesData);
-          vodCategoriesData.unshift(
-            { category_id: "0", category_name: "All" },
-            { category_id: "1", category_name: "Favorites" }
-          );
-
-          const fetchCountForCategory = async (category) => {
-            try {
-              const response = await fetch(
-                `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${category.category_id}`
-              );
-              const data = await response.json();
-              return data.length;
-            } catch (error) {
-              setError("Error fetching movies count for category:", error);
-            }
-          };
-
-          const vodAllStreamsData = await Promise.all(
-            vodCategoriesData.map(async (category) => {
-              const count = await fetchCountForCategory(category);
-              return { [category.category_id]: count };
-            })
-          );
-
-          const vodCategoryWithCount = vodCategoriesData.map((category) => {
-            const count = vodAllStreamsData.find(
-              (count) => category.category_id in count
-            )[category.category_id];
-            return { ...category, count: count };
-          });
-
-          sessionStorage.setItem(
-            "vodCategories",
-            JSON.stringify(vodCategoryWithCount)
-          );
-          setMovieCategories(vodCategoryWithCount);
-          setLoading(false);
-        } catch (error) {
-          setError(error);
-        }
-      };
       fetchVodData();
     }
-    // eslint-disable-next-line
-  }, [serverUrl, username, password]);
+  }, [
+    serverUrl,
+    username,
+    password,
+    setLoading,
+    setError,
+    favoriteList.length,
+  ]);
 
   const handleCategoryClick = async (categoryId) => {
     if (categoryId === "1") {
       setMoviesList(favoriteList);
       setSelectedCategory(categoryId);
+      setClose(true);
       return;
     }
     setSelectedCategory(categoryId);
@@ -89,11 +98,32 @@ console.log(favoriteList);
       );
       const data = await response.json();
       setMoviesList(data);
+      setClose(true);
     } catch (error) {
       setError("Error fetching movies list:", error);
     }
   };
 
+  const handleClickOutside = (event) => {
+    if (
+      movieDataListRef.current &&
+      !movieDataListRef.current.contains(event.target)
+    ) {
+      setClose(false);
+    }
+  };
+
+  useEffect(() => {
+    if (close) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [close]);
+  
   return (
     <div className="movie-categories-container">
       <div className="movie-categories-list-container">
@@ -109,11 +139,12 @@ console.log(favoriteList);
                 <span className="category-count">{category.count}</span>
               </h1>
 
-              {selectedCategory === category.category_id && (
-                <MovieList
-                  moviesList={moviesList}
-                  favoriteList={favoriteList}
-                />
+              {selectedCategory === category.category_id && close && (
+                <div className="movie_data_list">
+                  <div ref={movieDataListRef}>
+                    <MovieList moviesList={moviesList} />
+                  </div>
+                </div>
               )}
             </li>
           ))}

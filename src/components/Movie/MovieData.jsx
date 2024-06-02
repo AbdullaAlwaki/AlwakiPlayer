@@ -1,20 +1,23 @@
 import React, { useEffect, useContext, useState } from "react";
-import Player from "../../Util/Player";
 import { useParams } from "react-router-dom";
 import { Context } from "../../Util/createContext";
+import Player from "../../Util/Player";
 import logo from "../../assets/Untitled-1.png";
+import star from "../../assets/star.png";
+import fillStar from "../../assets/fillStar.png";
 import "../../Style/MovieData.scss";
 
 export default function MovieData() {
-  const { serverUrl, username, password, setUrlPlayer, setError } =
-    useContext(Context);
   const [movieData, setMovieData] = useState([]);
   const [index, setIndex] = useState(0);
   const [close, setClose] = useState(false);
-  const [translatedText, setTranslatedText] = useState("");
+  const [favoriteList, setFavoriteList] = useState(
+    JSON.parse(localStorage.getItem("favoriteListMovie")) || []
+  );
+  const { serverUrl, username, password, setUrlPlayer, setError } =
+    useContext(Context);
 
   const id = useParams();
-
   const backdropImg = (movieData?.info?.backdrop || "")
     .split("\r\n")
     .slice(0, -1);
@@ -33,26 +36,22 @@ export default function MovieData() {
     fetchData();
 
     const interval = setInterval(() => {
-      setIndex((previndex) => (previndex + 1) % backdropImg.length);
+      setIndex((prevIndex) => (prevIndex + 1) % backdropImg.length);
     }, 5000);
     setUrlPlayer(
       `https://www.youtube.com/embed/${movieData?.info?.youtube_trailer}`
     );
 
-/*     const translateToArabicUseAPI = () => {
-      fetch(
-        `https://api.mymemory.translated.net/get?q=${movieData?.info?.plot}&langpair=en|ar`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setTranslatedText(data.responseData.translatedText);
-        })
-        .catch((err) => console.log(err));
-    };
-    translateToArabicUseAPI(); */
-
     return () => clearInterval(interval);
-  }, [id.id, backdropImg.length, serverUrl, username, password]);
+  }, [
+    id.id,
+    backdropImg.length,
+    serverUrl,
+    username,
+    password,
+    setUrlPlayer,
+    movieData?.info?.youtube_trailer,
+  ]);
 
   const handleMovieClick = async (movieId) => {
     setError("");
@@ -75,7 +74,7 @@ export default function MovieData() {
     setError("");
     setClose(true);
     setUrlPlayer(
-      `https://www.youtube.com/embed/${movieData?.info?.youtube_trailer}`
+      `https://www.youtube.com/watch?v=${movieData?.info?.youtube_trailer}`
     );
   };
 
@@ -84,6 +83,36 @@ export default function MovieData() {
       setClose(false);
     }
   };
+
+  const inFavorite = (movieId) => {
+    return favoriteList.some((item) => item.stream_id === movieId);
+  };
+
+  const handleFavorite = () => {
+    const movieId = movieData?.movie_data?.stream_id;
+    const isIn = favoriteList.some((item) => item.stream_id === movieId);
+
+    let updatedFavoriteList;
+    if (!isIn) {
+      // Include the image URL in the favorite item
+      const favoriteItem = {
+        ...movieData?.movie_data,
+        stream_icon: movieData?.info?.movie_image, // Add image URL here
+      };
+      updatedFavoriteList = [...favoriteList, favoriteItem];
+    } else {
+      updatedFavoriteList = favoriteList.filter(
+        (item) => item.stream_id !== movieId
+      );
+    }
+
+    setFavoriteList(updatedFavoriteList);
+    localStorage.setItem(
+      "favoriteListMovie",
+      JSON.stringify(updatedFavoriteList)
+    );
+  };
+
   return (
     <div className="movieData">
       <div className="carusel_container">
@@ -121,28 +150,46 @@ export default function MovieData() {
             {movieData?.info?.plot}
           </p>
           <div className="movieData_info_text_buttons">
-            <button onClick={() => handleMovieClick(id.id)}>play</button>
-            <button onClick={handleTrailerClick}>Trailer</button>
+            <button onClick={() => handleMovieClick(id.id)}>Play</button>
+            {movieData?.info?.youtube_trailer === "" ? (
+              <button onClick={handleTrailerClick}> Trailer </button>
+            ) : null}
+            <button onClick={handleFavorite} className="favorite_icon">
+              <img
+                src={
+                  inFavorite(movieData?.movie_data?.stream_id) ? fillStar : star
+                }
+                alt=""
+                width={"30px"}
+              />
+            </button>
           </div>
         </div>
-        
+
         <div className="movieData_info_details">
-          <p className="movieData_info_details_release">
-            <span>Release Date</span>
-            {movieData?.info?.releasedate}
-          </p>
-          <p className="movieData_info_details_cast">
-            <span>The Actors</span>
-            {movieData?.info?.cast}
-          </p>
-          <p className="movieData_info_details_director">
-            <span>Director</span>
-            {movieData?.info?.director}
-          </p>
+          <div className="movieData_info_details_release">
+            <h2>Release Date</h2>
+            <p>{movieData?.info?.releasedate}</p>
+          </div>
+          <div className="movieData_info_details_add">
+            <h2>Added</h2>
+            <p>
+              {new Date(movieData?.movie_data?.added * 1000).toDateString()}
+            </p>
+          </div>
+          <div className="movieData_info_details_cast">
+            <h2>The Actors</h2>
+            <p>{movieData?.info?.cast}</p>
+          </div>
+          <div className="movieData_info_details_director">
+            <h2>Director</h2>
+            <p>{movieData?.info?.director}</p>
+          </div>
         </div>
       </div>
 
       <div className="movieData_image">
+        <p>{movieData?.info?.age}</p>
         <img src={movieData?.info?.movie_image} alt="" />
       </div>
       {close ? (

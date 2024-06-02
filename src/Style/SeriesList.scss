@@ -27,6 +27,7 @@
       .series_category{
         width: 100%;
         list-style: none;
+        cursor: pointer;
         .category-name {
           display: flex;
           justify-content: space-between;
@@ -37,10 +38,27 @@
             padding-right: 20px;
           }
         }
+        &:hover{
+          background-color: #ff0000;
+        }
       }
-      .series_list{
-        width: 100%;
-          height: 450px;
+      .series_data_list{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        width: 85%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.8);
+        .series_list{
+          width: 60vw;
+          height: 70vh;
+          background-color: #ffffff;
           overflow-x: auto;
           ms-overflow-style: none;
           scrollbar-width: none;
@@ -96,6 +114,12 @@
             }
           }
       }
+      }
+      
     }
   }
+}
+
+.series_episodes_con{
+    width: 70%;
 }
