@@ -28,7 +28,7 @@ const Player = () => {
     }
   };
   return (
-    <div className="player-container" onClick={fullScreen}>
+    <div className="player-container" onClick={isLive() && fullScreen}>
       {loading && !error && <div className="loading"></div>}
       {error ? (
         <div className="error">

@@ -11,17 +11,19 @@ const SeriesCategoriesList = () => {
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
 
-  const favoriteList = JSON.parse(localStorage.getItem("favoriteListSeries")) || [];
-  
-    const seriesCategoriess = JSON.parse(
-    sessionStorage.getItem("seriesCategories"));
+  const favoriteList =
+    JSON.parse(localStorage.getItem("favoriteListSeries")) || [];
+
+  const seriesCategoriess = JSON.parse(
+    sessionStorage.getItem("seriesCategories")
+  );
 
   const seriesDataListRef = useRef(null);
 
   useEffect(() => {
     const fetchSeriesData = async () => {
-      setLoading(true);
       try {
+        setLoading(true);
         const seriesCategoriesResponse = await fetch(
           `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_series_categories`
         );
@@ -41,7 +43,6 @@ const SeriesCategoriesList = () => {
             return data.length;
           } catch (error) {
             setError("Error fetching movies count for category:", error);
-            return 0;
           }
         };
 

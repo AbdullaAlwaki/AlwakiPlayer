@@ -11,7 +11,8 @@ const MoviesCategoriesList = () => {
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
 
-  const favoriteList = JSON.parse(localStorage.getItem("favoriteListMovie")) || [];
+  const favoriteList =
+    JSON.parse(localStorage.getItem("favoriteListMovie")) || [];
 
   const vodCategories = JSON.parse(sessionStorage.getItem("vodCategories"));
 
@@ -25,12 +26,13 @@ const MoviesCategoriesList = () => {
         const vodCategoriesResponse = await fetch(
           `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_categories`
         );
+
         const vodCategoriesData = await vodCategoriesResponse.json();
         vodCategoriesData.unshift(
           { category_id: "0", category_name: "All" },
           { category_id: "1", category_name: "Favorites" }
         );
-        setMovieCategories(vodCategoriesResponse);
+        setMovieCategories(vodCategoriesData);
 
         const fetchCountForCategory = async (category) => {
           try {
@@ -41,11 +43,8 @@ const MoviesCategoriesList = () => {
             return data.length;
           } catch (error) {
             setError("Error fetching movies count for category:", error);
-            return 0;
           }
         };
-
-        console.log(vodCategoriesData);
 
         const vodAllStreamsData = await Promise.all(
           vodCategoriesData.map(async (category) => {
@@ -68,19 +67,20 @@ const MoviesCategoriesList = () => {
         setMovieCategories(vodCategoryWithCount);
       } catch (error) {
         setError(error);
-      } finally {
+      }finally {
         setLoading(false);
       }
     };
 
-    if (vodCategories) {
-      if (vodCategories[1].category_name === "Favorites") {
-        vodCategories[1].count = favoriteList.length;
+      if (vodCategories) {
+        if (vodCategories[1].category_name === "Favorites") {
+          vodCategories[1].count = favoriteList.length;
+        }
+        setMovieCategories(vodCategories);
+      } else {
+        fetchVodData();
       }
-      setMovieCategories(vodCategories);
-    } else {
-      fetchVodData();
-    }
+    
   }, [
     serverUrl,
     username,
@@ -100,7 +100,7 @@ const MoviesCategoriesList = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [close]);
-  
+
   const handleCategoryClick = async (categoryId) => {
     if (categoryId === "1") {
       setMoviesList(favoriteList);
@@ -130,7 +130,7 @@ const MoviesCategoriesList = () => {
       setClose(false);
     }
   };
-  
+
   return (
     <div className="movie-categories-container">
       <div className="movie-categories-list-container">

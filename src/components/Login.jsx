@@ -16,37 +16,40 @@ export default function Login() {
       setError("Please fill all the fields");
       return;
     }
-    if (url.includes("get.php")) {
-      const urlArr = url.split("/get.php?");
-      const params = urlArr[1].split("&");
-      const obj = {};
-      params.forEach((param) => {
-        const [key, value] = param.split("=");
-        obj[key] = value;
-      });
 
-      setName(name);
-      fetch(
-        `${urlArr[0]}/player_api.php?username=${obj.username}&password=${obj.password}&action=user_info`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.user_info.auth === 1) {
-            localStorage.setItem(
-              "user",
-              JSON.stringify({ ...data, profile: name })
-            );
-            setLoading(false);
-            setError(null);
-            window.location.reload();
-          } else if (data.user_info.auth === 0) {
-            setError("Invalid URL");
-          }
-        })
-        .catch((error) => setError(error));
-    } else {
+    if (!url.includes("get.php")) {
       setError("Invalid URL");
+      return;
     }
+
+    const urlArr = url.split("/get.php?");
+    const params = urlArr[1].split("&");
+    const obj = {};
+    params.forEach((param) => {
+      const [key, value] = param.split("=");
+      obj[key] = value;
+    });
+
+    setName(name);
+    fetch(
+      `${urlArr[0]}/player_api.php?username=${obj.username}&password=${obj.password}&action=user_info`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.user_info.auth === 1) {
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ ...data, profile: name })
+          );
+          setLoading(false);
+          setError(null);
+          window.location.reload();
+        } else {
+          setLoading(false);
+          setError("Invalid URL");
+        }
+      })
+      .catch((error) => setError(error));
   };
 
   const onSubmit = (e) => {
@@ -62,6 +65,7 @@ export default function Login() {
     }
 
     setName(name);
+    setLoading(true);
     fetch(
       `${serverUrl}/player_api.php?username=${username}&password=${password}&action=user_info`
     )
@@ -72,7 +76,8 @@ export default function Login() {
           setError(null);
           setLoading(false);
           window.location.reload();
-        } else if (data.user_info.auth === 0) {
+        } else {
+          setLoading(false);
           setError("Invalid Credentials");
         }
       })
@@ -112,16 +117,19 @@ export default function Login() {
         <input type="text" id="url" placeholder="Your server url" />
         <button>Save Login</button>
       </form>
-      {loading && <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >Loading...</div>}
-      {error && <div>{error}</div>}
+      {loading && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "10%",
+          }}
+        >
+          Loading...
+        </div>
+      )}
+      {error && <div>{error.toString()}</div>}
     </div>
   );
 }
-

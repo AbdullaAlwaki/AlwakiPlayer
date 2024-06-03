@@ -17,14 +17,16 @@ export default function SeriesData() {
   );
   const { serverUrl, username, password, setUrlPlayer, setError } =
     useContext(Context);
+
   const id = useParams();
+
   const backdropImg = (seriesData?.info?.backdrop || "")
     .split("\r\n")
     .slice(0, -1);
   if (backdropImg.length === 0) {
     backdropImg.push(logo);
   }
-console.log(seriesData);
+
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(
@@ -121,10 +123,7 @@ console.log(seriesData);
     });
   };
 
-  const seasons_count = Object.values(seriesData?.episodes)  || [];
-
-
-  console.log(seriesData);
+  const seasons_count = Object.values(seriesData?.episodes || []);
 
   return (
     <div className="seriesData">
@@ -193,7 +192,9 @@ console.log(seriesData);
         ))}
       </div>
 
-      <SeriesEpisodes episodes={seasons_count[0] || ""} />
+      <div className='series_episodes_con'>
+        <SeriesEpisodes episodes={seasons_count[0] || ""} />
+      </div>
 
       <div className="seriesData_info_details">
         <div className="seriesData_info_details_release">

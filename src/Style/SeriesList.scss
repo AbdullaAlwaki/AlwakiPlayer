@@ -60,7 +60,7 @@
           height: 70vh;
           background-color: #ffffff;
           overflow-x: auto;
-          ms-overflow-style: none;
+          -ms-overflow-style: none;
           scrollbar-width: none;
           &::-webkit-scrollbar {
             display: none;
@@ -118,8 +118,4 @@
       
     }
   }
-}
-
-.series_episodes_con{
-    width: 70%;
 }
