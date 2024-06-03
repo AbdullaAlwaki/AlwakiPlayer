@@ -11,12 +11,13 @@ const SeriesCategoriesList = () => {
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
 
-  const favoriteList =
-    JSON.parse(localStorage.getItem("favoriteListSeries")) || [];
-  const seriesCategoriess = JSON.parse(
-    sessionStorage.getItem("seriesCategories")
-  );
+  const favoriteList = JSON.parse(localStorage.getItem("favoriteListSeries")) || [];
+  
+    const seriesCategoriess = JSON.parse(
+    sessionStorage.getItem("seriesCategories"));
+
   const seriesDataListRef = useRef(null);
+
   useEffect(() => {
     const fetchSeriesData = async () => {
       setLoading(true);
@@ -68,6 +69,7 @@ const SeriesCategoriesList = () => {
         setLoading(false);
       }
     };
+
     if (seriesCategoriess) {
       if (seriesCategoriess[1].category_name === "Favorites") {
         seriesCategoriess[1].count = favoriteList.length;
@@ -76,8 +78,6 @@ const SeriesCategoriesList = () => {
     } else {
       fetchSeriesData();
     }
-
-    fetchSeriesData();
   }, [
     serverUrl,
     username,

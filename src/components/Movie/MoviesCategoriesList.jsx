@@ -10,11 +10,15 @@ const MoviesCategoriesList = () => {
   const [close, setClose] = useState(false);
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
-  const favoriteList =
-    JSON.parse(localStorage.getItem("favoriteListMovie")) || [];
+
+  const favoriteList = JSON.parse(localStorage.getItem("favoriteListMovie")) || [];
+
   const vodCategories = JSON.parse(sessionStorage.getItem("vodCategories"));
+
   const movieDataListRef = useRef(null);
+
   useEffect(() => {
+
     const fetchVodData = async () => {
       setLoading(true);
       try {
@@ -40,6 +44,8 @@ const MoviesCategoriesList = () => {
             return 0;
           }
         };
+
+        console.log(vodCategoriesData);
 
         const vodAllStreamsData = await Promise.all(
           vodCategoriesData.map(async (category) => {
@@ -84,6 +90,17 @@ const MoviesCategoriesList = () => {
     favoriteList.length,
   ]);
 
+  useEffect(() => {
+    if (close) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [close]);
+  
   const handleCategoryClick = async (categoryId) => {
     if (categoryId === "1") {
       setMoviesList(favoriteList);
@@ -91,6 +108,7 @@ const MoviesCategoriesList = () => {
       setClose(true);
       return;
     }
+
     setSelectedCategory(categoryId);
     try {
       const response = await fetch(
@@ -112,17 +130,6 @@ const MoviesCategoriesList = () => {
       setClose(false);
     }
   };
-
-  useEffect(() => {
-    if (close) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [close]);
   
   return (
     <div className="movie-categories-container">
