@@ -10,6 +10,7 @@ const SeriesCategoriesList = () => {
   const [close, setClose] = useState(false);
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
+    const seriesDataListRef = useRef(null);
 
   const favoriteList =
     JSON.parse(localStorage.getItem("favoriteListSeries")) || [];
@@ -18,7 +19,6 @@ const SeriesCategoriesList = () => {
     sessionStorage.getItem("seriesCategories")
   );
 
-  const seriesDataListRef = useRef(null);
 
   useEffect(() => {
     const fetchSeriesData = async () => {

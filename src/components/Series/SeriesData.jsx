@@ -1,8 +1,9 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import Player from "../../Util/Player";
 import SeriesEpisodes from "./SeriesEpisodes";
+import Carusel from "../../Util/Carusel";
 import logo from "../../assets/logo.png";
 import star from "../../assets/star.png";
 import fillStar from "../../assets/fillStar.png";
@@ -11,33 +12,46 @@ import "../../Style/SeriesData.scss";
 export default function SeriesData() {
   const [seriesData, setSeriesData] = useState({});
   const [index, setIndex] = useState(0);
+  const [seasonNum, setSeasonNum] = useState(1);
   const [close, setClose] = useState(false);
   const [favoriteList, setFavoriteList] = useState(
     JSON.parse(localStorage.getItem("favoriteListSeries")) || []
   );
   const { serverUrl, username, password, setUrlPlayer, setError } =
     useContext(Context);
-
+  const seriesDataListRef = useRef();
   const id = useParams();
 
-  const backdropImg = (seriesData?.info?.backdrop || "")
-    .split("\r\n")
-    .slice(0, -1);
+  const backdropImg = seriesData?.info?.backdrop_path || [];
   if (backdropImg.length === 0) {
     backdropImg.push(logo);
   }
-
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(
         `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${id.id}`
       );
       const data = await response.json();
-      data?.seasons?.push({
-        cover: data.info.cover,
-        name: `Season ${data.seasons.length + 1}`,
-        episode_count: Object.keys(data.episodes).length,
-      });
+      let episodes = Object.keys(data.episodes || []).length;
+      if (!data.seasons) {
+        data.seasons = [];
+      }
+      let seasons = Object.keys(data.seasons || []).length + 1;
+      if (!episodes !== seasons) {
+        for (let i = seasons; i <= episodes; i++) {
+          data?.seasons?.push({
+            air_date: data.info.releaseDate,
+            cover: data.info.cover,
+            cover_big: data.info.cover_big,
+            episode_count: data.info.episode_count,
+            id: data.info.id,
+            name: `Seasson ${i}`,
+            overview: data.info.plot,
+            season_number: i,
+          });
+        }
+      }
+
       setSeriesData(data);
     };
     fetchData();
@@ -47,55 +61,24 @@ export default function SeriesData() {
         (prevIndex) => (prevIndex + 1) % seriesData?.info?.backdrop_path?.length
       );
     }, 5000);
-
-    setUrlPlayer(
-      `https://www.youtube.com/embed/${seriesData?.info?.youtube_trailer}`
-    );
-
     return () => clearInterval(interval);
-  }, [
-    id,
-    serverUrl,
-    username,
-    password,
-    setUrlPlayer,
-    seriesData?.info?.youtube_trailer,
-  ]);
+  }, [id, serverUrl, username, password, setUrlPlayer]);
 
-  const handelSeriesClick = async (seriesId) => {
+  const handelSeriesClick = () => {
     setError("");
-    try {
-      setClose(true);
-      const response = await fetch(
-        `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`
-      );
-      const data = await response.json();
-      console.log(data);
-      const streamUrl =
-        data.series_data.direct_source ||
-        `${serverUrl}/movie/${username}/${password}/${seriesId}.${data.movie_data.container_extension}`;
-      setUrlPlayer(streamUrl);
-    } catch (error) {
-      setError("Error fetching movie details:", error);
-    }
+    setClose(true);
   };
 
   const handleTrailerClick = () => {
     setError("");
-    setClose(true);
     setUrlPlayer(
       `https://www.youtube.com/embed/${seriesData?.info?.youtube_trailer}`
     );
   };
-
-  const clickOutside = (e) => {
-    if (e.target.classList.contains("seriesData_Player")) {
-      setClose(false);
-    }
-  };
   const inFavorite = () => {
     return favoriteList.some((item) => item === id.id);
   };
+
   const handleFavorite = () => {
     const isIn = favoriteList.some((item) => item === id.id);
 
@@ -112,35 +95,54 @@ export default function SeriesData() {
     );
   };
   const seasonData = (e) => {
-    console.log(e);
+    setSeasonNum(e.season_number);
     setSeriesData({
       ...seriesData,
       info: {
         ...seriesData.info,
         name: e.name,
         cover: e.cover,
+        plot: e.overview || seriesData?.info?.plot,
       },
     });
   };
 
   const seasons_count = Object.values(seriesData?.episodes || []);
 
+  const handleClickOutside = (event) => {
+    if (
+      seriesDataListRef.current &&
+      !seriesDataListRef.current.contains(event.target)
+    ) {
+      setClose(false);
+    }
+  };
+
+  useEffect(() => {
+    if (close) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [close]);
+
+  const clickOutside = (e) => {
+    if (e.target.classList.contains("seriesData_Player")) {
+      setClose(false);
+    }
+  };
+  
+  const clickOutsideEpisods = (e) => {
+    if (e.target.classList.contains("series_episodes_con")) {
+      setClose(false);
+    }
+  };
   return (
     <div className="seriesData">
-      <div className="carusel_container">
-        <div
-          className="carusel"
-          style={{ transform: `translateX(-${index * 100}%)` }}
-        >
-          {backdropImg.map((img, index) => (
-            <div
-              key={index}
-              className="carusel_item"
-              style={{ backgroundImage: `url(${img})` }}
-            ></div>
-          ))}
-        </div>
-      </div>
+      <Carusel index={index} backdropImg={backdropImg} />
 
       <div className="seriesData_info">
         <div className="seriesData_info_text">
@@ -159,7 +161,7 @@ export default function SeriesData() {
             {seriesData?.info?.plot}
           </p>
           <div className="seriesData_info_text_buttons">
-            <button onClick={() => handelSeriesClick(id.id)}>play</button>
+            <button onClick={() => handelSeriesClick()}>Episodes</button>
 
             {seriesData?.info?.youtube_trailer === "" ? null : (
               <button onClick={handleTrailerClick}> Trailer </button>
@@ -186,14 +188,13 @@ export default function SeriesData() {
             <span className="seasons_icon">
               <img src={season.cover ? season.cover : logo} alt="" />
             </span>
-            <span className="seasons_name">{season.name}</span>
-            <p>{seriesData?.episodes[index]?.length}</p>
+
+            <p className="seasons_name">
+              <span>{season.name}</span>
+              {seriesData?.episodes[index + 1]?.length}
+            </p>
           </div>
         ))}
-      </div>
-
-      <div className='series_episodes_con'>
-        <SeriesEpisodes episodes={seasons_count[0] || ""} />
       </div>
 
       <div className="seriesData_info_details">
@@ -214,7 +215,7 @@ export default function SeriesData() {
           <p>{seriesData?.info?.cast}</p>
         </div>
 
-        <div>
+        <div className="movieData_info_details_last_modified">
           <h2>Last Modified</h2>
           <p>
             {new Date(seriesData?.info?.last_modified * 1000).toDateString()}
@@ -226,6 +227,12 @@ export default function SeriesData() {
           <p>{seriesData?.info?.director}</p>
         </div>
       </div>
+
+      {close ? (
+        <div className="series_episodes_con" onClick={clickOutsideEpisods}>
+          <SeriesEpisodes episodes={seasons_count[seasonNum - 1] || ""} />
+        </div>
+      ) : null}
 
       {close ? (
         <div className="seriesData_Player" onClick={clickOutside}>

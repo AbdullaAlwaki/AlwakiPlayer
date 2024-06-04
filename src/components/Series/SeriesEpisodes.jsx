@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Context } from "../../Util/createContext";
+import Player from "../../Util/Player";
 import "../../Style/SeriesData.scss";
 
 export default function SeriesEpisodes({ episodes }) {
   const [episodesdata, setepisodesdata] = useState([]);
+  const [close, setClose] = useState(false);
   const { setError, serverUrl, username, password, setUrlPlayer } =
     useContext(Context);
 
@@ -12,9 +14,16 @@ export default function SeriesEpisodes({ episodes }) {
   }, [episodes]);
 
   const handleSeriesClick = (seriesId, idx) => {
+    setClose(true);
     setError("");
     const streamUrl = `${serverUrl}/series/${username}/${password}/${seriesId}.${episodesdata[idx].container_extension}`;
     setUrlPlayer(streamUrl);
+  };
+
+  const clickOutside = (e) => {
+    if (e.target.classList.contains("seriesData_Player")) {
+      setClose(false);
+    }
   };
 
   return (
@@ -26,29 +35,37 @@ export default function SeriesEpisodes({ episodes }) {
             className="episodes_data"
             onClick={() => handleSeriesClick(episode.id, idx)}
           >
-            <p>
+            <div>
               <h2>Episode</h2>
               {episode.episode_num}
-            </p>
-            <p>
+            </div>
+            <div>
               <h2>Title</h2>
               {episode.title}
-            </p>
-            <p>
+            </div>
+            <div>
               <h2>Duration</h2>
               {episode?.info?.duration}
-            </p>
-            <p>
+            </div>
+            <div>
               <h2>Season</h2>
               {episode.season}
-            </p>
-            <p>
+            </div>
+            <div>
               <h2>Added</h2>
               {new Date(episode.added * 1000).toDateString()}
-            </p>
+            </div>
           </div>
         );
       })}
+
+      {close ? (
+        <div className="seriesData_Player" onClick={clickOutside}>
+          <div className="seriesData_Player_overlay">
+            <Player />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

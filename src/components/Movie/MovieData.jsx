@@ -2,6 +2,7 @@ import React, { useEffect, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import Player from "../../Util/Player";
+import Carusel from "../../Util/Carusel";
 import logo from "../../assets/Untitled-1.png";
 import star from "../../assets/star.png";
 import fillStar from "../../assets/fillStar.png";
@@ -115,21 +116,10 @@ export default function MovieData() {
 
   return (
     <div className="movieData">
-      <div className="carusel_container">
-        <div
-          className="carusel"
-          style={{ transform: `translateX(-${index * 100}%)` }}
-        >
-          {backdropImg.map((img, index) => (
-            <div
-              key={index}
-              className="carusel_item"
-              style={{ backgroundImage: `url(${img})` }}
-            ></div>
-          ))}
-        </div>
-      </div>
-
+      <Carusel
+      index={index}
+      backdropImg={backdropImg}
+      />
       <div className="movieData_info">
         <div className="movieData_info_text">
           <p className="movieData_info_text_title">
