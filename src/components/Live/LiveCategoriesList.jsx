@@ -1,84 +1,70 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../../Util/createContext";
-import Player from "../../Util/Player";
+import { fetchData } from "../../Util/helperfunction";
+import ReactPlayer from "react-player";
 import LiveStreamsList from "./LiveStreamsList";
 import "../../Style/live-categories-list.scss";
 
 const LiveCategoriesList = () => {
   const [liveCategories, setLiveCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const { serverUrl, username, password, setError, setLoading, loading } = useContext(Context);
+  const [url, setUrel] = useState(null);
+  const {
+    serverUrl,
+    username,
+    password,
+    setError,
+    setLoading,
+    loading,
+    error,
+  } = useContext(Context);
 
   const liveCategoriesLocal = JSON.parse(
     sessionStorage.getItem("liveCategories")
   );
+
+  const favoriteList =
+    JSON.parse(localStorage.getItem("favoriteListLive")) || [];
+
   useEffect(() => {
     if (liveCategoriesLocal) {
       if (liveCategoriesLocal[1].category_name === "Favorites") {
-        liveCategoriesLocal[1].count = Object.keys(
-          JSON.parse(localStorage.getItem("favoriteListLive")) || {}
-        ).length;
+        liveCategoriesLocal[1].count = favoriteList.length;
       }
       setLiveCategories(liveCategoriesLocal);
     } else {
-      const fetchLiveData = async () => {
-        setLoading(true);
-        try {
-          const liveCategoriesResponse = await fetch(
-            `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_live_categories`
-          );
-          const liveCategoriesData = await liveCategoriesResponse.json();
-          setLiveCategories(liveCategoriesData);
-          liveCategoriesData.unshift(
-            { category_id: "0", category_name: "All" },
-            { category_id: "1", category_name: "Favorites" }
-          );
-  
-          const fetchCountForCategory = async (category) => {
-            try {
-              const response = await fetch(
-                `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${category.category_id}`
-              );
-              const data = await response.json();
-              return data.length;
-            } catch (error) {
-              setError("Error fetching movies count for category:", error);
-            }
-          };
-  
-          const liveAllStreamsData = await Promise.all(
-            liveCategoriesData.map(async (category) => {
-              const count = await fetchCountForCategory(category);
-              return { [category.category_id]: count };
-            })
-          );
-  
-          const liveCategoryWithCount = liveCategoriesData.map((category) => {
-            const count = liveAllStreamsData.find(
-              (count) => category.category_id in count
-            )[category.category_id];
-            return { ...category, count: count };
-          });
-  
-          sessionStorage.setItem(
-            "liveCategories",
-            JSON.stringify(liveCategoryWithCount)
-          );
-          setLiveCategories(liveCategoryWithCount);
-          setLoading(false);
-
-        } catch (error) {
-          setError(error);
-        }
-      };
-
-      fetchLiveData();
+      fetchData(
+        setLoading,
+        serverUrl,
+        username,
+        password,
+        setLiveCategories,
+        setError,
+        "live",
+        "live_streams"
+      );
     }
     // eslint-disable-next-line
   }, [serverUrl, username, password]);
+
   const handleCategoryClick = async (categoryId) => {
     if (selectedCategory !== categoryId) {
       setSelectedCategory(categoryId);
+    }
+  };
+
+  const fullScreen = () => {
+    const elem = document.querySelector(".iptv-player");
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
     }
   };
 
@@ -100,10 +86,42 @@ const LiveCategoriesList = () => {
           ))}
         </ul>
       </div>
-      {selectedCategory && <LiveStreamsList categoryId={selectedCategory} />}
+      {selectedCategory && (
+        <LiveStreamsList
+          categoryId={selectedCategory}
+          favoriteList={favoriteList}
+          setUrel={setUrel}
+        />
+      )}
 
-      <div className="iptv-player">
-        <Player />
+      <div className="iptv-player" onClick={fullScreen}>
+        {loading && !error && <div className="loading"></div>}
+        {error ? (
+          <div>{error}</div>
+        ) : (
+          <ReactPlayer
+            url={url}
+            playing
+            width={"100%"}
+            height={"100%"}
+            onBufferEnd={() => {
+              setLoading(false);
+              setError(null);
+            }}
+            onReady={() => {
+              setError(null);
+              setLoading(true);
+            }}
+            onBuffer={() => setLoading(true)}
+            onEnded={() => setLoading(false)}
+            onPause={() => setLoading(false)}
+            onError={(error) => {
+              setError(`Error loading video: ${error}`);
+              console.log("error");
+              setLoading(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );

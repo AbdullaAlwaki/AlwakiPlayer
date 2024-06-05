@@ -1,12 +1,13 @@
 import React, { useEffect, useContext, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Context } from "../../Util/createContext";
-import Player from "../../Util/Player";
 import SeriesEpisodes from "./SeriesEpisodes";
+import SeriesDataSeasons from "./SeriesDataSeasons";
 import Carusel from "../../Util/Carusel";
-import logo from "../../assets/logo.png";
-import star from "../../assets/star.png";
-import fillStar from "../../assets/fillStar.png";
+import SeriesDataInfo from "./Series_dataInfo";
+import SeriesDataInfoDetails from "./SeriesDataInfoDetails";
+import logo from "../../assets/Untitled-1.png";
+
 import "../../Style/SeriesData.scss";
 
 export default function SeriesData() {
@@ -14,18 +15,12 @@ export default function SeriesData() {
   const [index, setIndex] = useState(0);
   const [seasonNum, setSeasonNum] = useState(1);
   const [close, setClose] = useState(false);
-  const [favoriteList, setFavoriteList] = useState(
-    JSON.parse(localStorage.getItem("favoriteListSeries")) || []
-  );
-  const { serverUrl, username, password, setUrlPlayer, setError } =
+
+  const { serverUrl, username, password, setUrlPlayer, setError, setClosePlayer } =
     useContext(Context);
   const seriesDataListRef = useRef();
   const id = useParams();
-
   const backdropImg = seriesData?.info?.backdrop_path || [];
-  if (backdropImg.length === 0) {
-    backdropImg.push(logo);
-  }
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(
@@ -51,64 +46,24 @@ export default function SeriesData() {
           });
         }
       }
-
       setSeriesData(data);
     };
     fetchData();
-
+    
     const interval = setInterval(() => {
       setIndex(
         (prevIndex) => (prevIndex + 1) % seriesData?.info?.backdrop_path?.length
       );
     }, 5000);
     return () => clearInterval(interval);
-  }, [id, serverUrl, username, password, setUrlPlayer]);
-
-  const handelSeriesClick = () => {
-    setError("");
-    setClose(true);
-  };
-
-  const handleTrailerClick = () => {
-    setError("");
-    setUrlPlayer(
-      `https://www.youtube.com/embed/${seriesData?.info?.youtube_trailer}`
-    );
-  };
-  const inFavorite = () => {
-    return favoriteList.some((item) => item === id.id);
-  };
-
-  const handleFavorite = () => {
-    const isIn = favoriteList.some((item) => item === id.id);
-
-    let updatedFavoriteList;
-    if (!isIn) {
-      updatedFavoriteList = [...favoriteList, id.id];
-    } else {
-      updatedFavoriteList = favoriteList.filter((item) => item !== id.id);
-    }
-    setFavoriteList(updatedFavoriteList);
-    localStorage.setItem(
-      "favoriteListSeries",
-      JSON.stringify(updatedFavoriteList)
-    );
-  };
-  const seasonData = (e) => {
-    setSeasonNum(e.season_number);
-    setSeriesData({
-      ...seriesData,
-      info: {
-        ...seriesData.info,
-        name: e.name,
-        cover: e.cover,
-        plot: e.overview || seriesData?.info?.plot,
-      },
-    });
-  };
-
+  }, [id, serverUrl, username, password, setUrlPlayer, setIndex,seriesData?.info?.backdrop_path?.length]);
+  
+  if (backdropImg.length === 0) {
+    backdropImg.push(logo);
+  }
+  
   const seasons_count = Object.values(seriesData?.episodes || []);
-
+  
   const handleClickOutside = (event) => {
     if (
       seriesDataListRef.current &&
@@ -117,7 +72,7 @@ export default function SeriesData() {
       setClose(false);
     }
   };
-
+  
   useEffect(() => {
     if (close) {
       document.addEventListener("mousedown", handleClickOutside);
@@ -129,12 +84,6 @@ export default function SeriesData() {
     };
   }, [close]);
 
-  const clickOutside = (e) => {
-    if (e.target.classList.contains("seriesData_Player")) {
-      setClose(false);
-    }
-  };
-  
   const clickOutsideEpisods = (e) => {
     if (e.target.classList.contains("series_episodes_con")) {
       setClose(false);
@@ -144,101 +93,27 @@ export default function SeriesData() {
     <div className="seriesData">
       <Carusel index={index} backdropImg={backdropImg} />
 
-      <div className="seriesData_info">
-        <div className="seriesData_info_text">
-          <p className="seriesData_info_text_title">{seriesData?.info?.name}</p>
-          <div className="seriesData_info_text_info">
-            <p className="seriesData_info_text_genre">
-              {seriesData?.info?.genre}
-            </p>
-            <p className="seriesData_info_text_rating">
-              {seriesData?.info?.rating}
-              <span>&#9733;</span>
-            </p>
-            <p>{seasons_count?.length || 1}</p>
-          </div>
-          <p className="seriesData_info_text_description">
-            {seriesData?.info?.plot}
-          </p>
-          <div className="seriesData_info_text_buttons">
-            <button onClick={() => handelSeriesClick()}>Episodes</button>
+      <SeriesDataInfo
+        seriesData={seriesData}
+        seasons_count={seasons_count}
+        id={id}
+        setClose={setClose}
+        setError={setError}
+        setUrlPlayer={setUrlPlayer}
+        setClosePlayer={setClosePlayer}
+      />
 
-            {seriesData?.info?.youtube_trailer === "" ? null : (
-              <button onClick={handleTrailerClick}> Trailer </button>
-            )}
-            <button onClick={handleFavorite} className="favorite_icon">
-              <img src={inFavorite() ? fillStar : star} alt="" width={"30px"} />
-            </button>
-          </div>
-        </div>
+      <SeriesDataSeasons
+        seriesData={seriesData}
+        setSeasonNum={setSeasonNum}
+        setSeriesData={setSeriesData}
+      />
 
-        <div className="seriesData_image">
-          <p>{seriesData?.info?.age}</p>
-          <img src={seriesData?.info?.cover} alt="cover" />
-        </div>
-      </div>
-
-      <div className="seriesData_seasons">
-        {seriesData?.seasons?.map((season, index) => (
-          <div
-            className="seasons"
-            key={index}
-            onClick={() => seasonData(season)}
-          >
-            <span className="seasons_icon">
-              <img src={season.cover ? season.cover : logo} alt="" />
-            </span>
-
-            <p className="seasons_name">
-              <span>{season.name}</span>
-              {seriesData?.episodes[index + 1]?.length}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="seriesData_info_details">
-        <div className="seriesData_info_details_release">
-          <h2>Release Date</h2>
-          <p>{seriesData?.info?.releaseDate}</p>
-        </div>
-
-        <div className="movieData_info_details_add">
-          <h2>Added</h2>
-          <p>
-            {new Date(seriesData?.info?.last_modified * 1000).toDateString()}
-          </p>
-        </div>
-
-        <div className="seriesData_info_details_cast">
-          <h2>The Actors</h2>
-          <p>{seriesData?.info?.cast}</p>
-        </div>
-
-        <div className="movieData_info_details_last_modified">
-          <h2>Last Modified</h2>
-          <p>
-            {new Date(seriesData?.info?.last_modified * 1000).toDateString()}
-          </p>
-        </div>
-
-        <div className="seriesData_info_details_director">
-          <h2>Director</h2>
-          <p>{seriesData?.info?.director}</p>
-        </div>
-      </div>
+      <SeriesDataInfoDetails seriesData={seriesData} />
 
       {close ? (
         <div className="series_episodes_con" onClick={clickOutsideEpisods}>
           <SeriesEpisodes episodes={seasons_count[seasonNum - 1] || ""} />
-        </div>
-      ) : null}
-
-      {close ? (
-        <div className="seriesData_Player" onClick={clickOutside}>
-          <div className="seriesData_Player_overlay">
-            <Player />
-          </div>
         </div>
       ) : null}
     </div>

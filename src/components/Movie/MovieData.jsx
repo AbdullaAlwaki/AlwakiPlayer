@@ -1,7 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Context } from "../../Util/createContext";
-import Player from "../../Util/Player";
 import Carusel from "../../Util/Carusel";
 import logo from "../../assets/Untitled-1.png";
 import star from "../../assets/star.png";
@@ -11,14 +10,14 @@ import "../../Style/MovieData.scss";
 export default function MovieData() {
   const [movieData, setMovieData] = useState([]);
   const [index, setIndex] = useState(0);
-  const [close, setClose] = useState(false);
   const [favoriteList, setFavoriteList] = useState(
     JSON.parse(localStorage.getItem("favoriteListMovie")) || []
   );
-  const { serverUrl, username, password, setUrlPlayer, setError } =
+  const { serverUrl, username, password, setUrlPlayer, setError, setClosePlayer } =
     useContext(Context);
 
   const id = useParams();
+
   const backdropImg = (movieData?.info?.backdrop || "")
     .split("\r\n")
     .slice(0, -1);
@@ -39,10 +38,6 @@ export default function MovieData() {
     const interval = setInterval(() => {
       setIndex((prevIndex) => (prevIndex + 1) % backdropImg.length);
     }, 5000);
-    setUrlPlayer(
-      `https://www.youtube.com/embed/${movieData?.info?.youtube_trailer}`
-    );
-
     return () => clearInterval(interval);
   }, [
     id.id,
@@ -55,9 +50,9 @@ export default function MovieData() {
   ]);
 
   const handleMovieClick = async (movieId) => {
+    setClosePlayer(true)
     setError("");
     try {
-      setClose(true);
       const response = await fetch(
         `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_info&vod_id=${movieId}`
       );
@@ -73,16 +68,10 @@ export default function MovieData() {
 
   const handleTrailerClick = () => {
     setError("");
-    setClose(true);
+    setClosePlayer(true)
     setUrlPlayer(
       `https://www.youtube.com/watch?v=${movieData?.info?.youtube_trailer}`
     );
-  };
-
-  const clickOutside = (e) => {
-    if (e.target.classList.contains("movieData_Player")) {
-      setClose(false);
-    }
   };
 
   const inFavorite = (movieId) => {
@@ -116,10 +105,7 @@ export default function MovieData() {
 
   return (
     <div className="movieData">
-      <Carusel
-      index={index}
-      backdropImg={backdropImg}
-      />
+      <Carusel index={index} backdropImg={backdropImg} />
       <div className="movieData_info">
         <div className="movieData_info_text">
           <p className="movieData_info_text_title">
@@ -141,9 +127,9 @@ export default function MovieData() {
           </p>
           <div className="movieData_info_text_buttons">
             <button onClick={() => handleMovieClick(id.id)}>Play</button>
-            {movieData?.info?.youtube_trailer === "" ? (
+            {movieData?.info?.youtube_trailer === "" ? null : (
               <button onClick={handleTrailerClick}> Trailer </button>
-            ) : null}
+            )}
             <button onClick={handleFavorite} className="favorite_icon">
               <img
                 src={
@@ -182,13 +168,10 @@ export default function MovieData() {
         <p>{movieData?.info?.age}</p>
         <img src={movieData?.info?.movie_image} alt="" />
       </div>
-      {close ? (
-        <div className="movieData_Player" onClick={clickOutside}>
-          <div className="movieData_Player_overlay">
-            <Player />
-          </div>
-        </div>
-      ) : null}
+
+{/*       {close ? (
+        <Player outside={"movieData_Player"}  setClose={setClose} close={close} reff={movieDataListRef} />
+      ) : null} */}
     </div>
   );
 }

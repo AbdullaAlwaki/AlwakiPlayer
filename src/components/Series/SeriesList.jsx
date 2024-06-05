@@ -11,16 +11,6 @@ export default function Series({ seriesList }) {
   const handleSeriesClick = async (seriesId) => {
     setError(null);
     navigate(`/series/${seriesId}`);
-    /* setSelectedSeries(seriesId);
-    const url = `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_series_info&series_id=${seriesId}`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      setEpisodesList(data.episodes);
-      setSelectedSeries(seriesId);
-    } catch (error) {
-      console.error("Error fetching series episodes:", error);
-    } */
   };
 
   return (

@@ -10,6 +10,7 @@ import SeriesList from "./components/Series/SeriesCategoriesList";
 import SeriesData from "./components/Series/SeriesData";
 import ListDivision from "./components/ListDivision";
 import Login from "./components/Login";
+import Player from "./Util/Player";
 
 
 
@@ -29,7 +30,7 @@ function App() {
       setPassword(info.user_info.password);
       setName(info.profile);
     }
-  }, [serverUrl]);
+  }, [setServerUrl, setUsername, setPassword, setName, serverUrl]);
 
   if (!localStorage.getItem("user")) {
     return <Login />;
@@ -39,6 +40,7 @@ function App() {
   return (
     <div className="App">
       <ListDivision />
+      <Player/>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/live" element={<LiveList />} />

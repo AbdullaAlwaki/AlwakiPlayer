@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Context } from "../../Util/createContext";
-import Player from "../../Util/Player";
 import "../../Style/SeriesData.scss";
 
 export default function SeriesEpisodes({ episodes }) {
   const [episodesdata, setepisodesdata] = useState([]);
-  const [close, setClose] = useState(false);
-  const { setError, serverUrl, username, password, setUrlPlayer } =
+  const { setError, serverUrl, username, password, setUrlPlayer, setClosePlayer } =
     useContext(Context);
 
   useEffect(() => {
@@ -14,16 +12,10 @@ export default function SeriesEpisodes({ episodes }) {
   }, [episodes]);
 
   const handleSeriesClick = (seriesId, idx) => {
-    setClose(true);
+    setClosePlayer(true)
     setError("");
     const streamUrl = `${serverUrl}/series/${username}/${password}/${seriesId}.${episodesdata[idx].container_extension}`;
     setUrlPlayer(streamUrl);
-  };
-
-  const clickOutside = (e) => {
-    if (e.target.classList.contains("seriesData_Player")) {
-      setClose(false);
-    }
   };
 
   return (
@@ -58,14 +50,6 @@ export default function SeriesEpisodes({ episodes }) {
           </div>
         );
       })}
-
-      {close ? (
-        <div className="seriesData_Player" onClick={clickOutside}>
-          <div className="seriesData_Player_overlay">
-            <Player />
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

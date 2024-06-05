@@ -10,6 +10,8 @@ function FetchData({ children }) {
   const [error, setError] = useState("");
   const [urlPlayer, setUrlPlayer] = useState("");
   const [loading, setLoading] = useState(false);
+  const [closePlayer, setClosePlayer] = useState(false);
+  const [played, setPlayed] = useState(0)
   return (
     <Context.Provider
       value={{
@@ -27,6 +29,10 @@ function FetchData({ children }) {
         setUrlPlayer,
         loading,
         setLoading,
+        setClosePlayer,
+        closePlayer,
+        played,
+        setPlayed
       }}
     >
       {children}
