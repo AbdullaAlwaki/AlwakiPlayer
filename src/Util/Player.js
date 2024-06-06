@@ -15,31 +15,29 @@ const Player = () => {
   } = useContext(Context);
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
   const [playedSeconds, setPlayedSeconds] = useState(0);
+  const [initialSeekDone, setInitialSeekDone] = useState(false);
   const playRef = useRef(null);
-
   const playerRef = useRef();
 
   useEffect(() => {
     if (urlPlayer) {
       const currentEpisode = urlPlayer?.split("/")[6].split(".")[0];
       setCurrentEpisodeIndex(currentEpisode);
-      const savedPlayedSeconds = localStorage.getItem(
-        `${currentEpisode}`
-      );
-      if (savedPlayedSeconds) {
+      const savedPlayedSeconds = localStorage.getItem(`${currentEpisode}`);
+      if (savedPlayedSeconds && !initialSeekDone) {
         setPlayedSeconds(parseFloat(savedPlayedSeconds));
       } else {
         setPlayedSeconds(0);
       }
     }
-  }, [urlPlayer]);
+  }, [urlPlayer, initialSeekDone]);
 
   const handleProgress = (state) => {
+    if (!initialSeekDone) {
+      return;
+    }
     setPlayedSeconds(state.playedSeconds);
-    localStorage.setItem(
-      `${currentEpisodeIndex}`,
-      state.playedSeconds
-    );
+    localStorage.setItem(`${currentEpisodeIndex}`, state.playedSeconds);
   };
 
   useEffect(() => {
@@ -56,9 +54,19 @@ const Player = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-    // eslint-disable-next-line
   }, [closePlayer, setClosePlayer]);
-console.log(playedSeconds);
+
+  const handleVideoReady = () => {
+    if (!initialSeekDone && playRef.current) {
+      const savedPlayedSeconds = localStorage.getItem(`${currentEpisodeIndex}`);
+      if (savedPlayedSeconds) {
+        playRef.current.seekTo(parseFloat(savedPlayedSeconds));
+      }
+      setInitialSeekDone(true);
+      setLoading(true);
+    }
+  };
+
   return (
     <>
       {closePlayer ? (
@@ -75,27 +83,21 @@ console.log(playedSeconds);
                   ref={playRef}
                   url={urlPlayer}
                   onProgress={handleProgress}
+                  onReady={handleVideoReady}
                   playing
                   played={playedSeconds}
-                  
-                  width={"100%"}
-                  height={"100%"}
-                  controls
+                  onPause={() => setLoading(false)}
                   onBufferEnd={() => {
                     setLoading(false);
                     setError(null);
                   }}
-                  onReady={() => {
-                    setError(null);
-                    setLoading(true);
-                  }}
-                  onBuffer={() => setLoading(true)}
-                  onEnded={() => setLoading(false)}
-                  onPause={() => setLoading(false)}
                   onError={(error) => {
                     setError(`Error loading video: ${error}`);
                     setLoading(false);
                   }}
+                  width={"100%"}
+                  height={"100%"}
+                  controls
                 />
               </div>
             </div>
