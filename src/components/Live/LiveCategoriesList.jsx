@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Context } from "../../Util/createContext";
 import { fetchData } from "../../Util/helperfunction";
 import ReactPlayer from "react-player";
@@ -76,6 +76,7 @@ const LiveCategoriesList = () => {
     password,
     liveCategories.length,
     favoriteList.length,
+    focusedIndex,
   ]);
 
   const handleCategoryClick = async (categoryId) => {
@@ -108,6 +109,8 @@ const LiveCategoriesList = () => {
               key={category.category_id}
               onClick={() => handleCategoryClick(category.category_id)}
               className={`category-item ${focusedIndex === index ? "focused" : ""}`}
+              tabIndex="0"
+              onFocus={() => setFocusedIndex(index)}
             >
               <span className="category-name">{category.category_name}</span>
               {category.count && (
@@ -117,15 +120,25 @@ const LiveCategoriesList = () => {
           ))}
         </ul>
       </div>
-      {selectedCategory && (
+      {selectedCategory !== null && (
         <LiveStreamsList
-          categoryId={selectedCategory}
+          categoryId={liveCategories[selectedCategory]?.category_id}
           favoriteList={favoriteList}
           setUrel={setUrel}
         />
       )}
 
-      <div className="iptv-player" onClick={fullScreen}>
+      <div
+        className="iptv-player"
+        onClick={fullScreen}
+        tabIndex="0"
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            fullScreen();
+          }
+        }}
+      >
         {loading && !error && <div className="loading"></div>}
         {error ? (
           <div>{error}</div>

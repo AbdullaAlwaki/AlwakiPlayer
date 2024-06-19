@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import IconTv from '../assets/icon-tv.svg';
 import IconMovie from '../assets/icon-movie.svg';
 import IconSeries from '../assets/icon-series.svg';
+import IconLogout from '../assets/icon-logout.svg';
 import Logo from '../assets/logo.png';
 import '../Style/ListDivision.scss';
 
@@ -54,9 +55,9 @@ const ListDivision = () => {
     };
 
     const handleEnter = () => {
-      if (selectedIndex === 0) {
+/*       if (selectedIndex === 0) {
         navigate('/');
-      } else if (selectedIndex === 1) {
+      } else */ if (selectedIndex === 1) {
         navigate('/live');
       } else if (selectedIndex === 2) {
         navigate('/movies');
@@ -76,9 +77,9 @@ const ListDivision = () => {
 
   const handleClick = (index) => {
     setSelectedIndex(index);
-    if (index === 0) {
+/*     if (index === 0) {
       navigate('/');
-    } else if (index === 1) {
+    } else  */if (index === 1) {
       navigate('/live');
     } else if (index === 2) {
       navigate('/movies');
@@ -97,12 +98,12 @@ const ListDivision = () => {
 
   return (
     <div className="list-division">
-      <div
+{/*       <div
         className={`division ${selectedIndex === 0 && isFocused ? 'selected' : ''}`}
         onClick={() => handleClick(0)}
       >
         <img src={Logo} alt="Logo" />
-      </div>
+      </div> */}
       <div
         className={`division ${selectedIndex === 1 && isFocused ? 'selected' : ''}`}
         onClick={() => handleClick(1)}
@@ -128,6 +129,8 @@ const ListDivision = () => {
         className={`division ${selectedIndex === 4 && isFocused ? 'selected' : ''}`}
         onClick={() => handleClick(4)}
       >
+        <img src={IconLogout} alt="Series Icon" />
+
         <span>Logout</span>
       </div>
     </div>
