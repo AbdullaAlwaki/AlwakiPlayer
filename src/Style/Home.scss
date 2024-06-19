@@ -11,8 +11,9 @@
       border: 2px solid #000;
       border-radius: 10px;
       margin-bottom: 20px;
-      background-image: url('https://th.bing.com/th/id/OIG3.Gy7PJPRD.89Z19QtcHEO?pid=ImgGn');
-      background-size: cover;
+      background-image: url('../assets/logo.png');
+      background-size: contain;
+      background-repeat: no-repeat;
       cursor: pointer;
     }
     .iptv_container_img_series{

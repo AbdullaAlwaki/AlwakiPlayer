@@ -1,5 +1,5 @@
 .live-categories-container {
-  width: 85%;
+  width: 90%;
   height: 100%;
   display: flex;
   position: absolute;
@@ -47,6 +47,7 @@
           background: #ff0000;
           color: #ffffff;
         }
+        
         .category-name {
           display: flex;
           align-items: center;
@@ -103,4 +104,9 @@
       }
     }
   }
+}
+.category-item.focused {
+  background-color: #ddd;
+  border-color: #000;
+  /* يمكنك إضافة أي تأثيرات مرئية إضافية هنا */
 }

@@ -9,6 +9,8 @@ const LiveCategoriesList = () => {
   const [liveCategories, setLiveCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [url, setUrel] = useState(null);
+  const [focusedIndex, setFocusedIndex] = useState(0); // New state for keyboard navigation
+
   const {
     serverUrl,
     username,
@@ -44,8 +46,37 @@ const LiveCategoriesList = () => {
         "live_streams"
       );
     }
-    // eslint-disable-next-line
-  }, [serverUrl, username, password]);
+
+    const handleKeyDown = (event) => {
+      switch (event.key) {
+        case "ArrowDown":
+          setFocusedIndex((prevIndex) =>
+            Math.min(prevIndex + 1, liveCategories.length - 1)
+          );
+          break;
+        case "ArrowUp":
+          setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+          break;
+        case "Enter":
+          handleCategoryClick(focusedIndex);
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [
+    serverUrl,
+    username,
+    password,
+    liveCategories.length,
+    favoriteList.length,
+  ]);
 
   const handleCategoryClick = async (categoryId) => {
     if (selectedCategory !== categoryId) {
@@ -72,11 +103,11 @@ const LiveCategoriesList = () => {
     <div className="live-categories-container">
       <div className="live-categories-list">
         <ul className="live-categories">
-          {liveCategories?.map((category) => (
+          {liveCategories?.map((category, index) => (
             <li
               key={category.category_id}
               onClick={() => handleCategoryClick(category.category_id)}
-              className="category-item"
+              className={`category-item ${focusedIndex === index ? "focused" : ""}`}
             >
               <span className="category-name">{category.category_name}</span>
               {category.count && (

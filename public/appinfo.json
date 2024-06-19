@@ -1,0 +1,35 @@
+{
+    "id": "com.mycompany.app.appname",
+    "title": "Alwaki",
+    "main": "index.html",
+    "icon": "logo192.png",
+    "largeIcon": "logo192.png",
+    "type": "web",
+    "vendor": "My Company",
+    "version": "1.0.0",
+    "appDescription": "This's an app tagline",
+    "resolution": "1920x1080",
+    "bgColor": "red",
+    "iconColor": "red",
+    "bgImage": "logo512.png",
+    "closeOnRotation": false,
+    "disableBackHistoryAPI": false,
+    "handlesRelaunch": false,
+    "splashBackground": "logo512.png",
+    "splashColor": "#111111",
+    "splashFitModeOnPortrait": "width",
+    "requiredMemory": 20,
+    "supportPortraitMode": true,
+    "supportTouchMode": "virtual",
+    "transparent": false,
+    "virtualTouch": {
+        "verticalThreshold": 20,
+        "horizontalThreshold": 50,
+        "positionEventOnPress": true,
+        "shortTouchThreshold": 30
+    },
+    "accessibility": {
+      "supportsAudioGuidance": true
+    },
+    "useGalleryMode": true
+}

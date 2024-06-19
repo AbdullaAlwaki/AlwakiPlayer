@@ -23,7 +23,8 @@ export default function Home() {
       <div
         className="iptv_container_img_live"
         onClick={() => navigate("/live")}
-      ></div>
+      >
+      </div>
 
       <div
         className="iptv_container_img_series"
