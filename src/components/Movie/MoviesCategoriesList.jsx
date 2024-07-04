@@ -70,6 +70,7 @@ const MoviesCategoriesList = () => {
       const response = await fetch(
         `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`
       );
+      console.log(`${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
       const data = await response.json();
       setMoviesList(data);
       setClose(true);

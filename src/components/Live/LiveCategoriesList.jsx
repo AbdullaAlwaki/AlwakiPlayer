@@ -1,15 +1,18 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import { fetchData } from "../../Util/helperfunction";
 import ReactPlayer from "react-player";
 import LiveStreamsList from "./LiveStreamsList";
+import ListDivision from "../ListDivision";
 import "../../Style/live-categories-list.scss";
 
 const LiveCategoriesList = () => {
   const [liveCategories, setLiveCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [url, setUrel] = useState(null);
-  const [focusedIndex, setFocusedIndex] = useState(0); // New state for keyboard navigation
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const navigate = useNavigate();
 
   const {
     serverUrl,
@@ -60,7 +63,9 @@ const LiveCategoriesList = () => {
         case "Enter":
           handleCategoryClick(focusedIndex);
           break;
-        default:
+          case 'Backspace' || 8:
+            navigate(-1)
+break;  default:
           break;
       }
     };
@@ -70,6 +75,7 @@ const LiveCategoriesList = () => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
+    // eslint-disable-next-line
   }, [
     serverUrl,
     username,
@@ -101,6 +107,8 @@ const LiveCategoriesList = () => {
   };
 
   return (
+    <>
+    <ListDivision />
     <div className="live-categories-container">
       <div className="live-categories-list">
         <ul className="live-categories">
@@ -141,7 +149,7 @@ const LiveCategoriesList = () => {
       >
         {loading && !error && <div className="loading"></div>}
         {error ? (
-          <div>{error}</div>
+          <div>{error.toString()}</div>
         ) : (
           <ReactPlayer
             url={url}
@@ -168,6 +176,7 @@ const LiveCategoriesList = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

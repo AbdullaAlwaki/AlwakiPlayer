@@ -1,0 +1,88 @@
+.login-container, .loginWithData, .loginWithUrl {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 998;
+  background-color: #252525;
+  .login_with{
+    display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  align-items: center;
+  .log_card{
+    width: 300px;
+    height: 300px;
+    margin: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    &:hover{
+      background-color: #fff;
+      color: #252525;
+      cursor: pointer;
+    }
+    img{
+      width: 200px;
+      height: 200px;
+    }
+    p{
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  }
+  
+  .selected_input{
+    border: #89b300 solid 10px;
+    background-color: none;
+  }
+  .selected_submit{
+    background-color: #89b300;
+  }
+  div {
+    margin-bottom: 20px;
+    input {
+      width: 300px;
+      height: 40px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0 10px;
+      font-size: 16px;
+      &:focus {
+        outline: none;
+      }
+    }
+
+    button {
+      width: 320px;
+      height: 40px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+
+  
+  .login-with-url {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    input {
+      margin: 10px;
+    }
+  }
+}
