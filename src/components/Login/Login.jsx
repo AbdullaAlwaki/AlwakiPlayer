@@ -27,29 +27,32 @@ export default function Login() {
         case "Backspace":
         case 8:
           navigate(-1);
+          break;
         default:
           break;
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isSelected]);
-
-  const handleEnter = () => {
-    getData(isSelected)
-  };
-
-  const getData = (i)=>{
+    const handleEnter = () => {
+      getData(isSelected)
+    }; 
+    
+    const getData = (i)=>{
     if (i === 0) {
       navigate("/login/data");
     } else if (i === 1) {
       navigate("/Login/url");
     }
   }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSelected, navigate]);
+
+
 
   const getClassName = (index) => (isSelected === index ? "selected" : "");
 

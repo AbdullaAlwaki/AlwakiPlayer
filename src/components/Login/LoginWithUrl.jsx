@@ -1,59 +1,34 @@
-import { useContext, useState } from "react";
+import React, { useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import "./Login.scss";
 
-
 export default function LoginWithUrl() {
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const { setError, setLoading, setName } = useContext(Context);
-  const navigat = useNavigate()
+  const navigate = useNavigate();
+  const [focusedIndex, setFocusedIndex] = useState(0);
 
-  // const handleKeyDown = (event) => {
-  //   if (isSelected === 1) {
-  //     switch (event.key) {
-  //       case "ArrowDown":
-  //         setSelectedIndex((prevIndex) =>
-  //           prevIndex < 2 ? prevIndex + 1 : prevIndex
-  //         );
-  //         break;
-  //       case "ArrowUp":
-  //         setSelectedIndex((prevIndex) =>
-  //           prevIndex > 0 ? prevIndex - 1 : prevIndex
-  //         );
-  //         break;
-  //       case "Enter":
-  //         if (selectedIndex === 2) {
-  //           // inputRefs.current[2].click();
-  //         }
-  //         break;
-  //       default:
-  //         break;
-  //     }
-  //   } else {
-  //     setSelectedIndex(null);
-  //   }
-  // };
+  const inputs = useMemo(()=>["name", "serverUrl"],[]); 
 
-  const onSubmit = (e) => {
+  const onSubmit = useCallback((e) => {
     e.preventDefault();
     setLoading(true);
-    const url = e.target.url.value;
-    const name = e.target.Name.value;
+    const name = document.getElementsByName("name")[0].value;
+    const serverUrl = document.getElementsByName("serverUrl")[0].value;
 
-    if (!url || !name) {
+    if (!serverUrl || !name) {
       setError("Please fill all the fields");
       setLoading(false);
       return;
     }
 
-    if (!url.includes("get.php")) {
+    if (!serverUrl.includes("get.php")) {
       setError("Invalid URL");
       setLoading(false);
       return;
     }
 
-    const urlArr = url.split("/get.php?");
+    const urlArr = serverUrl.split("/get.php?");
     const params = urlArr[1].split("&");
     const obj = {};
     params.forEach((param) => {
@@ -67,64 +42,98 @@ export default function LoginWithUrl() {
     )
       .then((response) => response.json())
       .then((data) => {
-          if (data.user_info.auth === 1) {
-            let userData = JSON.parse(localStorage.getItem("user"));
-            if (userData) {
-              userData.push({...data, profile: name});
-              localStorage.setItem("user", JSON.stringify(userData));
-              setLoading(false);
-              setError(null);
-              navigat("/")
-            } else {
-              localStorage.setItem(
-                "user",
-                JSON.stringify([{ ...data, profile: name }])
-              );
-              setLoading(false);
-              setError(null);
-              navigat("/")
-            }
-
+        if (data.user_info.auth === 1) {
+          let userData = JSON.parse(localStorage.getItem("user")) || [];
+          userData.push({ ...data, profile: name });
+          localStorage.setItem("user", JSON.stringify(userData));
+          setLoading(false);
+          setError(null);
+          navigate("/");
         } else {
           setLoading(false);
           setError("Invalid URL");
         }
       })
-      .catch((error) => setError(error));
-  };
+      .catch((error) => {
+        setLoading(false);
+        setError(error.message);
+      });
+  },
+  [setError, navigate, setLoading, setName]
+  );
 
-  const getClassName = (index) => {
-    if (index === 2) {
-      return selectedIndex === 2 ? "selected_submit" : "";
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const activeElement = document.activeElement;
+      const isInputField = activeElement.tagName.toLowerCase() === "input";
+      const isEmpty = isInputField && activeElement.value === "";
+
+      switch (e.key) {
+        case "ArrowDown":
+          setFocusedIndex((prevIndex) => Math.min(prevIndex + 1, 2));
+          break;
+        case "ArrowUp":
+          setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+          break;
+        case "Enter":
+          handleEnter(e);
+          break;
+        case "Backspace":
+          if (isInputField && isEmpty) {
+            activeElement.blur();
+          } else if (!isInputField || isEmpty) {
+            navigate(-1);
+          }
+          break;
+        default:
+          // Ignore other keys
+          break;
+      }
+    };
+    
+    const handleEnter = (e) => {
+    e.preventDefault();
+    if (focusedIndex < inputs.length) {
+      const nextInput = document.getElementsByName(inputs[focusedIndex])[0];
+      if (nextInput) {
+        nextInput.focus();
+      }
     } else {
-      return selectedIndex === index ? "selected_input" : "";
+      onSubmit(e);
     }
   };
 
-  const cc = (e)=>{
-    console.log(e);
-  }
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [focusedIndex, navigate, inputs, onSubmit]);
+
+  const getClassName = (index) => {
+    return focusedIndex === index ? "selected_input" : "";
+  };
 
   return (
-    <div className="loginWithUrl">
-      <form className="login-with-url" onSubmit={onSubmit}>
-        <h3>login with your server url</h3>
-        <div className={getClassName(0)} onKeyDown={cc}>
-          <input
-            type="text"
-            id="Name"
-            placeholder="Your Playlist Name"
-          />
-        </div>
-        <div className={getClassName(1)}>
-          <input
-            type="text"
-            id="url"
-            placeholder="Your server url"
-          />
-        </div>
+    <div className="loginWithData">
+      <form onSubmit={onSubmit}>
+        <h1>Login to your server</h1>
+        {inputs.map((input, index) => (
+          <div key={index} className={getClassName(index)}>
+            <input
+              type="text"
+              name={input}
+              placeholder={
+                index === 1
+                  ? "http://yourserver.com:port"
+                  : input.charAt(0).toUpperCase() + input.slice(1)
+              }
+              autoFocus={index === 0}
+            />
+          </div>
+        ))}
         <div className={getClassName(2)}>
-          <button>Save Login</button>
+          <button type="submit">Save Login</button>
         </div>
       </form>
     </div>

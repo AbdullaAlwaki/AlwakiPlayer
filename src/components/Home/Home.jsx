@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import addProfileIcon from "../../assets/add-group.png";
@@ -14,7 +14,7 @@ export default function Home() {
 
   const profile = JSON.parse(localStorage.getItem("user"));
 
-  const user = (e) => {
+  const user = useCallback((e) => {
     setServerUrl(
       `${e?.server_info.server_protocol}://${e?.server_info.url}:${e?.server_info.port}`
     );
@@ -22,7 +22,8 @@ export default function Home() {
     setPassword(e?.user_info.password);
     setName(e?.profile);
     navigate("/live");
-  };
+  }, [setUsername, setServerUrl, navigate, setName, setPassword])
+
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -44,9 +45,18 @@ export default function Home() {
         case "Backspace":
         case 8:
           navigate(-1);
+          break;
         default:
           break;
       }
+    };
+
+    const handleEnter = () => {
+      if (!profile || profile.length <= focusedIndex) {
+        navigate("/login");
+        return;
+      }
+      user(profile[focusedIndex]);
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -54,15 +64,7 @@ export default function Home() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [profile, focusedIndex, navigate]);
-
-  const handleEnter = () => {
-    if (!profile || profile.length <= focusedIndex) {
-      navigate("/login");
-      return;
-    }
-    user(profile[focusedIndex]);
-  };
+  }, [profile, focusedIndex, navigate, user]);
 
   const addProfile = () => {
     navigate("/login");

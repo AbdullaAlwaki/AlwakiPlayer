@@ -5,13 +5,15 @@ import { fetchData } from "../../Util/helperfunction";
 import ReactPlayer from "react-player";
 import LiveStreamsList from "./LiveStreamsList";
 import ListDivision from "../ListDivision";
-import "../../Style/live-categories-list.scss";
+import "./live-categories-list.scss";
 
 const LiveCategoriesList = () => {
   const [liveCategories, setLiveCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [url, setUrel] = useState(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const [isFocused, setIsFocused] = useState(1);
+
   const navigate = useNavigate();
 
   const {
@@ -30,7 +32,6 @@ const LiveCategoriesList = () => {
 
   const favoriteList =
     JSON.parse(localStorage.getItem("favoriteListLive")) || [];
-
   useEffect(() => {
     if (liveCategoriesLocal) {
       if (liveCategoriesLocal[1].category_name === "Favorites") {
@@ -53,38 +54,48 @@ const LiveCategoriesList = () => {
     const handleKeyDown = (event) => {
       switch (event.key) {
         case "ArrowDown":
-          setFocusedIndex((prevIndex) =>
-            Math.min(prevIndex + 1, liveCategories.length - 1)
-          );
+          if(isFocused === 1){setFocusedIndex((prevIndex) => Math.min(prevIndex + 1, liveCategories.length))}
           break;
         case "ArrowUp":
-          setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+          if(isFocused === 1)setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0))
+          break;
+        case "ArrowLeft":
+          setIsFocused((prevIndex) => Math.max(prevIndex - 1, 0));
+          break;
+        case "ArrowRight":
+          setIsFocused((prevIndex) => Math.min(prevIndex + 1, 3));
           break;
         case "Enter":
           handleCategoryClick(focusedIndex);
           break;
-          case 'Backspace' || 8:
-            navigate(-1)
-break;  default:
+        case "Backspace" || 8:
+          navigate(-1);
+          break;
+        default:
           break;
       }
     };
-
     document.addEventListener("keydown", handleKeyDown);
-
+    
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
     // eslint-disable-next-line
   }, [
     serverUrl,
+    setError,
+    setLoading,
     username,
+    focusedIndex,
+    /*  liveCategoriesLocal, */
+    navigate,
     password,
     liveCategories.length,
     favoriteList.length,
-    focusedIndex,
+    isFocused
   ]);
 
+  
   const handleCategoryClick = async (categoryId) => {
     if (selectedCategory !== categoryId) {
       setSelectedCategory(categoryId);
@@ -108,74 +119,77 @@ break;  default:
 
   return (
     <>
-    <ListDivision />
-    <div className="live-categories-container">
-      <div className="live-categories-list">
-        <ul className="live-categories">
-          {liveCategories?.map((category, index) => (
-            <li
-              key={category.category_id}
-              onClick={() => handleCategoryClick(category.category_id)}
-              className={`category-item ${focusedIndex === index ? "focused" : ""}`}
-              tabIndex="0"
-              onFocus={() => setFocusedIndex(index)}
-            >
-              <span className="category-name">{category.category_name}</span>
-              {category.count && (
-                <span className="category-count">{category.count}</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-      {selectedCategory !== null && (
-        <LiveStreamsList
-          categoryId={liveCategories[selectedCategory]?.category_id}
-          favoriteList={favoriteList}
-          setUrel={setUrel}
-        />
-      )}
-
-      <div
-        className="iptv-player"
-        onClick={fullScreen}
-        tabIndex="0"
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            fullScreen();
-          }
-        }}
-      >
-        {loading && !error && <div className="loading"></div>}
-        {error ? (
-          <div>{error.toString()}</div>
-        ) : (
-          <ReactPlayer
-            url={url}
-            playing
-            width={"100%"}
-            height={"100%"}
-            onBufferEnd={() => {
-              setLoading(false);
-              setError(null);
-            }}
-            onReady={() => {
-              setError(null);
-              setLoading(true);
-            }}
-            onBuffer={() => setLoading(true)}
-            onEnded={() => setLoading(false)}
-            onPause={() => setLoading(false)}
-            onError={(error) => {
-              setError(`Error loading video: ${error}`);
-              console.log("error");
-              setLoading(false);
-            }}
+      <ListDivision isFocused={isFocused === 0} />
+      <div className="live-categories-container">
+        <div className="live-categories-list">
+          <ul className="live-categories">
+            {liveCategories?.map((category, index) => (
+              <li
+                key={index}
+                onClick={() => handleCategoryClick(index)}
+                className={`category-item ${
+                  focusedIndex === index ? "focused" : ""
+                }`}
+                tabIndex="0"
+                onFocus={() => setFocusedIndex(index)}
+              >
+                <span className="category-name">{category.category_name}</span>
+                {category.count && (
+                  <span className="category-count">{category.count}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+        {selectedCategory !== null && (
+          <LiveStreamsList
+            categoryId={liveCategories[selectedCategory]?.category_id}
+            favoriteList={favoriteList}
+            setUrel={setUrel}
+            isFocused={isFocused}
           />
         )}
+
+        <div
+          className="iptv-player"
+          onClick={fullScreen}
+          tabIndex="0"
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              fullScreen();
+            }
+          }}
+        >
+          {loading && !error && <div className="loading"></div>}
+          {error ? (
+            <div>{error.toString()}</div>
+          ) : (
+            <ReactPlayer
+              url={url}
+              playing
+              width={"100%"}
+              height={"100%"}
+              onBufferEnd={() => {
+                setLoading(false);
+                setError(null);
+              }}
+              onReady={() => {
+                setError(null);
+                setLoading(true);
+              }}
+              onBuffer={() => setLoading(true)}
+              onEnded={() => setLoading(false)}
+              onPause={() => setLoading(false)}
+              onError={(error) => {
+                setError(`Error loading video: ${error}`);
+                console.log("error");
+                setLoading(false);
+              }}
+            />
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 };
