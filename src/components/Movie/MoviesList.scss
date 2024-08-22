@@ -60,7 +60,7 @@
           align-items: center;
           background-color: rgba(0, 0, 0, 0.8);
           .movies-list {
-            width: 60vw;
+            width: 70vw;
             height: 70vh;
             background-color: #ffffff;
             overflow-x: auto;
@@ -75,10 +75,7 @@
             align-items: center;
             padding: 0;
             .movie {
-              display: flex;
               flex-direction: column;
-              align-items: center;
-              justify-content: center;
               margin: 10px;
               cursor: pointer;
               &:hover {
@@ -86,7 +83,7 @@
                 transition: transform 0.5s;
               }
               .movie-icon {
-                width: 220px;
+                width: 210px;
                 height: 300px;
                 img {
                   border-radius: 10px 10px 0 0;
@@ -97,7 +94,6 @@
               .movie-name {
                 width: 200px;
                 padding: 10px;
-                margin-right: 10px;
                 text-align: center;
                 white-space: nowrap;
                 overflow: hidden;
