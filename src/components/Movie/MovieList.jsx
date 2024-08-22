@@ -9,6 +9,37 @@ export default function Movie({ moviesList, isFocused }) {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const { setError } = useContext(Context);
   const navigate = useNavigate();
+  
+  const [visibleMovies, setVisibleMovies] = useState([]);
+  const [loadedItems, setLoadedItems] = useState(0);
+  const itemsPerLoad = 10;
+
+  useEffect(() => {
+    loadMoreItems(); // Initial load of items
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        loadMoreItems();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadedItems]);
+
+  const loadMoreItems = () => {
+    const moreItems = moviesList.slice(loadedItems, loadedItems + itemsPerLoad);
+    setVisibleMovies((prevMovies) => [...prevMovies, ...moreItems]);
+    setLoadedItems((prevCount) => prevCount + itemsPerLoad);
+  };
+
   const handleMovieClick = async (movieId) => {
     setError(null);
     navigate(`/movies/${movieId}`);
@@ -19,19 +50,18 @@ export default function Movie({ moviesList, isFocused }) {
       switch (event.key) {
         case "ArrowDown":
           setFocusedIndex((prevIndex) =>
-            Math.min(prevIndex + 5, moviesList.length-1)
+            Math.min(prevIndex + 5, moviesList.length - 1)
           );
           break;
         case "ArrowUp":
           setFocusedIndex((prevIndex) => Math.max(prevIndex - 5, 0));
-          
           break;
         case "ArrowLeft":
           setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
           break;
         case "ArrowRight":
           setFocusedIndex((prevIndex) =>
-            Math.min(prevIndex + 1, moviesList.length-1)
+            Math.min(prevIndex + 1, moviesList.length - 1)
           );
           break;
         case "Enter":
@@ -46,11 +76,12 @@ export default function Movie({ moviesList, isFocused }) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  });
+  }, [focusedIndex, moviesList]);
+
   return (
     <div>
       <ul className="movies-list">
-        {moviesList.map((movie, index) => (
+        {visibleMovies.map((movie, index) => (
           <li
             className={`movie ${
               focusedIndex === index && isFocused === 2 ? "focused" : ""
@@ -60,8 +91,8 @@ export default function Movie({ moviesList, isFocused }) {
           >
             <span className="movie-icon">
               <img
-                src={movie.stream_icon ? `${movie.stream_icon}` : { Logo }}
-                alt=""
+                src={movie.stream_icon ? `${movie.stream_icon}` : Logo}
+                alt={movie.name}
               />
             </span>
             <span className="movie-name">{movie.name}</span>
