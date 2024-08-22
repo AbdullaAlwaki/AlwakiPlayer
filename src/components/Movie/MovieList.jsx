@@ -14,7 +14,7 @@ export default function Movie({ moviesList, isFocused }) {
   const [loadedItems, setLoadedItems] = useState(0);
   const itemsPerLoad = 20;
 
-  const listRef = useRef(null); // Ref for the movies-list div
+  const listRef = useRef(null); // Ref for the movies list
 
   useEffect(() => {
     loadMoreItems(); // Initial load of items
@@ -23,23 +23,23 @@ export default function Movie({ moviesList, isFocused }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      const div = listRef.current;
-      const scrollPosition = div.scrollTop + div.clientHeight;
-      const halfwayPoint = div.scrollHeight / 2;
+      const ul = listRef.current;
+      const scrollPosition = ul.scrollTop + ul.clientHeight;
+      const halfwayPoint = ul.scrollHeight / 2;
 
       if (scrollPosition >= halfwayPoint) {
         loadMoreItems();
       }
     };
 
-    const div = listRef.current;
-    if (div) {
-      div.addEventListener("scroll", handleScroll);
+    const ul = listRef.current;
+    if (ul) {
+      ul.addEventListener("scroll", handleScroll);
     }
 
     return () => {
-      if (div) {
-        div.removeEventListener("scroll", handleScroll);
+      if (ul) {
+        ul.removeEventListener("scroll", handleScroll);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,14 +58,29 @@ export default function Movie({ moviesList, isFocused }) {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
+      const ul = listRef.current;
       switch (event.key) {
         case "ArrowDown":
           setFocusedIndex((prevIndex) =>
             Math.min(prevIndex + 5, moviesList.length - 1)
           );
+          // Scroll down when ArrowDown is pressed
+          if (ul) {
+            const focusedElement = ul.children[Math.min(focusedIndex + 5, moviesList.length - 1)];
+            if (focusedElement) {
+              focusedElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }
+          }
           break;
         case "ArrowUp":
           setFocusedIndex((prevIndex) => Math.max(prevIndex - 5, 0));
+          // Scroll up when ArrowUp is pressed
+          if (ul) {
+            const focusedElement = ul.children[Math.max(focusedIndex - 5, 0)];
+            if (focusedElement) {
+              focusedElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }
+          }
           break;
         case "ArrowLeft":
           setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
@@ -90,14 +105,14 @@ export default function Movie({ moviesList, isFocused }) {
   }, [focusedIndex, moviesList]);
 
   return (
-    <div ref={listRef} className="movies-list">
-      <ul >
+    <div>
+      <ul ref={listRef} className="movies-list">
         {visibleMovies.map((movie, index) => (
           <li
             className={`movie ${
               focusedIndex === index && isFocused === 2 ? "focused" : ""
             }`}
-            key={movie.stream_id}
+            key={index}
             onClick={() => handleMovieClick(movie.stream_id)}
           >
             <span className="movie-icon">

@@ -1,9 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Context } from "./createContext";
-import videojs from "video.js";
-import "video.js/dist/video-js.css";
 import "../Style/Player.scss";
-import YouTube from 'react-youtube';
 
 const Player = () => {
   const {
@@ -16,8 +13,7 @@ const Player = () => {
 
   const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState('');
   const videoRef = useRef(null);
-  const playerRef = useRef(null);
-  const videoJsPlayer = useRef(null);
+  const iframeRef = useRef(null);
 
   // Detect if the URL is a YouTube link
   const isYouTubeUrl = (url) => {
@@ -38,46 +34,48 @@ const Player = () => {
   }, [urlPlayer]);
 
   useEffect(() => {
-    if (closePlayer && !isYouTubeUrl(urlPlayer) && videoRef.current) {
-      if (!videoJsPlayer.current) {
-        videoJsPlayer.current = videojs(videoRef.current, {
-          controls: true,
-          autoplay: true,
-          preload: 'auto',
-          sources: [{ src: urlPlayer, type: 'video/mp4' }],
-        });
+    if (closePlayer && !isYouTubeUrl(urlPlayer)) {
+      if (videoRef.current) {
+        const savedPlayedSeconds = localStorage.getItem(`${currentEpisodeIndex}`);
+        if (savedPlayedSeconds) {
+          videoRef.current.currentTime = parseFloat(savedPlayedSeconds);
+        }
 
-        videoJsPlayer.current.on('timeupdate', () => {
-          const currentTime = videoJsPlayer.current.currentTime();
-          localStorage.setItem(`${currentEpisodeIndex}`, currentTime.toString());
-        });
+        const handleTimeUpdate = () => {
+          if (videoRef.current) {
+            const currentTime = videoRef.current.currentTime;
+            localStorage.setItem(`${currentEpisodeIndex}`, currentTime.toString());
+          }
+        };
 
-        videoJsPlayer.current.on('play', () => setLoading(false));
-        videoJsPlayer.current.on('pause', () => setLoading(false));
-        videoJsPlayer.current.on('ended', () => setLoading(false));
-        videoJsPlayer.current.on('error', (error) => {
+        videoRef.current.addEventListener('timeupdate', handleTimeUpdate);
+        videoRef.current.addEventListener('play', () => setLoading(false));
+        videoRef.current.addEventListener('pause', () => setLoading(false));
+        videoRef.current.addEventListener('ended', () => setLoading(false));
+        videoRef.current.addEventListener('error', (error) => {
           setError(`Error loading video: ${error}`);
           setLoading(false);
         });
-      }
 
-      const savedPlayedSeconds = localStorage.getItem(`${currentEpisodeIndex}`);
-      if (savedPlayedSeconds) {
-        videoJsPlayer.current.currentTime(parseFloat(savedPlayedSeconds));
+        return () => {
+          if (videoRef.current) {
+            videoRef.current.removeEventListener('timeupdate', handleTimeUpdate);
+            videoRef.current.removeEventListener('play', () => setLoading(false));
+            videoRef.current.removeEventListener('pause', () => setLoading(false));
+            videoRef.current.removeEventListener('ended', () => setLoading(false));
+            videoRef.current.removeEventListener('error', (error) => {
+              setError(`Error loading video: ${error}`);
+              setLoading(false);
+            });
+          }
+        };
       }
     }
-
-    return () => {
-      if (videoJsPlayer.current) {
-        videoJsPlayer.current.dispose();
-        videoJsPlayer.current = null;
-      }
-    };
   }, [closePlayer, urlPlayer, currentEpisodeIndex, setLoading, setError]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (playerRef.current && !playerRef.current.contains(event.target)) {
+      if (iframeRef.current && !iframeRef.current.contains(event.target)) {
         setClosePlayer(false);
       }
     };
@@ -96,28 +94,27 @@ const Player = () => {
       {closePlayer && (
         <div className="player-container">
           <div className="player">
-            <div className="player_overlay" ref={playerRef}>
+            <div className="player_overlay" ref={iframeRef}>
               {isYouTubeUrl(urlPlayer) ? (
-                <div data-vjs-player className="youtube-container">
-                  <YouTube
-                    videoId={new URL(urlPlayer).searchParams.get('v') || urlPlayer.split('/').pop()}
-                    opts={{
-                      height: '100%',
-                      width: '100%',
-                      playerVars: {
-                        autoplay: 1,
-                      },
-                    }}
-                    className="youtube"
+                <div className="youtube-container">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${new URL(urlPlayer).searchParams.get('v') || urlPlayer.split('/').pop()}?autoplay=1`}
+                    frameBorder="0"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    title="YouTube video player"
                   />
                 </div>
               ) : (
-                <div data-vjs-player>
-                  <video
-                    ref={videoRef}
-                    className="video-js vjs-default-skin"
-                  />
-                </div>
+                <video
+                  ref={videoRef}
+                  className="video-player"
+                  controls
+                  autoPlay
+                  preload="auto"
+                  src={urlPlayer}
+
+                />
               )}
             </div>
           </div>
