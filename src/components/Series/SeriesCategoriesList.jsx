@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { Context } from "../../Util/createContext";
 import { fetchData } from "../../Util/helperfunction";
 import SeriesList from "./SeriesList";
-import "../../Style/SeriesList.scss";
+import ListDivision from "../ListDivision";
+import "./SeriesList.scss";
 
 const SeriesCategoriesList = () => {
   const [seriesCategories, setSeriesCategories] = useState([]);
@@ -89,32 +90,35 @@ const SeriesCategoriesList = () => {
   }, [close]);
 
   return (
-    <div className="series_categories_container">
-      <div className="series_categories_list_container">
-        <ul className="series_categories">
-          {seriesCategories.map((category) => (
-            <li
-              className="series_category"
-              key={category.category_id}
-              onClick={() => handleCategoryClick(category.category_id)}
-            >
-              <h1 className="category-name">
-                {category.category_name}
-                <span className="category-count">{category.count}</span>
-              </h1>
+    <>
+      <ListDivision />
+      <div className="series_categories_container">
+        <div className="series_categories_list_container">
+          <ul className="series_categories">
+            {seriesCategories.map((category) => (
+              <li
+                className="series_category"
+                key={category.category_id}
+                onClick={() => handleCategoryClick(category.category_id)}
+              >
+                <h1 className="category-name">
+                  {category.category_name}
+                  <span className="category-count">{category.count}</span>
+                </h1>
 
-              {selectedCategory === category.category_id && close && (
-                <div className="series_data_list">
-                  <div ref={seriesDataListRef}>
-                    <SeriesList seriesList={seriesList} />
+                {selectedCategory === category.category_id && close && (
+                  <div className="series_data_list">
+                    <div ref={seriesDataListRef}>
+                      <SeriesList seriesList={seriesList} />
+                    </div>
                   </div>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

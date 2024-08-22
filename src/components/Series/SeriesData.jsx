@@ -8,7 +8,7 @@ import SeriesDataInfo from "./Series_dataInfo";
 import SeriesDataInfoDetails from "./SeriesDataInfoDetails";
 import logo from "../../assets/Untitled-1.png";
 
-import "../../Style/SeriesData.scss";
+import "./SeriesData.scss";
 
 export default function SeriesData() {
   const [seriesData, setSeriesData] = useState({});

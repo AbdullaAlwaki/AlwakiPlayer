@@ -3,4 +3,13 @@
   color: #ffffff;
   background-color: #252525;
   min-width: 1000px;
+  .selected {
+    background-color: #000000;
+    color: #ffffff;
+  }
+  .focused {
+    background-color: #ff0000;
+    border-color: #000;
+    color: #ffffff;
+  }
 }

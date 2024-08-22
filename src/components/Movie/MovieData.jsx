@@ -5,7 +5,7 @@ import Carusel from "../../Util/Carusel";
 import logo from "../../assets/Untitled-1.png";
 import star from "../../assets/star.png";
 import fillStar from "../../assets/fillStar.png";
-import "../../Style/MovieData.scss";
+import "./MovieData.scss";
 
 export default function MovieData() {
   const [movieData, setMovieData] = useState([]);
@@ -13,8 +13,14 @@ export default function MovieData() {
   const [favoriteList, setFavoriteList] = useState(
     JSON.parse(localStorage.getItem("favoriteListMovie")) || []
   );
-  const { serverUrl, username, password, setUrlPlayer, setError, setClosePlayer } =
-    useContext(Context);
+  const {
+    serverUrl,
+    username,
+    password,
+    setUrlPlayer,
+    setError,
+    setClosePlayer,
+  } = useContext(Context);
 
   const id = useParams();
 
@@ -50,7 +56,7 @@ export default function MovieData() {
   ]);
 
   const handleMovieClick = async (movieId) => {
-    setClosePlayer(true)
+    setClosePlayer(true);
     setError("");
     try {
       const response = await fetch(
@@ -68,7 +74,7 @@ export default function MovieData() {
 
   const handleTrailerClick = () => {
     setError("");
-    setClosePlayer(true)
+    setClosePlayer(true);
     setUrlPlayer(
       `https://www.youtube.com/watch?v=${movieData?.info?.youtube_trailer}`
     );
@@ -169,7 +175,7 @@ export default function MovieData() {
         <img src={movieData?.info?.movie_image} alt="" />
       </div>
 
-{/*       {close ? (
+      {/*       {close ? (
         <Player outside={"movieData_Player"}  setClose={setClose} close={close} reff={movieDataListRef} />
       ) : null} */}
     </div>

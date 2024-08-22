@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Context } from "../../Util/createContext";
-import "../../Style/SeriesData.scss";
+import "./SeriesData.scss";
 
 export default function SeriesEpisodes({ episodes }) {
   const [episodesdata, setepisodesdata] = useState([]);

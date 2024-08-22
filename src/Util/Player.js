@@ -1,44 +1,79 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import ReactPlayer from "react-player";
 import { Context } from "./createContext";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
 import "../Style/Player.scss";
+import YouTube from 'react-youtube';
 
 const Player = () => {
   const {
-    loading,
     setLoading,
-    error,
     setError,
     urlPlayer,
     setClosePlayer,
     closePlayer,
   } = useContext(Context);
-  const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(0);
-  const [playedSeconds, setPlayedSeconds] = useState(0);
-  const [initialSeekDone, setInitialSeekDone] = useState(false);
-  const playRef = useRef(null);
-  const playerRef = useRef();
+
+  const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState('');
+  const videoRef = useRef(null);
+  const playerRef = useRef(null);
+  const videoJsPlayer = useRef(null);
+
+  // Detect if the URL is a YouTube link
+  const isYouTubeUrl = (url) => {
+    return /youtube\.com\/watch\?v=/.test(url) || /youtu\.be\/[a-zA-Z0-9_-]+/.test(url);
+  };
 
   useEffect(() => {
     if (urlPlayer) {
-      const currentEpisode = urlPlayer?.split("/")[6].split(".")[0];
-      setCurrentEpisodeIndex(currentEpisode);
-      const savedPlayedSeconds = localStorage.getItem(`${currentEpisode}`);
-      if (savedPlayedSeconds && !initialSeekDone) {
-        setPlayedSeconds(parseFloat(savedPlayedSeconds));
+      if (!isYouTubeUrl(urlPlayer)) {
+        const segments = urlPlayer.split("/");
+        const episodeSegment = segments.length > 6 ? segments[6] : '';
+        const currentEpisode = episodeSegment.split(".")[0];
+        setCurrentEpisodeIndex(currentEpisode);
       } else {
-        setPlayedSeconds(0);
+        setCurrentEpisodeIndex('');
       }
     }
-  }, [urlPlayer, initialSeekDone]);
+  }, [urlPlayer]);
 
-  const handleProgress = (state) => {
-    if (!initialSeekDone) {
-      return;
+  useEffect(() => {
+    if (closePlayer && !isYouTubeUrl(urlPlayer) && videoRef.current) {
+      if (!videoJsPlayer.current) {
+        videoJsPlayer.current = videojs(videoRef.current, {
+          controls: true,
+          autoplay: true,
+          preload: 'auto',
+          sources: [{ src: urlPlayer, type: 'video/mp4' }],
+        });
+
+        videoJsPlayer.current.on('timeupdate', () => {
+          const currentTime = videoJsPlayer.current.currentTime();
+          localStorage.setItem(`${currentEpisodeIndex}`, currentTime.toString());
+        });
+
+        videoJsPlayer.current.on('play', () => setLoading(false));
+        videoJsPlayer.current.on('pause', () => setLoading(false));
+        videoJsPlayer.current.on('ended', () => setLoading(false));
+        videoJsPlayer.current.on('error', (error) => {
+          setError(`Error loading video: ${error}`);
+          setLoading(false);
+        });
+      }
+
+      const savedPlayedSeconds = localStorage.getItem(`${currentEpisodeIndex}`);
+      if (savedPlayedSeconds) {
+        videoJsPlayer.current.currentTime(parseFloat(savedPlayedSeconds));
+      }
     }
-    setPlayedSeconds(state.playedSeconds);
-    localStorage.setItem(`${currentEpisodeIndex}`, state.playedSeconds);
-  };
+
+    return () => {
+      if (videoJsPlayer.current) {
+        videoJsPlayer.current.dispose();
+        videoJsPlayer.current = null;
+      }
+    };
+  }, [closePlayer, urlPlayer, currentEpisodeIndex, setLoading, setError]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -46,64 +81,48 @@ const Player = () => {
         setClosePlayer(false);
       }
     };
+
     if (closePlayer) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
     }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [closePlayer, setClosePlayer]);
 
-  const handleVideoReady = () => {
-    if (!initialSeekDone && playRef.current) {
-      const savedPlayedSeconds = localStorage.getItem(`${currentEpisodeIndex}`);
-      if (savedPlayedSeconds) {
-        playRef.current.seekTo(parseFloat(savedPlayedSeconds));
-      }
-      setInitialSeekDone(true);
-      setLoading(true);
-    }
-  };
-
   return (
     <>
-      {closePlayer ? (
+      {closePlayer && (
         <div className="player-container">
-          {loading && !error && <div className="loading"></div>}
-          {error ? (
-            <div className="error" ref={playerRef}>
-              <span>{error}</span>
+          <div className="player">
+            <div className="player_overlay" ref={playerRef}>
+              {isYouTubeUrl(urlPlayer) ? (
+                <div data-vjs-player className="youtube-container">
+                  <YouTube
+                    videoId={new URL(urlPlayer).searchParams.get('v') || urlPlayer.split('/').pop()}
+                    opts={{
+                      height: '100%',
+                      width: '100%',
+                      playerVars: {
+                        autoplay: 1,
+                      },
+                    }}
+                    className="youtube"
+                  />
+                </div>
+              ) : (
+                <div data-vjs-player>
+                  <video
+                    ref={videoRef}
+                    className="video-js vjs-default-skin"
+                  />
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="player">
-              <div className="player_overlay" ref={playerRef}>
-                <ReactPlayer
-                  ref={playRef}
-                  url={urlPlayer}
-                  onProgress={handleProgress}
-                  onReady={handleVideoReady}
-                  playing
-                  played={playedSeconds}
-                  onPause={() => setLoading(false)}
-                  onBufferEnd={() => {
-                    setLoading(false);
-                    setError(null);
-                  }}
-                  onError={(error) => {
-                    setError(`Error loading video: ${error}`);
-                    setLoading(false);
-                  }}
-                  width={"100%"}
-                  height={"100%"}
-                  controls
-                />
-              </div>
-            </div>
-          )}
+          </div>
         </div>
-      ) : null}
+      )}
     </>
   );
 };

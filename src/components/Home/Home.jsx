@@ -15,6 +15,7 @@ export default function Home() {
   const profile = JSON.parse(localStorage.getItem("user"));
 
   const user = useCallback((e) => {
+    sessionStorage.clear();
     setServerUrl(
       `${e?.server_info.server_protocol}://${e?.server_info.url}:${e?.server_info.port}`
     );

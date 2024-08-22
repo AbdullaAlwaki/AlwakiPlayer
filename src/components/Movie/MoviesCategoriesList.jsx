@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { Context } from "../../Util/createContext";
 import { fetchData } from "../../Util/helperfunction";
+import ListDivision from "../ListDivision";
 import MovieList from "./MovieList";
-import "../../Style/MoviesList.scss";
+import "./MoviesList.scss";
 
 const MoviesCategoriesList = () => {
   const [movieCategories, setMovieCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [moviesList, setMoviesList] = useState([]);
   const [close, setClose] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const [isFocused, setIsFocused] = useState(1);
+
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
   const movieDataListRef = useRef(null);
@@ -36,6 +40,49 @@ const MoviesCategoriesList = () => {
         "vod_streams"
       );
     }
+
+    const handleKeyDown = (event) => {
+      switch (event.key) {
+        case "ArrowDown":
+          if (isFocused === 1) {
+            setFocusedIndex((prevIndex) =>
+              Math.min(prevIndex + 1, movieCategories.length)
+            );
+          }
+          break;
+        case "ArrowUp":
+          if (isFocused === 1)
+            setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+          break;
+        case "ArrowLeft":
+          if (isFocused === 1)
+            setIsFocused((prevIndex) => Math.max(prevIndex - 1, 0));
+          break;
+        case "ArrowRight":
+          if ( selectedCategory === movieCategories[focusedIndex]?.category_id){
+          setIsFocused((prevIndex) => Math.min(prevIndex + 1, 2));} else {
+            setIsFocused((prevIndex) => Math.min(prevIndex + 1, 1));
+          }
+          break;
+        case "Enter":
+          if (isFocused === 1) {
+            handleCategoryClick(movieCategories[focusedIndex]?.category_id);
+            setIsFocused(2);
+          }
+          break;
+          case "Backspace":
+            setSelectedCategory(null)
+            setIsFocused(1)
+          break;
+        default:
+          break;
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
     // eslint-disable-next-line
   }, [
     serverUrl,
@@ -43,7 +90,9 @@ const MoviesCategoriesList = () => {
     password,
     setLoading,
     setError,
-    favoriteList.length
+    favoriteList.length,
+    focusedIndex,
+    isFocused
   ]);
 
   useEffect(() => {
@@ -66,11 +115,11 @@ const MoviesCategoriesList = () => {
     }
 
     setSelectedCategory(categoryId);
+    console.log(categoryId);
     try {
       const response = await fetch(
         `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`
       );
-      console.log(`${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`);
       const data = await response.json();
       setMoviesList(data);
       setClose(true);
@@ -87,34 +136,39 @@ const MoviesCategoriesList = () => {
       setClose(false);
     }
   };
-
   return (
-    <div className="movie-categories-container">
-      <div className="movie-categories-list-container">
-        <ul className="movie-categories">
-          {movieCategories?.map((category) => (
-            <li
-              className="movie-category"
-              key={category.category_id}
-              onClick={() => handleCategoryClick(category.category_id)}
-            >
-              <h1 className="category-name">
-                {category.category_name}
-                <span className="category-count">{category.count}</span>
-              </h1>
+    <>
+      <ListDivision  isFocused={isFocused === 0}/>
+      <div className="movie-categories-container">
+        <div className="movie-categories-list-container">
+          <ul className="movie-categories">
+            {movieCategories?.map((category, index) => (
+              <li
+                className={`movie-category ${
+                  focusedIndex === index && isFocused === 1 ? "focused" : ""
+                } ${selectedCategory === category.category_id ? "selected" : ""}`}
+                key={category.category_id}
+                onClick={() => handleCategoryClick(category.category_id)}
+                
+              >
+                <h1 className="category-name">
+                  {category.category_name}
+                  <span className="category-count">{category.count}</span>
+                </h1>
 
-              {selectedCategory === category.category_id && close && (
-                <div className="movie_data_list">
-                  <div ref={movieDataListRef}>
-                    <MovieList moviesList={moviesList} />
+                {selectedCategory === category.category_id && close && (
+                  <div className="movie_data_list">
+                    <div ref={movieDataListRef}>
+                      <MovieList moviesList={moviesList} isFocused={isFocused} />
+                    </div>
                   </div>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

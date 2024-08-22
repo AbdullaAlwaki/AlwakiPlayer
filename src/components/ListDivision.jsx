@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import IconTv from "../assets/icon-tv.svg";
+import Search from "../assets/search.svg";
 import IconMovie from "../assets/icon-movie.svg";
 import IconSeries from "../assets/icon-series.svg";
 import IconLogout from "../assets/icon-logout.svg";
@@ -8,107 +9,112 @@ import "../Style/ListDivision.scss";
 
 const ListDivision = ({ isFocused }) => {
   const navigate = useNavigate();
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const location = useLocation();
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (isFocused) {
-        switch (event.key) {
-          case "ArrowDown":
-            handleArrowDown();
-            break;
-          case "ArrowUp":
-            handleArrowUp();
-            break;
-          case "Enter":
-            handleEnter();
-            break;
-          default:
-            break;
-        }
-      } 
-    };
-
-    const handleArrowDown = () => {
-      if (selectedIndex < 3) {
-        setSelectedIndex(selectedIndex + 1);
-      }
-    };
-
-    const handleArrowUp = () => {
-      if (selectedIndex > 0) {
-        setSelectedIndex(selectedIndex - 1);
-      }
-    };
-
-    const handleEnter = () => {
-      /*       if (selectedIndex === 0) {
-        navigate('/');
-      } else */ if (selectedIndex === 0) {
-        navigate("/live");
-      } else if (selectedIndex === 1) {
-        navigate("/movies");
-      } else if (selectedIndex === 2) {
-        navigate("/series");
-      } else if (selectedIndex === 3) {
-        handleLogout();
-      }
-    };
-      const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.clear();
     sessionStorage.clear();
     navigate("/");
     window.location.reload();
-  };
+  }, [navigate]);
 
+  const listItems = [
+    {
+      path: "/search",
+      icon: Search,
+      label: "Search",
+    },
+    {
+      path: "/live",
+      icon: IconTv,
+      label: "Live TV",
+    },
+    {
+      path: "/movies",
+      icon: IconMovie,
+      label: "Movies",
+    },
+    {
+      path: "/series",
+      icon: IconSeries,
+      label: "Series",
+    },
+    {
+      icon: IconLogout,
+      label: "Logout",
+      onClick: handleLogout,
+    },
+  ];
+
+  const handleArrowDown = useCallback(() => {
+    setSelectedIndex((prevIndex) => Math.min(prevIndex + 1, listItems.length - 1));
+  }, [listItems.length]);
+
+  const handleArrowUp = useCallback(() => {
+    setSelectedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+  }, []);
+
+  const handleEnter = useCallback(() => {
+    const options = ["/search", "/live", "/movies", "/series", handleLogout];
+    const selectedOption = options[selectedIndex];
+
+    if (typeof selectedOption === "string") {
+      navigate(selectedOption);
+    } else if (typeof selectedOption === "function") {
+      selectedOption();
+    }
+  }, [selectedIndex, handleLogout, navigate]);
+
+  const handleKeyDown = useCallback((event) => {
+    if (isFocused) {
+      switch (event.key) {
+        case "ArrowDown":
+          handleArrowDown();
+          break;
+        case "ArrowUp":
+          handleArrowUp();
+          break;
+        case "Enter":
+          handleEnter();
+          break;
+        default:
+          break;
+      }
+    }
+  }, [isFocused, handleArrowDown, handleArrowUp, handleEnter]);
+
+  useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedIndex, navigate, isFocused]);
-
-
-
+  }, [handleKeyDown]);
 
   return (
     <div className="list-division">
-      {/*       <div
-        className={`division ${selectedIndex === 0 && isFocused ? 'selected' : ''}`}
-        onClick={() => handleClick(0)}
-      >
-        <img src={Logo} alt="Logo" />
-      </div> */}
-      <div
-        className={`division ${selectedIndex === 0 && isFocused && "selected"} 
-          ${location.pathname === "/live" && "selected"}`}
-      >
-        <img src={IconTv} alt="Live TV Icon" />
-        <span>Live TV</span>
-      </div>
-      <div
-        className={`division ${selectedIndex === 1 && isFocused && "selected"}
-        ${location.pathname === "/movies" && "selected"}`}
-      >
-        <img src={IconMovie} alt="Movie Icon" />
-        <span>Movies</span>
-      </div>
-      <div
-        className={`division ${selectedIndex === 2 && isFocused && "selected"} 
-          ${location.pathname === "/series" && "selected"}`}
-      >
-        <img src={IconSeries} alt="Series Icon" />
-        <span>Series</span>
-      </div>
-      <div
-        className={`division ${selectedIndex === 3 && isFocused && "selected"}
-`}
-      >
-        <img src={IconLogout} alt="Series Icon" />
-
-        <span>Logout</span>
-      </div>
+      {listItems.map((item, index) => (
+        <div
+          key={index}
+          className={`division ${
+            selectedIndex === index && isFocused ? "focused" : ""
+          } ${location.pathname === item.path ? "selected" : ""}`}
+          onClick={() => {
+            if (item.onClick) {
+              item.onClick();
+            } else {
+              navigate(item.path);
+            }
+          }}
+          role="button"
+          tabIndex={index}
+          aria-pressed={selectedIndex === index}
+        >
+          <img src={item.icon} alt={item.label} />
+          <span>{item.label}</span>
+        </div>
+      ))}
     </div>
   );
 };

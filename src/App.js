@@ -9,19 +9,22 @@ import MovieData from "./components/Movie/MovieData";
 import SeriesList from "./components/Series/SeriesCategoriesList";
 import SeriesData from "./components/Series/SeriesData";
 import Login from "./components/Login/Login";
+import Error from "./components/Error/Error"
 import LoginWithData from "./components/Login/LoginWithData"
 import LoginWithUrl from "./components/Login/LoginWithUrl";
 import Player from "./Util/Player";
 import Loading from "./components/Loading/Loading";
+import Search from "./components/Search/Search";
 
 function App() {
   const { loading } = useContext(Context);
-
+  
   return (
     <div className="App">
       <Player />
       <Routes>
-        <Route path="/*" element={<Home />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/live" element={<LiveList />} />
         <Route path="/movies" element={<MoviesList />} />
         <Route path="/movies/:id" element={<MovieData />} />
@@ -31,7 +34,7 @@ function App() {
         <Route path="/login/data" element={<LoginWithData />} />
         <Route path="/login/url" element={<LoginWithUrl />} />
       </Routes>
-
+      <Error />
       <Loading loading={loading} />
     </div>
   );

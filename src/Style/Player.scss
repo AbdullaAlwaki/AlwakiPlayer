@@ -12,18 +12,44 @@
   right: 0;
   z-index: 2;
   background-color: rgba(0, 0, 0, 0.8);
-  .player {
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+  overflow: hidden; 
+}
+
+.player {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  box-sizing: border-box;  
+
+  .player_overlay {
+    width: 90%;   
+    max-width: 1200px;  
+    height: 80%; 
+    max-height: 700px; 
+    background-color: #000;  
+    border-radius: 8px;  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);  
     display: flex;
     justify-content: center;
     align-items: center;
-    .player_overlay {
-      width: 50%;
-      height: 60%;
-      background-color: rgb(0, 0, 0);
-    }
   }
+}
+.youtube-container {
+  width: 100%;
+  height: 100%;
+}
+
+.youtube-container > iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.youtube{
+  width: 100%;
+  height: 100%;
 }

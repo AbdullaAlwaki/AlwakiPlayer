@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import Logo from "../../assets/logo.png";
 
-import "../../Style/SeriesList.scss";
+import "./SeriesList.scss";
 
 export default function Series({ seriesList }) {
   const { setError } = useContext(Context);

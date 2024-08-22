@@ -1,0 +1,126 @@
+// Variables for color and spacing
+$primary-color: #007bff;
+$primary-hover-color: #0056b3;
+$border-color: #ddd;
+$text-color: #ffffff;
+$background-color: #f9f9f9;
+$input-padding: 10px;
+$button-padding: 10px 15px;
+$border-radius: 4px;
+$shadow-color: rgba(0, 0, 0, 0.1);
+
+.search-container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  box-shadow: 0 0 10px $shadow-color;
+
+  input {
+    width: 100%;
+    padding: $input-padding;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: $border-radius;
+    margin-bottom: 10px;
+  }
+
+  .search-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    button {
+      background-color: $primary-color;
+      color: white;
+      border: none;
+      padding: $button-padding;
+      border-radius: $border-radius;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+      flex: 1;
+      margin-right: 5px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      &:hover {
+        background-color: $primary-hover-color;
+      }
+    }
+  }
+}
+
+// MovieList styles
+.movies-list {
+  list-style-type: none;
+  padding: 0;
+
+  .movie {
+    padding: 10px;
+    border-bottom: 1px solid $border-color;
+    display: flex;
+    align-items: center;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .movie-icon {
+      margin-right: 10px;
+
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: $border-radius;
+        object-fit: cover;
+      }
+    }
+
+    .movie-name {
+      font-size: 16px;
+      color: $text-color;
+    }
+  }
+}
+
+.no-results {
+  text-align: center;
+  color: #ffffff;
+}
+
+// SeriesList styles
+.series_list {
+  list-style-type: none;
+  padding: 0;
+
+  .series {
+    padding: 10px;
+    border-bottom: 1px solid $border-color;
+    display: flex;
+    align-items: center;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .series-icon {
+      margin-right: 10px;
+
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: $border-radius;
+        object-fit: cover;
+      }
+    }
+
+    .series-name {
+      font-size: 16px;
+      color: $text-color;
+    }
+  }
+}

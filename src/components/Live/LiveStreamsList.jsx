@@ -5,74 +5,73 @@ import Logo from "../../assets/logo.png";
 import star from "../../assets/star.png";
 import fillStar from "../../assets/fillStar.png";
 
-const LiveStreamsList = ({ categoryId, favoriteList, setUrel, isFocused }) => {
+const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused }) => {
   const [focusedIndex, setFocusedIndex] = useState(0);
-
+  const [selectedStream, setSelectedStream] = useState(null);
   const [liveStreams, setLiveStreams] = useState([]);
-  const { serverUrl, username, password, setError, setLoading } =
-    useContext(Context);
   
-    const handleStreamClick = useCallback((stream) => {
-    setLoading(true);
-    setError(null);
-    setUrel(null);
-    const streamUrl = `${serverUrl}/live/${username}/${password}/${
-      stream.stream_id
-    }.${!stream.ext || stream.ext === "" ? "m3u8" : stream.ext}`;
-    setUrel(streamUrl);
-  }, [username, password, serverUrl, setError, setLoading, setUrel])
+  const { serverUrl, username, password, setError, setLoading } = useContext(Context);
 
-  useEffect(() => {
+  // Memoized function to handle stream click
+  const handleStreamClick = useCallback(
+    (stream) => {
+      setLoading(true);
+      setError(null);
+      setUrel(null);
+      const streamUrl = `${serverUrl}/live/${username}/${password}/${stream.stream_id}.${!stream.ext || stream.ext === "" ? "m3u8" : stream.ext}`;
+      setUrel(streamUrl);
+      setSelectedStream(stream.num);  // Using stream.num directly
+    },
+    [username, password, serverUrl, setError, setLoading, setUrel]
+  );
+
+  // Fetch data function wrapped in useCallback
+  const fetchData = useCallback(async () => {
     if (categoryId === 1) {
       setLiveStreams(favoriteList);
       return;
     }
 
-    const fetchData = async () => {
-      const url = `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`;
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        setLiveStreams(data);
-      } catch (error) {
-        console.error("Error fetching live streams:", error);
-      }
-    };
-    fetchData();
+    const url = `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setLiveStreams(data);
+    } catch (error) {
+      setError("Error fetching live streams:", error);
+    }
+  }, [categoryId, serverUrl, username, password, setError, favoriteList]);
 
-    const handleKeyDown = (event) => {
-      if (isFocused === 2)
-        switch (event.key) {
-          case "ArrowDown":
-            setFocusedIndex((prevIndex) =>
-              Math.min(prevIndex + 1, liveStreams.length)
-            );
-            break;
-          case "ArrowUp":
-            setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-            break;
-          case "Enter":
-            handleStreamClick();
-            break;
-          default:
-            break;
+  useEffect(() => {
+    fetchData();  // Fetch the live streams data on mount and whenever dependencies change
+  }, [fetchData]);
+
+  const handleKeyDown = useCallback((event) => {
+    if (isFocused !== 2) return;
+
+    switch (event.key) {
+      case "ArrowDown":
+        setFocusedIndex((prevIndex) => Math.min(prevIndex + 1, liveStreams.length - 1));
+        break;
+      case "ArrowUp":
+        setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+        break;
+      case "Enter":
+        if (liveStreams[focusedIndex]) {
+          handleStreamClick(liveStreams[focusedIndex]);
         }
-    };
-    document.addEventListener("keydown", handleKeyDown);
+        break;
+      default:
+        break;
+    }
+  }, [isFocused, focusedIndex, liveStreams, handleStreamClick]);
 
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-    // eslint-disable-next-line
-  }, [
-    categoryId,
-    serverUrl,
-    username,
-    password,
-    favoriteList,
-    isFocused,
-    liveStreams.length,
-  ]);
+  }, [handleKeyDown]);
 
   return (
     <div className="live-stream-item">
@@ -81,11 +80,13 @@ const LiveStreamsList = ({ categoryId, favoriteList, setUrel, isFocused }) => {
           <li
             key={stream.stream_id}
             onClick={() => handleStreamClick(stream)}
-            className={`stream-item ${focusedIndex === i ? "focused" : ""}`}
+            className={`stream-item ${focusedIndex === i && isFocused === 2 ? "focused" : ""} ${
+              selectedStream === stream.num ? "selected" : ""
+            }`}
           >
             <span>
               <img
-                src={stream.stream_icon ? `${stream.stream_icon}` : { Logo }}
+                src={stream.stream_icon || Logo}
                 width="20"
                 height="20"
                 alt=""
@@ -96,7 +97,7 @@ const LiveStreamsList = ({ categoryId, favoriteList, setUrel, isFocused }) => {
               <img
                 src={inFavorite(stream, favoriteList) ? fillStar : star}
                 alt=""
-                width={"20px"}
+                width="20px"
               />
             </span>
           </li>
