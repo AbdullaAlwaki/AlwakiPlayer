@@ -113,7 +113,7 @@ const Player = () => {
                   autoPlay
                   preload="auto"
                   src={urlPlayer}
-
+                  // autoFullScreen
                 />
               )}
             </div>

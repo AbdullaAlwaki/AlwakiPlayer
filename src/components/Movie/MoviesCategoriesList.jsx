@@ -113,9 +113,7 @@ const MoviesCategoriesList = () => {
       setClose(true);
       return;
     }
-
     setSelectedCategory(categoryId);
-    console.log(categoryId);
     try {
       const response = await fetch(
         `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_vod_streams&category_id=${categoryId}`

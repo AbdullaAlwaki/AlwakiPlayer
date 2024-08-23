@@ -109,6 +109,7 @@ export default function MovieData() {
     );
   };
 
+
   return (
     <div className="movieData">
       <Carusel index={index} backdropImg={backdropImg} />
@@ -132,7 +133,9 @@ export default function MovieData() {
             {movieData?.info?.plot}
           </p>
           <div className="movieData_info_text_buttons">
-            <button onClick={() => handleMovieClick(id.id)}>Play</button>
+            <button onClick={() => {handleMovieClick(id.id);
+
+            }}>Play</button>
             {movieData?.info?.youtube_trailer === "" ? null : (
               <button onClick={handleTrailerClick}> Trailer </button>
             )}
@@ -175,9 +178,6 @@ export default function MovieData() {
         <img src={movieData?.info?.movie_image} alt="" />
       </div>
 
-      {/*       {close ? (
-        <Player outside={"movieData_Player"}  setClose={setClose} close={close} reff={movieDataListRef} />
-      ) : null} */}
     </div>
   );
 }
