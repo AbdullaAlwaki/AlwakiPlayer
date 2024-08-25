@@ -23,7 +23,7 @@ function App() {
     <div className="App">
       <Player />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/*" element={<Home />} />
         <Route path="/search" element={<Search />} />
         <Route path="/live" element={<LiveList />} />
         <Route path="/movies" element={<MoviesList />} />
