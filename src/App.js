@@ -12,7 +12,7 @@ import Login from "./components/Login/Login";
 import Error from "./components/Error/Error"
 import LoginWithData from "./components/Login/LoginWithData"
 import LoginWithUrl from "./components/Login/LoginWithUrl";
-import Player from "./Util/Player";
+import Player from "./Player/Player";
 import Loading from "./components/Loading/Loading";
 import Search from "./components/Search/Search";
 
@@ -21,9 +21,9 @@ function App() {
   
   return (
     <div className="App">
-      <Player />
       <Routes>
         <Route path="/*" element={<Home />} />
+        <Route path="/Player" element={<Player />} />
         <Route path="/search" element={<Search />} />
         <Route path="/live" element={<LiveList />} />
         <Route path="/movies" element={<MoviesList />} />

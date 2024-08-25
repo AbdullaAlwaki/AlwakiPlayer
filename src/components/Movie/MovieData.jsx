@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import Carusel from "../../Util/Carusel";
 import logo from "../../assets/Untitled-1.png";
@@ -13,6 +13,7 @@ export default function MovieData() {
   const [favoriteList, setFavoriteList] = useState(
     JSON.parse(localStorage.getItem("favoriteListMovie")) || []
   );
+  const navigate = useNavigate();
   const {
     serverUrl,
     username,
@@ -67,6 +68,8 @@ export default function MovieData() {
         data.movie_data.direct_source ||
         `${serverUrl}/movie/${username}/${password}/${movieId}.${data.movie_data.container_extension}`;
       setUrlPlayer(streamUrl);
+    navigate("/player");
+
     } catch (error) {
       setError("Error fetching movie details:", error);
     }
@@ -78,6 +81,7 @@ export default function MovieData() {
     setUrlPlayer(
       `https://www.youtube.com/watch?v=${movieData?.info?.youtube_trailer}`
     );
+    navigate("/player");
   };
 
   const inFavorite = (movieId) => {

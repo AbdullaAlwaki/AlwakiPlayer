@@ -146,43 +146,45 @@ const LiveCategoriesList = () => {
           />
         )}
 
-        {err ?   <div>
-          <p> {err}</p>
-        </div> : <div
-          className={`${isFocused === 3 ? "selected" : ""} iptv-player`}
-          onClick={fullScreen}
-          tabIndex="0"
-        >
-          <ReactPlayer
-            url={url}
-            playing
-            width={"100%"}
-            height={"100%"}
-            onBufferEnd={() => {
-              setLoading(false);
-              setErr(null);
-            }}
-            onReady={() => {
-              setErr(null);
-              setLoading(true);
-            }}
-            onBuffer={() => setLoading(true)}
-            onEnded={() => setLoading(false)}
-            onPause={() => setLoading(false)}
-            onError={(error) => {
-              setErr(`Error loading video: ${error}`);
-              console.log("error");
-              setLoading(false);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                fullScreen();
-              }
-            }}
-          />
-        </div>}
-       
+        {err ? (
+          <div className={`${isFocused === 3 ? "selected" : ""} iptv-player`}>
+            <p> {err}</p>
+          </div>
+        ) : (
+          <div
+            className={`${isFocused === 3 ? "selected" : ""} iptv-player`}
+            onClick={fullScreen}
+            tabIndex="0"
+          >
+            <ReactPlayer
+              url={url}
+              playing
+              width={"100%"}
+              height={"100%"}
+              onBufferEnd={() => {
+                setLoading(false);
+                setErr(null);
+              }}
+              onReady={() => {
+                setErr(null);
+                setLoading(true);
+              }}
+              onBuffer={() => setLoading(true)}
+              onEnded={() => setLoading(false)}
+              onPause={() => setLoading(false)}
+              onError={(error) => {
+                setErr(`Error loading video: ${error}`);
+                setLoading(false);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  fullScreen();
+                }
+              }}
+            />
+          </div>
+        )}
       </div>
     </>
   );

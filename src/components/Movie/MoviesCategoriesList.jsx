@@ -101,6 +101,11 @@ const MoviesCategoriesList = () => {
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
+
+    if(!close){
+      setIsFocused(2)
+    }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
