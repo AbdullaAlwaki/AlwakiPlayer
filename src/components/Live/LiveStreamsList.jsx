@@ -19,6 +19,8 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused }) 
       setError(null);
       setUrel(null);
       const streamUrl = `${serverUrl}/live/${username}/${password}/${stream.stream_id}.${!stream.ext || stream.ext === "" ? "m3u8" : stream.ext}`;
+    console.log(stream.num);
+
       setUrel(streamUrl);
       setSelectedStream(stream.num);  // Using stream.num directly
     },
@@ -33,6 +35,7 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused }) 
     }
 
     const url = `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`;
+    
     try {
       const response = await fetch(url);
       const data = await response.json();
@@ -84,6 +87,10 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused }) 
               selectedStream === stream.num ? "selected" : ""
             }`}
           >
+            <span>
+              {stream.num}
+            </span>
+
             <span>
               <img
                 src={stream.stream_icon || Logo}

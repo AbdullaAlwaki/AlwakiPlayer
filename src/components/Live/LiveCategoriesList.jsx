@@ -9,6 +9,7 @@ import "./live-categories-list.scss";
 
 const LiveCategoriesList = () => {
   const [liveCategories, setLiveCategories] = useState([]);
+  const [err, setErr] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [url, setUrel] = useState(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -145,7 +146,9 @@ const LiveCategoriesList = () => {
           />
         )}
 
-        <div
+        {err ?   <div>
+          <p> {err}</p>
+        </div> : <div
           className={`${isFocused === 3 ? "selected" : ""} iptv-player`}
           onClick={fullScreen}
           tabIndex="0"
@@ -157,17 +160,17 @@ const LiveCategoriesList = () => {
             height={"100%"}
             onBufferEnd={() => {
               setLoading(false);
-              setError(null);
+              setErr(null);
             }}
             onReady={() => {
-              setError(null);
+              setErr(null);
               setLoading(true);
             }}
             onBuffer={() => setLoading(true)}
             onEnded={() => setLoading(false)}
             onPause={() => setLoading(false)}
             onError={(error) => {
-              setError(`Error loading video: ${error}`);
+              setErr(`Error loading video: ${error}`);
               console.log("error");
               setLoading(false);
             }}
@@ -178,7 +181,8 @@ const LiveCategoriesList = () => {
               }
             }}
           />
-        </div>
+        </div>}
+       
       </div>
     </>
   );
