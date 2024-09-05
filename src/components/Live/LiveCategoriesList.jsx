@@ -143,6 +143,7 @@ const LiveCategoriesList = () => {
             favoriteList={favoriteList}
             setUrel={setUrel}
             isFocused={isFocused}
+            fullScreen={fullScreen}
           />
         )}
 

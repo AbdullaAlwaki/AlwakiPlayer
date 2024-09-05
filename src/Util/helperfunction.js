@@ -18,39 +18,40 @@ const fetchData = async (
         { category_id: "0", category_name: "All" },
         { category_id: "1", category_name: "Favorites" },
         { category_id: "2", category_name: "Recently Add" },
+        { category_id: "3", category_name: "continue watching" },
 
       );
       setCategories(CategoriesData);
 
-      // const fetchCountForCategory = async (category) => {
-      //   try {
-      //     const response = await fetch(
-      //       `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_${get}&category_id=${category.category_id}`
-      //     );
-      //     const data = await response.json();
-      //     return data.length;
-      //   } catch (error) {
-      //     setError(`Error fetching ${type} count for category:`, error);
-      //   }
-      // };
+       const fetchCountForCategory = async (category) => {
+         try {
+           const response = await fetch(
+             `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_${get}&category_id=${category.category_id}`
+           );
+           const data = await response.json();
+           return data.length;
+         } catch (error) {
+           setError(`Error fetching ${type} count for category:`, error);
+         }
+       };
 
-/*       const AllStreamsData = await Promise.all(
+       const AllStreamsData = await Promise.all(
         CategoriesData.map(async (category) => {
           const count = await fetchCountForCategory(category);
           return { [category.category_id]: count };
         })
-      ); */
+      ); 
 
-      // const CategoryWithCount = CategoriesData.map((category) => {
-      //   const count =AllStreamsData.find(
-      //     (count) => category.category_id in count
-      //   )[category.category_id];
-      //   return { ...category, count: count };
-      // });
+       const CategoryWithCount = CategoriesData.map((category) => {
+         const count =AllStreamsData.find(
+           (count) => category.category_id in count
+         )[category.category_id];
+         return { ...category, count: count };
+       });
 
       sessionStorage.setItem(
         `${type}Categories`,
-        JSON.stringify(CategoriesData)
+        JSON.stringify(CategoryWithCount)
       );
     } catch (error) {
       setError(error);

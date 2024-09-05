@@ -10,6 +10,8 @@ const SeriesCategoriesList = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [seriesList, setSeriesList] = useState([]);
   const [close, setClose] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const [isFocused, setIsFocused] = useState(1);
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
   const seriesDataListRef = useRef(null);
@@ -39,6 +41,48 @@ const SeriesCategoriesList = () => {
         "series"
       );
     }
+    const handleKeyDown = (event) => {
+      switch (event.key) {
+        case "ArrowDown":
+          if (isFocused === 1) {
+            setFocusedIndex((prevIndex) =>
+              Math.min(prevIndex + 1, seriesCategories.length)
+            );
+          }
+          break;
+        case "ArrowUp":
+          if (isFocused === 1)
+            setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+          break;
+        case "ArrowLeft":
+          if (isFocused === 1)
+            setIsFocused((prevIndex) => Math.max(prevIndex - 1, 0));
+          break;
+        case "ArrowRight":
+          if ( selectedCategory === seriesCategories[focusedIndex]?.category_id){
+          setIsFocused((prevIndex) => Math.min(prevIndex + 1, 2));} else {
+            setIsFocused((prevIndex) => Math.min(prevIndex + 1, 1));
+          }
+          break;
+        case "Enter":
+          if (isFocused === 1) {
+            handleCategoryClick(seriesCategories[focusedIndex]?.category_id);
+            setIsFocused(2);
+          }
+          break;
+          case "Backspace":
+            setSelectedCategory(null)
+            setIsFocused(1)
+          break;
+        default:
+          break;
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
     // eslint-disable-next-line
   }, [
     serverUrl,
@@ -47,6 +91,8 @@ const SeriesCategoriesList = () => {
     setLoading,
     setError,
     favoriteList.length,
+    focusedIndex,
+    isFocused
   ]);
 
   const handleCategoryClick = async (categoryId) => {
@@ -91,13 +137,15 @@ const SeriesCategoriesList = () => {
 
   return (
     <>
-      <ListDivision />
+      <ListDivision isFocused={isFocused === 0}/>
       <div className="series_categories_container">
         <div className="series_categories_list_container">
           <ul className="series_categories">
-            {seriesCategories.map((category) => (
+            {seriesCategories.map((category, index) => (
               <li
-                className="series_category"
+                className={`series_category ${
+                  focusedIndex === index && isFocused === 1 ? "focused" : ""
+                } ${selectedCategory === category.category_id ? "selected" : ""}`}
                 key={category.category_id}
                 onClick={() => handleCategoryClick(category.category_id)}
               >
@@ -109,7 +157,7 @@ const SeriesCategoriesList = () => {
                 {selectedCategory === category.category_id && close && (
                   <div className="series_data_list">
                     <div ref={seriesDataListRef}>
-                      <SeriesList seriesList={seriesList} />
+                      <SeriesList seriesList={seriesList} isFocused={isFocused} />
                     </div>
                   </div>
                 )}

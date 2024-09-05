@@ -5,29 +5,33 @@ import Logo from "../../assets/logo.png";
 import star from "../../assets/star.png";
 import fillStar from "../../assets/fillStar.png";
 
-const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused }) => {
+const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fullScreen }) => {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [selectedStream, setSelectedStream] = useState(null);
   const [liveStreams, setLiveStreams] = useState([]);
-  
+
   const { serverUrl, username, password, setError, setLoading } = useContext(Context);
 
   // Memoized function to handle stream click
   const handleStreamClick = useCallback(
     (stream) => {
+      // Check if the clicked stream is the same as the selected stream
+      if (selectedStream === stream.num) {
+        fullScreen()
+        return;
+      }
+      
       setLoading(true);
       setError(null);
       setUrel(null);
       const streamUrl = `${serverUrl}/live/${username}/${password}/${stream.stream_id}.${!stream.ext || stream.ext === "" ? "m3u8" : stream.ext}`;
-    console.log(stream.num);
 
       setUrel(streamUrl);
-      setSelectedStream(stream.num);  // Using stream.num directly
+      setSelectedStream(stream.num);
     },
-    [username, password, serverUrl, setError, setLoading, setUrel]
+    [username, password, serverUrl, setError, setLoading, setUrel, selectedStream]
   );
 
-  // Fetch data function wrapped in useCallback
   const fetchData = useCallback(async () => {
     if (categoryId === 1) {
       setLiveStreams(favoriteList);
@@ -46,7 +50,7 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused }) 
   }, [categoryId, serverUrl, username, password, setError, favoriteList]);
 
   useEffect(() => {
-    fetchData();  // Fetch the live streams data on mount and whenever dependencies change
+    fetchData(); 
   }, [fetchData]);
 
   const handleKeyDown = useCallback((event) => {

@@ -14,10 +14,10 @@ export default function Movie({ moviesList, isFocused }) {
   const [loadedItems, setLoadedItems] = useState(0);
   const itemsPerLoad = 20;
 
-  const listRef = useRef(null); // Ref for the movies list
+  const listRef = useRef(null); 
 
   useEffect(() => {
-    loadMoreItems(); // Initial load of items
+    loadMoreItems(); 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
