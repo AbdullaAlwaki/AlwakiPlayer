@@ -56,6 +56,7 @@ export default function MovieData() {
     movieData?.info?.youtube_trailer,
   ]);
 
+  
   const handleMovieClick = async (movieId) => {
     setClosePlayer(true);
     setError("");
