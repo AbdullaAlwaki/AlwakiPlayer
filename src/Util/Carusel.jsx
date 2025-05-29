@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 import "../Style/Carusel.scss"
 
 export default function Carusel({index, backdropImg}) {
@@ -19,3 +20,8 @@ export default function Carusel({index, backdropImg}) {
   </div>
   )
 }
+
+Carusel.propTypes = {
+  index: PropTypes.number.isRequired,
+  backdropImg: PropTypes.arrayOf(PropTypes.string).isRequired,
+};

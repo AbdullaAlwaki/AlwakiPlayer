@@ -1,21 +1,24 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Context } from "../../Util/createContext";
+import { useNavigate } from "react-router-dom";
 import "./SeriesData.scss";
 
 export default function SeriesEpisodes({ episodes }) {
   const [episodesdata, setepisodesdata] = useState([]);
   const { setError, serverUrl, username, password, setUrlPlayer, setClosePlayer } =
     useContext(Context);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setepisodesdata(Object.values(episodes));
   }, [episodes]);
 
   const handleSeriesClick = (seriesId, idx) => {
-    setClosePlayer(true)
+    setClosePlayer(true);
     setError("");
     const streamUrl = `${serverUrl}/series/${username}/${password}/${seriesId}.${episodesdata[idx].container_extension}`;
     setUrlPlayer(streamUrl);
+    navigate('/Player');
   };
 
   return (

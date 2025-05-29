@@ -1,9 +1,11 @@
 .seriesData {
-  width: 75%;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   margin: 0 auto;
+  position: relative;
+  backdrop-filter: blur(10px);
   .seriesData_info {
-    background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.8) 70%, rgba(0, 0, 0, 0.4));
     width: 100%;
     height: 50%;
     display: flex;
@@ -13,198 +15,474 @@
     .seriesData_info_text {
       width: 90%;
       height: 100%;
-      padding: 0 20px;
+      padding: 2rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      align-items: center;
+      gap: 1.5rem;
       .seriesData_info_text_title {
-        font-size: 30px;
-        font-weight: bold;
-        margin-bottom: 20px;
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       }
       .seriesData_info_text_genre {
-        width: 40%;
-        text-align: center;
+        background: rgba(255, 0, 0, 0.15);
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 1rem;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 4px 15px rgba(255, 0, 0, 0.1);
       }
       .seriesData_info_text_info {
         width: 100%;
         display: flex;
-        justify-content: space-around;
+        justify-content: flex-start;
         align-items: center;
+        gap: 2rem;
         .seriesData_info_text_rating {
+          display: flex;
+          align-items: center;
+          background: rgba(255, 0, 0, 0.15);
+          padding: 0.5rem 1rem;
+          border-radius: 2rem;
+          backdrop-filter: blur(5px);
           span {
-            padding-left: 10px;
+            padding-left: 0.5rem;
+            font-weight: 600;
           }
         }
         p {
-          text-align: center;
-          width: 30%;
-          font-size: 20px;
-          font-weight: bold;
-          margin-bottom: 20px;
+          font-size: 1.1rem;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.9);
+          margin: 0;
         }
       }
       .seriesData_info_text_description {
         height: 45%;
-        overflow-x: auto;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+        overflow-y: auto;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.85);
+        padding-right: 1rem;
         &::-webkit-scrollbar {
-          display: none;
+          width: 6px;
         }
-        font-size: 20px;
-        margin-bottom: 20px;
-        width: 100%;
+        &::-webkit-scrollbar-thumb {
+          background: rgba(255, 0, 0, 0.3);
+          border-radius: 3px;
+        }
       }
       .seriesData_info_text_buttons {
         display: flex;
-        justify-content: space-around;
-        width: 100%;
+        gap: 1rem;
         button {
-          width: 30%;
-          height: 50px;
-          margin-top: 50px;
-          background-color: #383838;
+          padding: 0.8rem 1.5rem;
+          background: linear-gradient(135deg, #ff0000, #cc0000);
           color: #ffffff;
-          font-size: 20px;
-          font-weight: bold;
+          font-size: 1rem;
+          font-weight: 600;
           border: none;
-          border-radius: 10px;
+          border-radius: 0.5rem;
           cursor: pointer;
-          transition: 0.3s;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
           &:hover {
-            background-color: #ffffff;
-            color: #383838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ff1a1a, #e60000);
+          }
+          &:active {
+            transform: translateY(0);
           }
         }
       }
     }
-
     .seriesData_image {
       width: 100%;
       height: 100%;
-      text-align: end;
-      z-index: 1;
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
+      overflow: hidden;
       img {
         width: 80%;
-        height: 50%;
-        max-width: 300px;
-        object-fit: contain;
+        height: auto;
+        max-width: 400px;
+        object-fit: cover;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        &:hover {
+          transform: scale(1.02);
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
       }
     }
   }
   .seriesData_seasons {
     width: 100%;
     height: 30%;
-    background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.8));
     overflow-x: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
+    gap: 1.5rem;
+    padding: 1.5rem;
     position: relative;
     z-index: 1;
+    scroll-behavior: smooth;
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 0, 0, 0.3);
+      border-radius: 3px;
+    }
     .seasons {
+      flex: 0 0 auto;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      margin-left: 10px;
-      margin-right: 10px;
-      margin-top: 10px;
-      margin-bottom: 10px;
-      cursor: pointer;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
       &:hover {
-        transform: scale(1.1);
-        transition: transform 0.5s;
+        transform: translateY(-5px);
       }
       .seasons_icon {
         width: 220px;
         height: 300px;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         img {
-          border-radius: 10px 10px 0 0;
-          width: 220px;
-          height: 300px;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+          &:hover {
+            transform: scale(1.05);
+          }
         }
       }
       .seasons_name {
-        width: 200px;
-        padding: 10px;
-        margin: 0;
+        width: 100%;
+        padding: 0.8rem;
+        background: linear-gradient(135deg, #ff0000, #cc0000);
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #ff0000;
-        border-radius: 0 0 10px 10px;
+        box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
       }
     }
   }
   .seriesData_info_details {
     width: 100%;
     height: 20%;
-    display: flex;
-    padding: 0 50px;
+    padding: 2rem;
     color: #ffffff;
-    background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.8));
     position: relative;
     z-index: 1;
-    h2 {
-      margin: 0;
-    }
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
     div {
-      width: 20%;
-      height: 200px;
-      text-align: center;
-      font-size: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      h2 {
+        font-size: 1.2rem;
+        margin-bottom: 0.8rem;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      p {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+      }
     }
   }
   .series_episodes_con {
-    width: 85%;
-    height: 100%;
-    background-color: #000000ae;
-    position: absolute;
-    top: 0;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1;
+    z-index: 100;
+    padding: 2rem;
+    animation: fadeIn 0.3s ease-out;
+
     .series_episodes {
-      width: 80%;
-      height: 80%;
-      background: #ff0000;
-      overflow: auto;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+      width: 90%;
+      max-width: 1200px;
+      max-height: 85vh;
+      background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+      border-radius: 1.5rem;
+      overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.4s ease-out;
+
       &::-webkit-scrollbar {
-        display: none;
+        width: 8px;
+        background: rgba(255, 255, 255, 0.05);
       }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 0, 0, 0.3);
+        border-radius: 4px;
+        
+        &:hover {
+          background: rgba(255, 0, 0, 0.5);
+        }
+      }
+
       .episodes_data {
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-        background: #303030;
-        border: 1px black solid;
-        padding: 10px;
+        display: grid;
+        grid-template-columns: 0.5fr 2fr 1fr 0.5fr 1fr;
+        gap: 1rem;
+        padding: 1.2rem;
+        background: rgba(48, 48, 48, 0.4);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
         cursor: pointer;
+
+        &:hover {
+          background: rgba(255, 0, 0, 0.1);
+          transform: translateX(8px);
+          box-shadow: 0 2px 15px rgba(255, 0, 0, 0.1);
+        }
+
         div {
-          width: 20%;
-          margin: 0;
-          text-align: center;
+          color: white;
+          padding: 0.8rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          
+          h2 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+            letter-spacing: 0.5px;
+          }
+          
+          &:nth-child(1) { // Episode number
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ff0000;
+          }
+          
+          &:nth-child(2) { // Title
+            font-size: 1rem;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          
+          &:nth-child(3) { // Duration
+            font-family: monospace;
+            font-size: 0.9rem;
+          }
+          
+          &:nth-child(4) { // Season
+            font-size: 1rem;
+            font-weight: 500;
+          }
+          
+          &:nth-child(5) { // Added date
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+          }
+        }
+      }
+    }
+  }
+}
+/* Responsive styles */
+
+@media (max-width: 768px) {
+  .seriesData {
+    width: 100%;
+    .seriesData_info {
+            flex-direction: column;
+      height: auto;
+      .seriesData_info_text {
+        padding: 2rem;
+        width: 100%;
+        .seriesData_info_text_info {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          padding-bottom: 0.5rem;
+          &::-webkit-scrollbar {
+            display: none;
+          }
+          p {
+            flex: 0 0 auto;
+          }
+        }
+        .seriesData_info_text_buttons {
+          flex-wrap: wrap;
+          button {
+            flex: 1 1 40%;
+            min-width: 150px;
+          }
+        }
+      }
+    }
+    .seriesData_seasons {
+      .seasons {
+        .seasons_icon {
+          width: 180px;
+          height: 240px;
+        }
+      }
+    }
+    .series_episodes_con {
+      padding: 1rem;
+      .series_episodes {
+        width: 95%;
+      }
+    }
+  }
+}
+@media (max-width: 480px) {
+  .seriesData {
+    .seriesData_info {
+      .seriesData_info_text {
+        .seriesData_info_text_title {
+          font-size: 1.5rem;
+        }
+        .seriesData_info_text_buttons {
+          button {
+            flex: 1 1 100%;
+          }
+        }
+      }
+    }
+    .seriesData_seasons {
+      .seasons {
+        .seasons_icon {
+          width: 140px;
+          height: 200px;
+        }
+      }
+    }
+  }
+}
+/* Episodes animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(20px);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive styles for episodes */
+@media (max-width: 1024px) {
+  .series_episodes_con {
+    .series_episodes {
+      .episodes_data {
+        grid-template-columns: 0.5fr 1.5fr 1fr 0.5fr;
+        
+        div:last-child { // Hide Added date on tablets
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .series_episodes_con {
+    padding: 1rem;
+    
+    .series_episodes {
+      width: 95%;
+      border-radius: 1rem;
+      
+      .episodes_data {
+        grid-template-columns: 0.5fr 2fr;
+        padding: 0.8rem;
+        gap: 0.8rem;
+        
+        div {
+          padding: 0.6rem;
+          
+          &:nth-child(3), // Hide Duration
+          &:nth-child(4) { // Hide Season
+            display: none;
+          }
+          
+          h2 {
+            font-size: 0.7rem;
+          }
+          
+          &:nth-child(1) { // Episode number
+            font-size: 1rem;
+          }
+          
+          &:nth-child(2) { // Title
+            font-size: 0.9rem;
+          }
+        }
+        
+        &:hover {
+          transform: translateX(4px);
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .series_episodes_con {
+    padding: 0.5rem;
+    
+    .series_episodes {
+      width: 100%;
+      position: absolute     ;
+      top :4%;
+      border-radius: 0.8rem;
+      
+      .episodes_data {
+        padding: 0.6rem;
+        gap: 0.5rem;
+        
+        div {
+          padding: 0.4rem;
+          
+          &:nth-child(1) { // Episode number
+            font-size: 0.9rem;
+          }
+          
+          &:nth-child(2) { // Title
+            font-size: 0.8rem;
+          }
         }
       }
     }

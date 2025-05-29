@@ -1,4 +1,5 @@
 import "./Loading.scss";
+import PropTypes from 'prop-types';
 
 export default function Loading({ loading }) {
   return (
@@ -9,3 +10,7 @@ export default function Loading({ loading }) {
     </div>
   );
 }
+
+Loading.propTypes = {
+  loading: PropTypes.bool.isRequired,
+};

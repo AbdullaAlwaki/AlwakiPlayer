@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback, useMemo } from "react";
+import React, { useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import "./Login.scss";
@@ -7,59 +7,68 @@ export default function LoginWithUrl() {
   const { setError, setLoading, setName } = useContext(Context);
   const navigate = useNavigate();
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const inputs = useMemo(() => ["name", "serverUrl"], []);
+  const inputRefs = useRef([]);
 
-  const inputs = useMemo(()=>["name", "serverUrl"],[]); 
-
-  const onSubmit = useCallback((e) => {
-    e.preventDefault();
-    setLoading(true);
-    const name = document.getElementsByName("name")[0].value;
-    const serverUrl = document.getElementsByName("serverUrl")[0].value;
-
-    if (!serverUrl || !name) {
-      setError("Please fill all the fields");
-      setLoading(false);
-      return;
-    }
-
-    if (!serverUrl.includes("get.php")) {
-      setError("Invalid URL");
-      setLoading(false);
-      return;
-    }
-
-    const urlArr = serverUrl.split("/get.php?");
-    const params = urlArr[1].split("&");
-    const obj = {};
-    params.forEach((param) => {
-      const [key, value] = param.split("=");
-      obj[key] = value;
-    });
-
-    setName(name);
-    fetch(
-      `${urlArr[0]}/player_api.php?username=${obj.username}&password=${obj.password}&action=user_info`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.user_info.auth === 1) {
-          let userData = JSON.parse(localStorage.getItem("user")) || [];
-          userData.push({ ...data, profile: name });
-          localStorage.setItem("user", JSON.stringify(userData));
-          setLoading(false);
-          setError(null);
-          navigate("/");
-        } else {
-          setLoading(false);
-          setError("Invalid URL");
-        }
-      })
-      .catch((error) => {
+  const onSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      setLoading(true);
+      const name = inputRefs.current[0]?.value;
+      const serverUrl = inputRefs.current[1]?.value;
+      if (!serverUrl || !name) {
+        setError("Please fill all the fields");
         setLoading(false);
-        setError(error.message);
+        return;
+      }
+      if (!serverUrl.includes("get.php")) {
+        setError("Invalid URL");
+        setLoading(false);
+        return;
+      }
+      const urlArr = serverUrl.split("/get.php?");
+      const params = urlArr[1].split("&");
+      const obj = {};
+      params.forEach((param) => {
+        const [key, value] = param.split("=");
+        obj[key] = value;
       });
-  },
-  [setError, navigate, setLoading, setName]
+      setName(name);
+      fetch(
+        `${urlArr[0]}/player_api.php?username=${obj.username}&password=${obj.password}&action=user_info`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.user_info.auth === 1) {
+            let userData = JSON.parse(localStorage.getItem("user")) || [];
+            userData.push({ ...data, profile: name });
+            localStorage.setItem("user", JSON.stringify(userData));
+            setLoading(false);
+            setError(null);
+            navigate("/");
+          } else {
+            setLoading(false);
+            setError("Invalid URL");
+          }
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError(error.message);
+        });
+    },
+    [setError, navigate, setLoading, setName]
+  );
+
+  const handleEnter = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (focusedIndex < inputs.length) {
+        inputRefs.current[focusedIndex]?.focus();
+      } else {
+        onSubmit(e);
+      }
+    },
+    [focusedIndex, inputs.length, onSubmit]
   );
 
   useEffect(() => {
@@ -67,18 +76,23 @@ export default function LoginWithUrl() {
       const activeElement = document.activeElement;
       const isInputField = activeElement.tagName.toLowerCase() === "input";
       const isEmpty = isInputField && activeElement.value === "";
-
       switch (e.key) {
         case "ArrowDown":
-          setFocusedIndex((prevIndex) => Math.min(prevIndex + 1, 2));
+        case "Down":
+        case 40:
+          setFocusedIndex((prevIndex) => Math.min(prevIndex + 1, inputs.length));
           break;
         case "ArrowUp":
+        case "Up":
+        case 38:
           setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
           break;
         case "Enter":
+        case 13:
           handleEnter(e);
           break;
         case "Backspace":
+        case 8:
           if (isInputField && isEmpty) {
             activeElement.blur();
           } else if (!isInputField || isEmpty) {
@@ -86,41 +100,31 @@ export default function LoginWithUrl() {
           }
           break;
         default:
-          // Ignore other keys
           break;
       }
     };
-    
-    const handleEnter = (e) => {
-    e.preventDefault();
-    if (focusedIndex < inputs.length) {
-      const nextInput = document.getElementsByName(inputs[focusedIndex])[0];
-      if (nextInput) {
-        nextInput.focus();
-      }
-    } else {
-      onSubmit(e);
-    }
-  };
-
     document.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [focusedIndex, navigate, inputs, onSubmit]);
+  }, [focusedIndex, navigate, inputs.length, onSubmit, handleEnter]);
 
-  const getClassName = (index) => {
-    return focusedIndex === index ? "selected_input" : "";
-  };
+  useEffect(() => {
+    if (focusedIndex < inputs.length && inputRefs.current[focusedIndex]) {
+      inputRefs.current[focusedIndex].focus();
+    }
+  }, [focusedIndex, inputs.length]);
+
+  const getClassName = (index) => (focusedIndex === index ? "selected_input" : "");
 
   return (
     <div className="loginWithData">
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} autoComplete="off">
         <h1>Login to your server</h1>
         {inputs.map((input, index) => (
           <div key={index} className={getClassName(index)}>
             <input
+              ref={(el) => (inputRefs.current[index] = el)}
               type="text"
               name={input}
               placeholder={
@@ -129,11 +133,16 @@ export default function LoginWithUrl() {
                   : input.charAt(0).toUpperCase() + input.slice(1)
               }
               autoFocus={index === 0}
+              tabIndex={index + 1}
+              aria-label={input}
+              onFocus={() => setFocusedIndex(index)}
             />
           </div>
         ))}
-        <div className={getClassName(2)}>
-          <button type="submit">Save Login</button>
+        <div className={getClassName(inputs.length)}>
+          <button type="submit" tabIndex={inputs.length + 1} aria-label="Save Login">
+            Save Login
+          </button>
         </div>
       </form>
     </div>

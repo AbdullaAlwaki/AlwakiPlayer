@@ -1,5 +1,6 @@
 import React from 'react'
 import logo from "../../assets/logo.png";
+import PropTypes from 'prop-types';
 
 
 export default function SeriesDataSeasons({seriesData, setSeasonNum, setSeriesData}) {
@@ -37,3 +38,13 @@ export default function SeriesDataSeasons({seriesData, setSeasonNum, setSeriesDa
   </div>
   )
 }
+
+SeriesDataSeasons.propTypes = {
+  seriesData: PropTypes.shape({
+    seasons: PropTypes.array,
+    info: PropTypes.object,
+    episodes: PropTypes.object,
+  }).isRequired,
+  setSeasonNum: PropTypes.func.isRequired,
+  setSeriesData: PropTypes.func.isRequired,
+};

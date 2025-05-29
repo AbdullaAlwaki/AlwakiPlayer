@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
 import { Context } from "../../Util/createContext";
 import { inFavorite, handelFavorite } from "../../Util/helperfunction";
 import Logo from "../../assets/logo.png";
@@ -9,6 +9,7 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [selectedStream, setSelectedStream] = useState(null);
   const [liveStreams, setLiveStreams] = useState([]);
+  const itemRefs = useRef([]);
 
   const { serverUrl, username, password, setError, setLoading } = useContext(Context);
 
@@ -29,7 +30,7 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
       setUrel(streamUrl);
       setSelectedStream(stream.num);
     },
-    [username, password, serverUrl, setError, setLoading, setUrel, selectedStream]
+    [username, password, serverUrl, setError, setLoading, setUrel, selectedStream, fullScreen]
   );
 
   const fetchData = useCallback(async () => {
@@ -56,12 +57,33 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
   const handleKeyDown = useCallback((event) => {
     if (isFocused !== 2) return;
 
+    // Prevent default behavior for navigation keys
+    if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
+      event.preventDefault();
+    }
+
     switch (event.key) {
       case "ArrowDown":
-        setFocusedIndex((prevIndex) => Math.min(prevIndex + 1, liveStreams.length - 1));
+        setFocusedIndex((prevIndex) => {
+          const newIndex = Math.min(prevIndex + 1, liveStreams.length - 1);
+          // Smooth scroll into view
+          itemRefs.current[newIndex]?.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+          return newIndex;
+        });
         break;
       case "ArrowUp":
-        setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+        setFocusedIndex((prevIndex) => {
+          const newIndex = Math.max(prevIndex - 1, 0);
+          // Smooth scroll into view
+          itemRefs.current[newIndex]?.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+          return newIndex;
+        });
         break;
       case "Enter":
         if (liveStreams[focusedIndex]) {
@@ -74,24 +96,32 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
   }, [isFocused, focusedIndex, liveStreams, handleStreamClick]);
 
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
+    // Use capture phase to handle events before they bubble
+    document.addEventListener("keydown", handleKeyDown, true);
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [handleKeyDown]);
 
   return (
-    <div className="live-stream-item">
-      <ul className="live-streams">
+    <div className="live-stream-item" role="region" aria-label="Live Streams List">
+      <ul className="live-streams" role="listbox" 
+        tabIndex={0}
+        aria-activedescendant={`stream-${focusedIndex}`}>
         {liveStreams.map((stream, i) => (
           <li
+            ref={el => (itemRefs.current[i] = el)}
             key={stream.stream_id}
             onClick={() => handleStreamClick(stream)}
             className={`stream-item ${focusedIndex === i && isFocused === 2 ? "focused" : ""} ${
               selectedStream === stream.num ? "selected" : ""
             }`}
+            role="option"
+            aria-selected={selectedStream === stream.num}
+            id={`stream-${i}`}
+            tabIndex={focusedIndex === i && isFocused === 2 ? 0 : -1}
           >
-            <span>
+            <span aria-hidden="true">
               {stream.num}
             </span>
 
@@ -101,14 +131,23 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
                 width="20"
                 height="20"
                 alt=""
+                aria-hidden="true"
               />
               {stream.name}
             </span>
-            <span onClick={() => handelFavorite(stream, "Live", favoriteList)}>
+            <span 
+              onClick={(e) => {
+                e.stopPropagation();
+                handelFavorite(stream, "Live", favoriteList);
+              }}
+              role="button"
+              aria-label={`${inFavorite(stream, favoriteList) ? 'Remove from' : 'Add to'} favorites`}
+            >
               <img
                 src={inFavorite(stream, favoriteList) ? fillStar : star}
                 alt=""
                 width="20px"
+                aria-hidden="true"
               />
             </span>
           </li>

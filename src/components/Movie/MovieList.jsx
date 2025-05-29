@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import Logo from "../../assets/logo.png";
@@ -16,10 +16,20 @@ export default function Movie({ moviesList, isFocused }) {
 
   const listRef = useRef(null); 
 
+  const handleMovieClick = useCallback(async (movieId) => {
+    setError(null);
+    navigate(`/movies/${movieId}`);
+  }, [navigate, setError]);
+
+  const loadMoreItems = useCallback(() => {
+    const moreItems = moviesList.slice(loadedItems, loadedItems + itemsPerLoad);
+    setVisibleMovies((prevMovies) => [...prevMovies, ...moreItems]);
+    setLoadedItems((prevCount) => prevCount + itemsPerLoad);
+  }, [loadedItems, moviesList, itemsPerLoad]);
+
   useEffect(() => {
     loadMoreItems(); 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadMoreItems]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,20 +51,7 @@ export default function Movie({ moviesList, isFocused }) {
       if (ul) {
         ul.removeEventListener("scroll", handleScroll);
       }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadedItems]);
-
-  const loadMoreItems = () => {
-    const moreItems = moviesList.slice(loadedItems, loadedItems + itemsPerLoad);
-    setVisibleMovies((prevMovies) => [...prevMovies, ...moreItems]);
-    setLoadedItems((prevCount) => prevCount + itemsPerLoad);
-  };
-
-  const handleMovieClick = async (movieId) => {
-    setError(null);
-    navigate(`/movies/${movieId}`);
-  };
+    };  }, [loadMoreItems]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -102,7 +99,7 @@ export default function Movie({ moviesList, isFocused }) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [focusedIndex, moviesList]);
+  }, [focusedIndex, moviesList, handleMovieClick, moviesList.length]);
 
   return (
     <div>

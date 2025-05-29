@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../Util/createContext";
 import { fetchData } from "../../Util/helperfunction";
@@ -14,6 +14,8 @@ const LiveCategoriesList = () => {
   const [url, setUrel] = useState(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(1);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const itemRefs = useRef([]);
   const navigate = useNavigate();
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
@@ -42,18 +44,73 @@ const LiveCategoriesList = () => {
         "live_streams"
       );
     }
-    const handleKeyDown = (event) => {
+    // eslint-disable-next-line
+  }, [
+    serverUrl,
+    setError,
+    setLoading,
+    username,
+    password,
+    liveCategories.length,
+    favoriteList.length,
+  ]);
+
+  const handleCategoryClick = useCallback((categoryId) => {
+    // If clicking the same category that's already open, close it
+    if (selectedCategory === categoryId) {
+      setSelectedCategory(null);
+      return;
+    }
+    setSelectedCategory(categoryId);
+  }, [selectedCategory]);
+
+  const fullScreen = useCallback(() => {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+
+  // Add default case to switch statement
+  const handleKeyDown = useCallback(
+    (event) => {
       switch (event.key) {
         case "ArrowDown":
           if (isFocused === 1) {
-            setFocusedIndex((prevIndex) =>
-              Math.min(prevIndex + 1, liveCategories.length)
-            );
+            setFocusedIndex((prevIndex) => {
+              const newIndex = Math.min(
+                prevIndex + 1,
+                liveCategories.length - 1
+              );
+              // Scroll into view
+              if (itemRefs.current[newIndex]) {
+                itemRefs.current[newIndex].scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }
+              return newIndex;
+            });
           }
           break;
         case "ArrowUp":
-          if (isFocused === 1)
-            setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+          if (isFocused === 1) {
+            setFocusedIndex((prevIndex) => {
+              const newIndex = Math.max(prevIndex - 1, 0);
+              // Scroll into view
+              if (itemRefs.current[newIndex]) {
+                itemRefs.current[newIndex].scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }
+              return newIndex;
+            });
+          }
           break;
         case "ArrowLeft":
           setIsFocused((prevIndex) => Math.max(prevIndex - 1, 0));
@@ -68,50 +125,22 @@ const LiveCategoriesList = () => {
           }
           if (isFocused === 3) fullScreen();
           break;
+        case "f":
+          fullScreen();
+          break;
         default:
+          // Handle any other keys if needed
           break;
       }
-    };
-    document.addEventListener("keydown", handleKeyDown);
+    },
+    [isFocused, liveCategories.length, handleCategoryClick, fullScreen, focusedIndex]
+  );
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-    // eslint-disable-next-line
-  }, [
-    serverUrl,
-    setError,
-    setLoading,
-    username,
-    focusedIndex,
-    /*  liveCategoriesLocal, */
-    navigate,
-    password,
-    liveCategories.length,
-    favoriteList.length,
-    isFocused,
-  ]);
-
-  const handleCategoryClick = async (categoryId) => {
-    if (selectedCategory !== categoryId) {
-      setSelectedCategory(categoryId);
-    }
-  };
-
-  const fullScreen = () => {
-    const elem = document.querySelector(".iptv-player");
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else if (elem.requestFullscreen) {
-      elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) {
-      elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) {
-      elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) {
-      elem.msRequestFullscreen();
-    }
-  };
+  useEffect(() => {
+    // Add key event listener
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [handleKeyDown]);
 
   return (
     <>
@@ -122,12 +151,21 @@ const LiveCategoriesList = () => {
             {liveCategories?.map((category, index) => (
               <li
                 key={index}
+                ref={(el) => (itemRefs.current[index] = el)}
                 onClick={() => handleCategoryClick(index)}
                 className={`category-item ${
                   focusedIndex === index && isFocused === 1 ? "focused" : ""
                 } ${selectedCategory === index ? "selected" : ""}`}
-                tabIndex="0"
+                tabIndex={focusedIndex === index ? 0 : -1}
                 onFocus={() => setFocusedIndex(index)}
+                title={category.category_name}
+                role="option"
+                aria-selected={selectedCategory === index}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleCategoryClick(index);
+                  }
+                }}
               >
                 <span className="category-name">{category.category_name}</span>
                 {category.count && (
@@ -156,7 +194,14 @@ const LiveCategoriesList = () => {
             className={`${isFocused === 3 ? "selected" : ""} iptv-player`}
             onClick={fullScreen}
             tabIndex="0"
+            aria-label="IPTV Player"
           >
+            {videoLoading && (
+              <div className="video-loading-overlay">
+                <span className="video-loading-spinner" />
+                <span>Loading video...</span>
+              </div>
+            )}
             <ReactPlayer
               url={url}
               playing
@@ -165,17 +210,20 @@ const LiveCategoriesList = () => {
               onBufferEnd={() => {
                 setLoading(false);
                 setErr(null);
+                setVideoLoading(false);
               }}
               onReady={() => {
                 setErr(null);
                 setLoading(true);
+                setVideoLoading(false);
               }}
-              onBuffer={() => setLoading(true)}
-              onEnded={() => setLoading(false)}
-              onPause={() => setLoading(false)}
+              onBuffer={() => setVideoLoading(true)}
+              onEnded={() => setVideoLoading(false)}
+              onPause={() => setVideoLoading(false)}
               onError={(error) => {
                 setErr(`Error loading video: ${error}`);
                 setLoading(false);
+                setVideoLoading(false);
               }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {

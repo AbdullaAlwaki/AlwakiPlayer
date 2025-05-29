@@ -1,8 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const UserInfo = ({ userInfo }) => {
   const { status, exp_date, is_trial, active_cons, created_at, max_connections } = userInfo.user_info;
-  console.log(userInfo);
+
   return (
     <div>
       <h2>User Info</h2>
@@ -12,10 +13,21 @@ const UserInfo = ({ userInfo }) => {
       <p>Is Trial: {is_trial ? 'Yes' : 'No'}</p>
       <p>Active Connections: {active_cons}</p>
       <p>Max Connections: {max_connections}</p>
-      
-
     </div>
   );
+};
+
+UserInfo.propTypes = {
+  userInfo: PropTypes.shape({
+    user_info: PropTypes.shape({
+      status: PropTypes.string,
+      exp_date: PropTypes.number,
+      is_trial: PropTypes.bool,
+      active_cons: PropTypes.number,
+      created_at: PropTypes.number,
+      max_connections: PropTypes.number,
+    }).isRequired,
+  }).isRequired,
 };
 
 export default UserInfo;

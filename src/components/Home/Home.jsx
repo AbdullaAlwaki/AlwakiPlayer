@@ -10,9 +10,13 @@ export default function Home() {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const { setServerUrl, setUsername, setPassword, setName } =
     useContext(Context);
+    console.log(setServerUrl, setUsername, setPassword, setName);
+    
   const navigate = useNavigate();
 
   const profile = JSON.parse(localStorage.getItem("user"));
+  console.log("profile", profile);
+  
 
   const user = useCallback((e) => {
     sessionStorage.clear();
@@ -97,3 +101,4 @@ export default function Home() {
     </div>
   );
 }
+
