@@ -28,8 +28,19 @@ export default function Movie({ moviesList, isFocused }) {
   }, [loadedItems, moviesList, itemsPerLoad]);
 
   useEffect(() => {
-    loadMoreItems(); 
-  }, [loadMoreItems]);
+    // Reset when moviesList changes
+    setVisibleMovies([]);
+    setLoadedItems(0);
+  }, [moviesList]);
+
+  useEffect(() => {
+    // Load the first batch after reset
+    if (loadedItems === 0 && moviesList.length > 0) {
+      const moreItems = moviesList.slice(0, itemsPerLoad);
+      setVisibleMovies(moreItems);
+      setLoadedItems(itemsPerLoad);
+    }
+  }, [loadedItems, moviesList, itemsPerLoad]);
 
   useEffect(() => {
     const handleScroll = () => {

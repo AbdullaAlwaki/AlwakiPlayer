@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { Context } from "../../Util/createContext";
 import { fetchData } from "../../Util/helperfunction";
 import ListDivision from "../ListDivision";
@@ -12,23 +12,32 @@ const MoviesCategoriesList = () => {
   const [close, setClose] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(1);
+  const [favoriteList, setFavoriteList] = useState([]);
+  const [vodCategories, setVodCategories] = useState(null);
 
   const { serverUrl, username, password, setError, setLoading } = useContext(Context);
   const movieDataListRef = useRef(null);
   const itemRefs = useRef([]);
 
-  const favoriteList = useMemo(() => {
-    return JSON.parse(localStorage.getItem("favoriteListMovie")) || [];
+  // Load favoriteList from localStorage on mount
+  useEffect(() => {
+    const fav = JSON.parse(localStorage.getItem("favoriteListMovie")) || [];
+    setFavoriteList(fav);
   }, []);
-  
-  const vodCategories = JSON.parse(sessionStorage.getItem("vodCategories"));
+
+  // Load vodCategories from sessionStorage on mount
+  useEffect(() => {
+    const vod = JSON.parse(sessionStorage.getItem("vodCategories"));
+    setVodCategories(vod);
+  }, []);
 
   useEffect(() => {
     if (vodCategories) {
-      if (vodCategories[1].category_name === "Favorites") {
-        vodCategories[1].count = favoriteList.length;
+      const updated = [...vodCategories];
+      if (updated[1] && updated[1].category_name === "Favorites") {
+        updated[1].count = favoriteList.length;
       }
-      setMovieCategories(vodCategories);
+      setMovieCategories(updated);
     } else {
       fetchData(
         setLoading,

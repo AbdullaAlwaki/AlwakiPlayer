@@ -5,6 +5,7 @@ import Search from "../assets/search.svg";
 import IconMovie from "../assets/icon-movie.svg";
 import IconSeries from "../assets/icon-series.svg";
 import IconLogout from "../assets/icon-logout.svg";
+import Logo from "../assets/logo.png";
 import "../Style/ListDivision.scss";
 
 const ListDivision = ({ isFocused }) => {
@@ -22,6 +23,12 @@ const ListDivision = ({ isFocused }) => {
 
   const listItems = useMemo(
     () => [
+      {
+        path: "/",
+        icon: Logo,
+        label: "Home",
+        tooltip: "Go to home page",
+      },
       {
         path: "/search",
         icon: Search,

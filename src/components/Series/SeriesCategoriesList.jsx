@@ -24,10 +24,22 @@ const SeriesCategoriesList = () => {
 
   useEffect(() => {
     if (seriesCategoriess) {
-      if (seriesCategoriess[1].category_name === "Favorites") {
-        seriesCategoriess[1].count = favoriteList.length;
-      }
-      setSeriesCategories(seriesCategoriess);
+      // Deep clone to avoid mutating sessionStorage data
+      const updated = seriesCategoriess.map((cat, idx) =>
+        idx === 1 && cat.category_name === "Favorites"
+          ? { ...cat, count: favoriteList.length }
+          : cat
+      );
+      // Only update if changed
+      setSeriesCategories((prev) => {
+        if (
+          prev.length === updated.length &&
+          prev.every((cat, i) => cat.count === updated[i].count)
+        ) {
+          return prev;
+        }
+        return updated;
+      });
     } else {
       fetchData(
         setLoading,
@@ -155,7 +167,7 @@ const SeriesCategoriesList = () => {
       <ListDivision isFocused={isFocused === 0} />
       <div className="series_categories_container" role="region" aria-label="Series Categories">
         <div className="series_categories_list_container">
-          <ul className="series_categories" role="listbox" aria-activedescendant={`series-category-${focusedIndex}`}>
+          <ul className="series_categories" role="listbox" aria-activedescendant={`series-category-${focusedIndex}`} tabIndex="0">
             {seriesCategories.map((category, index) => (
               <li
                 ref={el => (itemRefs.current[index] = el)}

@@ -21,12 +21,14 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
         fullScreen()
         return;
       }
-      
       setLoading(true);
       setError(null);
       setUrel(null);
+      // Also clear any video error in parent
+      if (typeof window.setLiveCategoriesListErr === 'function') {
+        window.setLiveCategoriesListErr(null);
+      }
       const streamUrl = `${serverUrl}/live/${username}/${password}/${stream.stream_id}.${!stream.ext || stream.ext === "" ? "m3u8" : stream.ext}`;
-
       setUrel(streamUrl);
       setSelectedStream(stream.num);
     },
@@ -132,6 +134,7 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
                 height="20"
                 alt=""
                 aria-hidden="true"
+                lazyLoad="lazy"
               />
               {stream.name}
             </span>

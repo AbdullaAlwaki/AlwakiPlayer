@@ -1,126 +1,210 @@
-// Variables for color and spacing
-$primary-color: #007bff;
-$primary-hover-color: #0056b3;
-$border-color: #ddd;
+// Modern variables with updated color scheme and transitions
+$primary-color: #4a90e2;
+$primary-hover-color: #357abd;
+$border-color: rgba(255, 255, 255, 0.1);
 $text-color: #ffffff;
-$background-color: #f9f9f9;
-$input-padding: 10px;
-$button-padding: 10px 15px;
-$border-radius: 4px;
-$shadow-color: rgba(0, 0, 0, 0.1);
+$background-color: rgba(35, 40, 58, 0.95);
+$input-bg: rgba(255, 255, 255, 0.05);
+$input-padding: 12px 16px;
+$button-padding: 12px 20px;
+$border-radius: 8px;
+$shadow-color: rgba(0, 0, 0, 0.2);
+$transition-duration: 0.3s;
 
 .search-container {
   width: 90%;
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: $background-color;
   border: 1px solid $border-color;
   border-radius: $border-radius;
-  box-shadow: 0 0 10px $shadow-color;
+  box-shadow: 0 8px 32px $shadow-color;
+  backdrop-filter: blur(10px);
+  transition: transform $transition-duration ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 
   input {
     width: 100%;
     padding: $input-padding;
-    font-size: 16px;
-    border: 1px solid #ccc;
+    font-size: 1rem;
+    color: $text-color;
+    background: $input-bg;
+    border: 1px solid $border-color;
     border-radius: $border-radius;
-    margin-bottom: 10px;
+    margin-bottom: 1rem;
+    transition: all $transition-duration ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+    }
+
+    &::placeholder {
+      color: rgba($text-color, 0.5);
+    }
   }
 
   .search-buttons {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 
     button {
-      background-color: $primary-color;
-      color: white;
+      background: linear-gradient(135deg, $primary-color, darken($primary-color, 10%));
+      color: $text-color;
       border: none;
       padding: $button-padding;
       border-radius: $border-radius;
       cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.3s;
+      font-size: 1rem;
+      font-weight: 500;
       flex: 1;
-      margin-right: 5px;
+      transition: all $transition-duration ease;
+      position: relative;
+      overflow: hidden;
 
-      &:last-child {
-        margin-right: 0;
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(rgba(255,255,255,0.1), transparent);
+        opacity: 0;
+        transition: opacity $transition-duration ease;
       }
 
       &:hover {
-        background-color: $primary-hover-color;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+
+        &::after {
+          opacity: 1;
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
   }
 }
 
-// MovieList styles
+// MovieList styles with modern updates
 .movies-list {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
-
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  
   .movie {
-    padding: 10px;
-    border-bottom: 1px solid $border-color;
-    display: flex;
-    align-items: center;
+    background: $input-bg;
+    padding: 1rem;
+    border-radius: $border-radius;
+    border: 1px solid $border-color;
+    transition: all $transition-duration ease;
+    cursor: pointer;
 
-    &:last-child {
-      border-bottom: none;
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      border-color: rgba($primary-color, 0.3);
+    }
+
+    &.focused {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.3);
     }
 
     .movie-icon {
-      margin-right: 10px;
-
+      margin-bottom: 0.8rem;
+      
       img {
-        width: 50px;
-        height: 50px;
+        width: 100%;
+        height: 160px;
         border-radius: $border-radius;
         object-fit: cover;
+        transition: transform $transition-duration ease;
       }
     }
 
     .movie-name {
-      font-size: 16px;
+      font-size: 1rem;
       color: $text-color;
+      font-weight: 500;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+// SeriesList styles with matching design
+.series_list {
+  @extend .movies-list;
+  
+  .series {
+    @extend .movie;
+    
+    .series-icon {
+      @extend .movie-icon;
+    }
+    
+    .series-name {
+      @extend .movie-name;
     }
   }
 }
 
 .no-results {
   text-align: center;
-  color: #ffffff;
+  color: $text-color;
+  padding: 2rem;
+  font-size: 1.2rem;
+  opacity: 0.7;
+  animation: fadeIn 0.5s ease;
 }
 
-// SeriesList styles
-.series_list {
-  list-style-type: none;
-  padding: 0;
+// Responsive design
+@media (max-width: 768px) {
+  .search-container {
+    width: 95%;
+    padding: 1rem;
+    margin: 1rem auto;
+  }
 
-  .series {
-    padding: 10px;
-    border-bottom: 1px solid $border-color;
-    display: flex;
-    align-items: center;
-
-    &:last-child {
-      border-bottom: none;
+  .search-buttons {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+      margin: 0.5rem 0;
     }
+  }
 
-    .series-icon {
-      margin-right: 10px;
+  .movies-list,
+  .series_list {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+}
 
-      img {
-        width: 50px;
-        height: 50px;
-        border-radius: $border-radius;
-        object-fit: cover;
-      }
-    }
-
-    .series-name {
-      font-size: 16px;
-      color: $text-color;
-    }
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -1,7 +1,5 @@
-import React, { useContext } from "react";
 import "./App.scss";
 import { Routes, Route } from "react-router-dom";
-import { Context } from "./Util/createContext";
 import Home from "./components/Home/Home";
 import LiveList from "./components/Live/LiveCategoriesList";
 import MoviesList from "./components/Movie/MoviesCategoriesList";
@@ -13,11 +11,9 @@ import Error from "./components/Error/Error"
 import LoginWithData from "./components/Login/LoginWithData"
 import LoginWithUrl from "./components/Login/LoginWithUrl";
 import Player from "./Player/Player";
-import Loading from "./components/Loading/Loading";
 import Search from "./components/Search/Search";
 
 function App() {
-  const { loading } = useContext(Context);
   
   return (
     <div className="App">
@@ -35,7 +31,6 @@ function App() {
         <Route path="/login/url" element={<LoginWithUrl />} />
       </Routes>
       <Error />
-      <Loading loading={loading} />
     </div>
   );
 }

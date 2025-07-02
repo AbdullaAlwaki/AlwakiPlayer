@@ -100,8 +100,9 @@
       border-radius: 7px;
       padding: 0 12px;
       font-size: 1rem;
-      background: #f7f7f7;
-      transition: border 0.2s;
+      background: #23283a; // Match main bg
+      color: #fff; // White text for contrast
+      transition: border 0.2s, background 0.2s, color 0.2s;
       display: block;
       margin-left: auto;
       margin-right: auto;
@@ -109,7 +110,8 @@
       &:focus {
         outline: none;
         border: 2px solid #4f8cff;
-        background: #fff;
+        background: #23283a;
+        color: #fff;
       }
     }
     button {

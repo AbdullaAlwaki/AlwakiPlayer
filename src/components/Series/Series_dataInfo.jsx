@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import star from "../../assets/star.png";
 import fillStar from "../../assets/fillStar.png";
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Series_dataInfo({seriesData, seasons_count, id, setClose, setError, setUrlPlayer, setClosePlayer}) {
     const [favoriteList, setFavoriteList] = useState(
         JSON.parse(localStorage.getItem("favoriteListSeries")) || []
       );
+      const navigate = useNavigate();
       
     const handelSeriesClick = () => {
         setError("");
@@ -17,8 +19,9 @@ export default function Series_dataInfo({seriesData, seasons_count, id, setClose
         setClosePlayer(true)
         setError("");
         setUrlPlayer(
-          `https://www.youtube.com/embed/${seriesData?.info?.youtube_trailer}`
+          `https://www.youtube.com/watch?v=${seriesData?.info?.youtube_trailer}`
         );
+        navigate("/player");
       };
     
       const inFavorite = () => {
