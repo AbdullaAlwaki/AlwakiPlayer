@@ -134,7 +134,7 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
                 height="20"
                 alt=""
                 aria-hidden="true"
-                lazyLoad="lazy"
+                lazyload="lazy"
               />
               {stream.name}
             </span>

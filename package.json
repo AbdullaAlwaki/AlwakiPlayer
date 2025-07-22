@@ -1,52 +1,33 @@
 {
-  "name": "alwaki-player",
-  "version": "0.1.0",
+  "name": "alwakiplayer",
   "private": true,
-  "homepage": ".",
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "hls.js": "^1.6.4",
-    "prop-types": "^15.8.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-player": "^2.16.0",
-    "react-router-dom": "^6.23.1",
-    "react-scripts": "5.0.1",
-    "react-youtube": "^10.1.0",
-    "scss": "^0.2.4",
-    "shaka-player": "^4.14.15",
-    "video.js": "^8.16.1",
-    "videojs-contrib-hls": "^5.15.0",
-    "web-vitals": "^2.1.4"
-  },
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build && scp -r build alwaki@192.168.2.80:/var/www/html/",
-    "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "dev": "vite --host",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "hls.js": "^1.6.7",
+    "prop-types": "^15.8.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-player": "^3.3.0",
+    "react-router-dom": "^7.6.3",
+    "shaka-player": "^4.15.7"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "react-app-rewired": "^2.2.1"
+    "@eslint/js": "^9.30.1",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "sass-embedded": "^1.89.2",
+    "vite": "^7.0.4"
   }
 }

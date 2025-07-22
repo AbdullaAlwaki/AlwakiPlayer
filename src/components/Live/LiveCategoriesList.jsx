@@ -4,7 +4,7 @@ import { fetchData } from "../../Util/helperfunction";
 import LiveStreamsList from "./LiveStreamsList";
 import ListDivision from "../ListDivision";
 import "./live-categories-list.scss";
-import Hls from 'hls.js';
+import PlayerLive from "./PlayerLive";
 
 const LiveCategoriesList = () => {
   const [liveCategories, setLiveCategories] = useState([]);
@@ -13,18 +13,14 @@ const LiveCategoriesList = () => {
   const [url, setUrel] = useState(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(1);
-  const [videoLoading, setVideoLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const itemRefs = useRef([]);
-  const loadingTimeout = useRef(null);
+  
   const playerContainerRef = useRef(null); // Add ref for the player container
-  const videoRef = useRef(null); // Ref for the video element
-  const hlsInstance = useRef(null); // HLS.js instance
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
 
-  const maxRetries = 3;
-  const retryDelay = 2000; // ms
+
 
   const liveCategoriesLocal = JSON.parse(
     sessionStorage.getItem("liveCategories")
@@ -64,28 +60,35 @@ const LiveCategoriesList = () => {
   // Expose setErr globally for LiveStreamsList to clear error on channel change
   useEffect(() => {
     window.setLiveCategoriesListErr = setErr;
-    return () => { delete window.setLiveCategoriesListErr; };
+    return () => {
+      delete window.setLiveCategoriesListErr;
+    };
   }, [setErr]);
 
-  const handleCategoryClick = useCallback((categoryId) => {
-    // If clicking the same category that's already open, close it
-    if (selectedCategory === categoryId) {
-      setSelectedCategory(null);
-      return;
-    }
-    setSelectedCategory(categoryId);
-    // Reset error and retry state when changing channel/category
-    setErr(null);
-    setRetryCount(0);
-    setUrel(null);
-  }, [selectedCategory]);
+  const handleCategoryClick = useCallback(
+    (categoryId) => {
+      // If clicking the same category that's already open, close it
+      if (selectedCategory === categoryId) {
+        setSelectedCategory(null);
+        return;
+      }
+      setSelectedCategory(categoryId);
+      // Reset error and retry state when changing channel/category
+      setErr(null);
+      setRetryCount(0);
+      setUrel(null);
+    },
+    [selectedCategory]
+  );
 
   const fullScreen = useCallback(() => {
     const elem = playerContainerRef.current; // Use the player container ref
     if (elem) {
       if (!document.fullscreenElement) {
         elem.requestFullscreen().catch((err) => {
-          console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+          console.error(
+            `Error attempting to enable full-screen mode: ${err.message}`
+          );
         });
       } else {
         document.exitFullscreen();
@@ -152,7 +155,13 @@ const LiveCategoriesList = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isFocused, liveCategories.length, handleCategoryClick, fullScreen, focusedIndex]
+    [
+      isFocused,
+      liveCategories.length,
+      handleCategoryClick,
+      fullScreen,
+      focusedIndex,
+    ]
   );
 
   useEffect(() => {
@@ -161,68 +170,9 @@ const LiveCategoriesList = () => {
     return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, [handleKeyDown]);
 
-  const handlePlayerError = useCallback((error) => {
-    if (retryCount < maxRetries) {
-      setTimeout(() => {
-        setRetryCount((c) => c + 1);
-        setErr(null);
-        setUrel(null);
-        setTimeout(() => setUrel(url), 100); // force reload
-      }, retryDelay);
-    } else {
-      setErr('Error loading video. Please try again later.');
-      setLoading(false);
-      setVideoLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [retryCount, url, setLoading]);
 
-  useEffect(() => {
-    if (videoLoading) {
-      loadingTimeout.current = setTimeout(() => {
-        setVideoLoading(true);
-      }, 1000); // show spinner if loading > 1s
-    } else {
-      clearTimeout(loadingTimeout.current);
-    }
-    return () => clearTimeout(loadingTimeout.current);
-  }, [videoLoading]);
 
   // HLS.js integration for .m3u8 streams
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !url) return;
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (url.endsWith('.m3u8') && !isIOS) {
-      if (Hls.isSupported()) {
-        if (hlsInstance.current) {
-          hlsInstance.current.destroy();
-        }
-        const hls = new Hls();
-        hls.attachMedia(video);
-        hls.loadSource(url);
-        hlsInstance.current = hls;
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            handlePlayerError(data);
-          }
-        });
-      } else {
-        // Fallback: set src directly
-        video.src = url;
-      }
-    } else {
-      // For non-HLS or iOS, set src directly
-      video.src = url;
-    }
-    return () => {
-      if (hlsInstance.current) {
-        hlsInstance.current.destroy();
-        hlsInstance.current = null;
-      }
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url, handlePlayerError]);
 
   return (
     <>
@@ -266,99 +216,15 @@ const LiveCategoriesList = () => {
             fullScreen={fullScreen}
           />
         )}
-
-        {err ? (
-          <div
-            className={`modern-error-overlay ${isFocused === 3 ? "selected" : ""} iptv-player`}
-            style={{
-              width: '100%',
-              maxWidth: 800,
-              margin: '0 auto',
-              background: '#000',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 0,
-              height: videoRef.current && videoRef.current.videoHeight
-                ? `${videoRef.current.clientHeight}px`
-                : 'auto',
-              minHeight: 200
-            }}
-          >
-            <div style={{ width: '100%', textAlign: 'center' }}>
-              <p>{err}</p>
-              {retryCount < maxRetries && (
-                <button className="retry-btn" onClick={() => {
-                  setRetryCount(0);
-                  setErr(null);
-                  setUrel(null);
-                  setTimeout(() => setUrel(url), 100);
-                }}>Retry</button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div
-            className={`modern-player ${isFocused === 3 ? "selected" : ""} iptv-player`}
-            onClick={fullScreen}
-            tabIndex="0"
-            aria-label="IPTV Player"
-            ref={playerContainerRef}
-            style={{
-              width: '100%',
-              maxWidth: 800,
-              margin: '0 auto',
-              background: '#000',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 0,
-              height: videoRef.current && videoRef.current.videoHeight
-                ? `${videoRef.current.clientHeight}px`
-                : 'auto',
-              minHeight: 200
-            }}
-          >
-            {videoLoading && (
-              <div className="modern-video-loading-overlay">
-                <span className="modern-video-loading-spinner" />
-                <span>Loading video...</span>
-              </div>
-            )}
-            <video
-              ref={videoRef}
-              controls
-              autoPlay
-              width="100%"
-              style={{ width: '100%', height: 'auto', maxHeight: '80vh', background: '#000' }}
-              onLoadedData={() => {
-                setErr(null);
-                setLoading(true);
-                setVideoLoading(false);
-                setRetryCount(0);
-                // Force update to sync container height
-                if (playerContainerRef.current) playerContainerRef.current.style.height = videoRef.current ? `${videoRef.current.clientHeight}px` : 'auto';
-              }}
-              onWaiting={() => setVideoLoading(true)}
-              onPlaying={() => setVideoLoading(false)}
-              onPause={() => setVideoLoading(false)}
-              onEnded={() => setVideoLoading(false)}
-              onError={handlePlayerError}
-              onClick={e => e.stopPropagation()}
-              tabIndex={0}
-              onKeyDown={event => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  fullScreen();
-                }
-              }}
-            >
-              Your browser does not support the video tag.
-            </video>
-          </div>
-        )}
+        <PlayerLive
+          url={url}
+          retryCount={retryCount}
+          isFocused={isFocused}
+          fullScreen={fullScreen}
+          setRetryCount={setRetryCount}
+          playerContainerRef={playerContainerRef}
+          enableContainerFullscreen={true}
+        />
       </div>
     </>
   );

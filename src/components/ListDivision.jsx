@@ -14,12 +14,6 @@ const ListDivision = ({ isFocused }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [ripple, setRipple] = useState({});
 
-  const handleLogout = useCallback(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-    navigate("/");
-    window.location.reload();
-  }, [navigate]);
 
   const listItems = useMemo(
     () => [
@@ -52,15 +46,9 @@ const ListDivision = ({ isFocused }) => {
         icon: IconSeries,
         label: "Series",
         tooltip: "Browse series",
-      },
-      {
-        icon: IconLogout,
-        label: "Logout",
-        onClick: handleLogout,
-        tooltip: "Logout from your account",
-      },
+      }
     ],
-    [handleLogout]
+    []
   );
 
   const handleArrowDown = useCallback(() => {
