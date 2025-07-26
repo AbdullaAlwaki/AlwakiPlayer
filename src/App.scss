@@ -10,6 +10,7 @@
     transition: all 0.2s ease-in-out;
   }
 
+
   .selected {
     background: linear-gradient(90deg, #ff0000 0%, #ff2b2b 100%);
     color: #ffffff;
@@ -39,6 +40,7 @@
       transform: translateY(-2px);
     }
   }
+
 
   // Custom scrollbar styling
   ::-webkit-scrollbar {

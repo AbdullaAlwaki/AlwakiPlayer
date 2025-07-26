@@ -73,29 +73,6 @@
       }
     }
 
-    &.selected {
-      background: linear-gradient(90deg, rgba(255, 0, 0, 0.15), transparent);
-      color: #ffffff;
-      border-left: 3px solid #ff0000;
-
-      img {
-        transform: scale(1.1);
-        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
-      }
-
-      &::after {
-        content: '';
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 3px;
-        height: 40%;
-        background: #ff0000;
-        border-radius: 4px 0 0 4px;
-      }
-    }
-
     img {
       width: 42px;
       height: 42px;
@@ -110,7 +87,6 @@
   }
 
   @media (max-width: 1200px) {
-    width: 80px;
     min-width: 70px;
     
     .division {

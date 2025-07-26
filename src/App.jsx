@@ -12,11 +12,14 @@ import LoginWithData from "./components/Login/LoginWithData"
 import LoginWithUrl from "./components/Login/LoginWithUrl";
 import Player from "./Player/Player";
 import Search from "./components/Search/Search";
+import UserInfo from "./components/UserInfo";
+import ListDivision from "./components/ListDivision";
 
 function App() {
   
   return (
     <div className="App">
+      <ListDivision  />
       <Routes>
         <Route path="/*" element={<Home />} />
         <Route path="/Player" element={<Player />} />
@@ -29,6 +32,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/login/data" element={<LoginWithData />} />
         <Route path="/login/url" element={<LoginWithUrl />} />
+        <Route path="/profile" element={<UserInfo />} />
       </Routes>
       <Error />
     </div>

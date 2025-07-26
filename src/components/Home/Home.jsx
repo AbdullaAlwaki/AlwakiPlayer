@@ -20,6 +20,7 @@ export default function Home() {
 
   const user = useCallback((e) => {
     sessionStorage.clear();
+    sessionStorage.setItem("currentProfile", JSON.stringify(e));
     setServerUrl(
       `${e?.server_info.server_protocol}://${e?.server_info.url}:${e?.server_info.port}`
     );
@@ -28,7 +29,6 @@ export default function Home() {
     setName(e?.profile);
     navigate("/live");
   }, [setUsername, setServerUrl, navigate, setName, setPassword])
-
 
   useEffect(() => {
     const handleKeyDown = (event) => {

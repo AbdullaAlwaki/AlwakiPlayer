@@ -4,7 +4,7 @@ import IconTv from "../assets/icon-tv.svg";
 import Search from "../assets/search.svg";
 import IconMovie from "../assets/icon-movie.svg";
 import IconSeries from "../assets/icon-series.svg";
-import IconLogout from "../assets/icon-logout.svg";
+import Profile from "../assets/profile.svg";
 import Logo from "../assets/logo.png";
 import "../Style/ListDivision.scss";
 
@@ -46,6 +46,12 @@ const ListDivision = ({ isFocused }) => {
         icon: IconSeries,
         label: "Series",
         tooltip: "Browse series",
+      },
+      {
+        path: "/profile",
+        icon: Profile,
+        label: "Profile",
+        tooltip: "Profile settings",
       }
     ],
     []

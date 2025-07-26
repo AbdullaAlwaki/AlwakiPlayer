@@ -22,7 +22,7 @@ const fetchData = async (
 
       );
       setCategories(CategoriesData);
-
+/* 
        const fetchCountForCategory = async (category) => {
          try {
            const response = await fetch(
@@ -40,18 +40,18 @@ const fetchData = async (
           const count = await fetchCountForCategory(category);
           return { [category.category_id]: count };
         })
-      ); 
-
+      );  
        const CategoryWithCount = CategoriesData.map((category) => {
          const count =AllStreamsData.find(
            (count) => category.category_id in count
          )[category.category_id];
          return { ...category, count: count };
        });
+*/
 
       sessionStorage.setItem(
         `${type}Categories`,
-        JSON.stringify(CategoryWithCount)
+        JSON.stringify(CategoriesData)
       );
     } catch (error) {
       setError(error);

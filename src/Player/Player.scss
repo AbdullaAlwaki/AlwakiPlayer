@@ -8,11 +8,12 @@ $glass-effect: rgba(255, 255, 255, 0.1);
 $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 .player-container {
-  width: 100%;
+  width: 90%;
   height: 100vh;
   background-color: $secondary-color;
   position: relative;
   overflow: hidden;
+  left : 10%;
 
   .player {
     width: 100%;
@@ -23,7 +24,6 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     justify-content: flex-end;
     align-items: stretch;
     background: linear-gradient(120deg, #181c24 0%, #23283a 100%);
-    border-radius: 20px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
     overflow: hidden;
     padding: 0;

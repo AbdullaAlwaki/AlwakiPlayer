@@ -4,6 +4,7 @@
   display: flex;
   position: relative;
   backdrop-filter: blur(10px);
+  left: 10%;
 
   .movieData_info {
     background: linear-gradient(
@@ -214,10 +215,10 @@
 
 @media (max-width: 768px) {
   .movieData {
+    left: 0;
     flex-direction: column;
-    
     height: auto;
-
+    margin-bottom: 10%;
     .movieData_info {
       width: 100%;
       height: auto;

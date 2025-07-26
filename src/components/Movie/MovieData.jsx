@@ -8,12 +8,22 @@ import fillStar from "../../assets/fillStar.png";
 import "./MovieData.scss";
 
 export default function MovieData() {
+  const navigate = useNavigate();
+  // Keyboard: go back on Backspace or Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Backspace' || e.key === 'Escape') {
+        navigate(-1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigate]);
   const [movieData, setMovieData] = useState([]);
   const [index, setIndex] = useState(0);
   const [favoriteList, setFavoriteList] = useState(
     JSON.parse(localStorage.getItem("favoriteListMovie")) || []
   );
-  const navigate = useNavigate();
   const {
     serverUrl,
     username,
