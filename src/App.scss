@@ -2,12 +2,13 @@
   display: flex;
   color: #ffffff;
   background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
-  min-height: 100vh;
+  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 
   * {
     box-sizing: border-box;
     transition: all 0.2s ease-in-out;
+
   }
 
 
@@ -55,5 +56,13 @@
     &:hover {
       background: #ff2b2b;
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .App {
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 15%;
   }
 }

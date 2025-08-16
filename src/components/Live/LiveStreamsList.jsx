@@ -5,7 +5,7 @@ import Logo from "../../assets/logo.png";
 import star from "../../assets/star.png";
 import fillStar from "../../assets/fillStar.png";
 
-const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fullScreen }) => {
+const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fullScreen, setCategories }) => {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [selectedStream, setSelectedStream] = useState(null);
   const [liveStreams, setLiveStreams] = useState([]);
@@ -28,8 +28,10 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
       if (typeof window.setLiveCategoriesListErr === 'function') {
         window.setLiveCategoriesListErr(null);
       }
-      const streamUrl = `${serverUrl}/live/${username}/${password}/${stream.stream_id}.${!stream.ext || stream.ext === "" ? "m3u8" : stream.ext}`;
-      setUrel(streamUrl);
+      setUrel({stream_id: stream.stream_id,
+        name: stream.name,
+        stream_icon: stream.stream_icon || Logo,
+        ext : stream.ext || "m3u8",});
       setSelectedStream(stream.num);
     },
     [username, password, serverUrl, setError, setLoading, setUrel, selectedStream, fullScreen]
@@ -47,6 +49,7 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
       const response = await fetch(url);
       const data = await response.json();
       setLiveStreams(data);
+      setCategories(data);
     } catch (error) {
       setError("Error fetching live streams:", error);
     }
@@ -122,6 +125,7 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
             aria-selected={selectedStream === stream.num}
             id={`stream-${i}`}
             tabIndex={focusedIndex === i && isFocused === 2 ? 0 : -1}
+            
           >
             <span aria-hidden="true">
               {stream.num}
@@ -130,9 +134,9 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
             <span>
               <img
                 src={stream.stream_icon || Logo}
-                width="20"
-                height="20"
-                alt=""
+                width="100"
+                height="100"
+                alt="Stream Icon"
                 aria-hidden="true"
                 lazyload="lazy"
               />

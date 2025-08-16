@@ -10,9 +10,10 @@ import {liveCategoriesList} from "../../Util/fetchLive";
 
 const LiveCategoriesList = () => {
   const [liveCategories, setLiveCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [err, setErr] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [url, setUrel] = useState(null);
+  const [url, setUrel] = useState({});
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(1);
   const [retryCount, setRetryCount] = useState(0);
@@ -79,7 +80,6 @@ const LiveCategoriesList = () => {
       // Reset error and retry state when changing channel/category
       setErr(null);
       setRetryCount(0);
-      setUrel(null);
     },
     [selectedCategory]
   );
@@ -180,9 +180,10 @@ const LiveCategoriesList = () => {
   return (
     <>
       <ListDivision isFocused={isFocused === 0} />
-      <div className="live-categories-container">
+      <div className="live-categories-container"  >
         <div className="live-categories-list">
-          <ul className="live-categories">
+          
+          <ul className="live-categories" >
             {liveCategories?.map((category, index) => (
               <li
                 key={index}
@@ -202,6 +203,7 @@ const LiveCategoriesList = () => {
                   }
                 }}
               >
+                
                 <span className="category-name">{category.category_name}</span>
                 {category.count && (
                   <span className="category-count">{category.count}</span>
@@ -210,15 +212,20 @@ const LiveCategoriesList = () => {
             ))}
           </ul>
         </div>
-        {selectedCategory !== null && (
+        
+        <div className="live-streams-container">
+          {selectedCategory !== null && (
           <LiveStreamsList
             categoryId={liveCategories[selectedCategory]?.category_id}
             favoriteList={favoriteList}
             setUrel={setUrel}
             isFocused={isFocused}
             fullScreen={fullScreen}
+            setCategories={setCategories}
           />
-        )}
+          )}
+        </div>
+      <div className="iptv-player-container" ref={playerContainerRef}>
         <PlayerLive
           url={url}
           retryCount={retryCount}
@@ -227,7 +234,9 @@ const LiveCategoriesList = () => {
           setRetryCount={setRetryCount}
           playerContainerRef={playerContainerRef}
           enableContainerFullscreen={true}
+          categories={categories}
         />
+        </div>
       </div>
     </>
   );

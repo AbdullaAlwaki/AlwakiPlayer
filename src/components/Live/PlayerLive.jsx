@@ -1,220 +1,167 @@
-import { useState, useEffect, useContext, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import Hls from "hls.js";
 import { Context } from "../../Util/createContext";
-import PlayerController from "./PlayerController";
-import { useState as useLocalState, useRef as useLocalRef } from "react";
 
-function LivePlayer({
-  url,
-  retryCount,
-  setRetryCount,
-  isFocused,
-  fullScreen,
-  playerContainerRef,
-}) {
-  const [err, setErr] = useState(null);
-  const [videoLoading, setVideoLoading] = useState(false);
-  const [muted, setMuted] = useState(true);
-  const [localUrl, setLocalUrl] = useState(url); // Local URL state
-  // Controller visibility state
-  const [showController, setShowController] = useLocalState(false);
-  const controllerTimeout = useLocalRef(null);
-  // Always show on mobile/touch devices
-  const isTouch = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-
-  const showPlayerController = () => {
-    setShowController(true);
-    if (controllerTimeout.current) clearTimeout(controllerTimeout.current);
-    controllerTimeout.current = setTimeout(() => setShowController(false), 5000);
-  };
-  const { setLoading } = useContext(Context);
-
-  const maxRetries = 3;
-  const retryDelay = 2000; // ms
-
+function LivePlayer({ url, isFocused, playerContainerRef, categories }) {
   const videoRef = useRef(null);
   const hlsInstance = useRef(null);
+  const overlayTimeout = useRef(null);
 
-  // Sync localUrl with prop changes
-  useEffect(() => {
-    setLocalUrl(url);
-  }, [url]);
+  const { serverUrl, username, password, setLoading } = useContext(Context);
 
-  const handlePlayerError = useCallback(
-    (error) => {
-      if (retryCount < maxRetries) {
-        setTimeout(() => {
-          setRetryCount((c) => c + 1);
-          setErr(null);
-          setVideoLoading(false);
-          setLocalUrl(null);
-        }, retryDelay);
-      } else {
-        setErr("Error loading video. Please try again later.");
-        setLoading(false);
-        setVideoLoading(false);
-      }
-    },
-    [retryCount, url, setLoading, setRetryCount, retryDelay]
+  const [err, setErr] = useState(null);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(
+    categories.findIndex((c) => c.stream_id === url.id) || 0
   );
 
-  // Handle loading spinner
+  const currentChannel = categories[currentIndex] || url;
+
+  const streamUrl = currentChannel
+    ? `${serverUrl}/live/${username}/${password}/${currentChannel.stream_id}.${currentChannel.ext || "m3u8"}`
+    : null;
+
+  // Overlay عند تغيير القناة
   useEffect(() => {
-    let loadingTimeout = null;
+    setShowOverlay(true);
+    if (overlayTimeout.current) clearTimeout(overlayTimeout.current);
+    overlayTimeout.current = setTimeout(() => setShowOverlay(false), 3000);
+    setErr(null);
+    return () => clearTimeout(overlayTimeout.current);
+  }, [currentIndex, currentChannel]);
 
-    if (videoLoading) {
-      loadingTimeout = setTimeout(() => {
-        setVideoLoading(true);
-      }, 1000);
-    }
+  // تبديل القنوات
+  const nextChannel = useCallback(() => {
+    setCurrentIndex((prev) => (prev < categories.length - 1 ? prev + 1 : prev));
+  }, [categories.length]);
 
-    return () => clearTimeout(loadingTimeout);
-  }, [videoLoading]);
+  const prevChannel = useCallback(() => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  }, []);
 
-  // Initialize video or HLS.js
+  // التحكم بالكيبورد أثناء fullscreen
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (document.fullscreenElement) {
+        if (e.key === "ArrowUp") nextChannel();
+        if (e.key === "ArrowDown") prevChannel();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [nextChannel, prevChannel]);
+
+  // تحميل الفيديو
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !localUrl) return;
+    if (!video || !streamUrl) return;
 
-    const isIOS =
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-    // Use HLS.js for .m3u8 on non-iOS
-    if (typeof localUrl === "string" && localUrl.endsWith(".m3u8") && !isIOS) {
-      if (Hls.isSupported()) {
-        if (hlsInstance.current) {
-          hlsInstance.current.destroy();
-        }
-        const hls = new Hls();
-        hls.attachMedia(video);
-        hls.loadSource(localUrl);
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) handlePlayerError(data);
-        });
-        hlsInstance.current = hls;
-      } else {
-        video.src = localUrl;
+    if (Hls.isSupported() && !isIOS && streamUrl.endsWith(".m3u8")) {
+      const hls = new Hls();
+      hls.attachMedia(video);
+      hls.loadSource(streamUrl);
+
+      if (!currentChannel.stream_id) {
+        setErr("No channel selected.");
+        setLoading?.(false);
+        return;
       }
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              setErr("Network error. Retrying...");
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              setErr("Media error. Attempting recovery...");
+              hls.recoverMediaError();
+              break;
+            default:
+              setErr("Fatal error loading stream.");
+              hls.destroy();
+              setLoading?.(false);
+              break;
+          }
+        }
+      });
+
+      hlsInstance.current = hls;
     } else {
-      // Fallback for iOS or non-HLS
-      video.src = localUrl;
+      video.src = streamUrl;
+      video.addEventListener("error", () => {
+        setErr("Error loading stream directly in video tag.");
+        setLoading?.(false);
+      });
     }
 
     return () => {
-      if (hlsInstance.current) {
-        hlsInstance.current.destroy();
-        hlsInstance.current = null;
-      }
+      hlsInstance.current?.destroy();
+      hlsInstance.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localUrl, handlePlayerError]);
+  }, [currentIndex, streamUrl, currentChannel.stream_id, setLoading]);
 
   return (
-    <>
-      {err ? (
-        <div
-          className={`iptv-player ${isFocused === 3 ? "selected" : ""}`}
-          style={{
-            height:
-              videoRef.current && videoRef.current.videoHeight
-                ? `${videoRef.current.clientHeight}px`
-                : "auto",
-            minHeight: 200,
-          }}
-        >
-          <div style={{ width: "100%", textAlign: "center" }}>
-            <p>{err}</p>
-            {retryCount < maxRetries && (
-              <button
-                className="retry-btn"
-                onClick={() => {
-                  setRetryCount(0);
-                  setErr(null);
-                  setLocalUrl(null);
-                  setTimeout(() => setLocalUrl(url), 100);
-                }}
-              >
-                Retry
-              </button>
-            )}
-          </div>
+    <div
+      className={`iptv-player ${isFocused === 3 ? "selected" : ""}`}
+      tabIndex={0}
+      aria-label="Live IPTV Player"
+      ref={playerContainerRef}
+      style={{ position: "relative", minHeight: 200 }}
+    >
+      {err && (
+        <div className="error-message" role="alert" aria-live="assertive">
+          <p>{err}</p>
         </div>
-      ) : (
-        <div
-          className={`iptv-player ${isFocused === 3 ? "selected" : ""}`}
-          tabIndex="0"
-          aria-label="IPTV Player"
-          ref={playerContainerRef}
-          style={{
-            height:
-              videoRef.current && videoRef.current.videoHeight
-                ? `${videoRef.current.clientHeight}px`
-                : "auto",
-            position: "relative"
-          }}
-          onMouseMove={!isTouch ? showPlayerController : undefined}
-          onMouseEnter={!isTouch ? showPlayerController : undefined}
-          onMouseLeave={!isTouch ? () => setShowController(false) : undefined}
-          onTouchStart={isTouch ? showPlayerController : undefined}
-        >
-          {(showController || isTouch) && (
-            <PlayerController
-              muted={muted}
-              onToggleMute={() => {
-                setMuted(m => {
-                  if (videoRef.current) videoRef.current.muted = !m;
-                  return !m;
-                });
-                showPlayerController(); // reset timer on click
-              }}
-            />
-          )}
+      )}
+
+      {currentChannel && (
+        <>
           <video
             ref={videoRef}
             autoPlay
-            muted={muted}
-            playsInline // Prevent fullscreen on iOS
-            webkitplaysinline="true"
+            playsInline
+            controls={false}
             width="100%"
-            style={{ width: "100%", height: "auto", maxHeight: "100vh", background: "#000" }}
-            onLoadedData={() => {
-              setErr && setErr(null);
-              setLoading && setLoading(true);
-              setVideoLoading && setVideoLoading(false);
-              setRetryCount && setRetryCount(0);
-              // Force update to sync container height
-              if (playerContainerRef.current)
-                playerContainerRef.current.style.height = videoRef.current
-                  ? `${videoRef.current.clientHeight}px`
-                  : "auto";
-            }}
-            onWaiting={() => setVideoLoading && setVideoLoading(true)}
-            onPlaying={() => setVideoLoading && setVideoLoading(false)}
-            onPause={() => setVideoLoading && setVideoLoading(false)}
-            onEnded={() => setVideoLoading && setVideoLoading(false)}
-            onError={handlePlayerError}
-            onClick={e => {
-              // Only trigger fullscreen if not clicking a control (like mute)
-              if (!document.fullscreenElement && playerContainerRef.current) {
-                playerContainerRef.current.requestFullscreen();
-              } else {
-                document.exitFullscreen();
-              }
-              e.stopPropagation();
-            }}
-            tabIndex={0}
-            onKeyDown={event => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                fullScreen();
+            height="100%"
+            onClick={() => {
+              if (playerContainerRef.current) {
+                if (!document.fullscreenElement) {
+                  playerContainerRef.current.requestFullscreen?.();
+                } else {
+                  document.exitFullscreen?.();
+                }
               }
             }}
+            onLoadedMetadata={() => {
+              setLoading?.(false);
+              setVideoLoading(false);
+            }}
+            onWaiting={() => setVideoLoading(true)}
+            onPlaying={() => setVideoLoading(false)}
           >
             Your browser does not support the video tag.
           </video>
-        </div>
+
+          {showOverlay && (
+            <div className="channel-overlay">
+              {currentChannel.stream_icon && (
+                <img
+                  src={currentChannel.stream_icon}
+                  alt="logo"
+                  style={{ width: 40, height: 40, marginRight: 10 }}
+                />
+              )}
+              <span>{currentChannel.name}</span>
+            </div>
+          )}
+        </>
       )}
-    </>
+    </div>
   );
 }
 

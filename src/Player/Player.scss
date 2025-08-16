@@ -15,6 +15,16 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   left : 10%;
 
+      @media (max-width: 600px) {
+        width: 100%;
+        height: 90vh;
+        left: 0;
+        display: flex;
+            align-items: center;
+      justify-content: center;
+      
+    }
+
   .player {
     width: 100%;
     height: 100%;
@@ -24,7 +34,6 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     justify-content: flex-end;
     align-items: stretch;
     background: linear-gradient(120deg, #181c24 0%, #23283a 100%);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
     overflow: hidden;
     padding: 0;
     min-height: 320px;
@@ -36,9 +45,11 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @media (max-width: 600px) {
-      min-height: 120px;
-      box-shadow: none;
-      border-radius: 0;
+      height: auto;
+      min-height: 180px;
+      
+      align-items: center;
+      justify-content: center;
     }
 
     video,

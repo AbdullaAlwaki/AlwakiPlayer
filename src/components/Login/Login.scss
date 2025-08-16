@@ -160,3 +160,23 @@
     }
   }
 }
+
+@media (max-width: 360px) {
+  .login-container,
+  .loginWithData,
+  .loginWithUrl {
+    .login_with {
+      .log_card {
+        width: 200px;
+        height: 200px;
+        img {
+          width: 100px;
+          height: 100px;
+        }
+        p {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+}

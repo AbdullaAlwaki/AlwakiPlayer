@@ -177,6 +177,7 @@ $transition-duration: 0.3s;
 // Responsive design
 @media (max-width: 768px) {
   .search-container {
+    height: 88vh;
     width: 95%;
     padding: 1rem;
     margin: 1rem auto;

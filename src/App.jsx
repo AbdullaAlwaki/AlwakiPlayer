@@ -12,7 +12,7 @@ import LoginWithData from "./components/Login/LoginWithData"
 import LoginWithUrl from "./components/Login/LoginWithUrl";
 import Player from "./Player/Player";
 import Search from "./components/Search/Search";
-import UserInfo from "./components/UserInfo";
+import UserInfo from "./components/UserInfo/UserInfo";
 import ListDivision from "./components/ListDivision";
 
 function App() {

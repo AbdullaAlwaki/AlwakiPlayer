@@ -12,23 +12,25 @@ export default function Home() {
   const [editData, setEditData] = useState({}); // Store editable data
   const { setServerUrl, setUsername, setPassword, setName } =
     useContext(Context);
-    
+
   const navigate = useNavigate();
 
   const profile = JSON.parse(localStorage.getItem("user"));
-  
 
-  const user = useCallback((e) => {
-    sessionStorage.clear();
-    sessionStorage.setItem("currentProfile", JSON.stringify(e));
-    setServerUrl(
-      `${e?.server_info.server_protocol}://${e?.server_info.url}:${e?.server_info.port}`
-    );
-    setUsername(e?.user_info.username);
-    setPassword(e?.user_info.password);
-    setName(e?.profile);
-    navigate("/live");
-  }, [setUsername, setServerUrl, navigate, setName, setPassword])
+  const user = useCallback(
+    (e) => {
+      sessionStorage.clear();
+      sessionStorage.setItem("currentProfile", JSON.stringify(e));
+      setServerUrl(
+        `${e?.server_info.server_protocol}://${e?.server_info.url}:${e?.server_info.port}`
+      );
+      setUsername(e?.user_info.username);
+      setPassword(e?.user_info.password);
+      setName(e?.profile);
+      navigate("/live");
+    },
+    [setUsername, setServerUrl, navigate, setName, setPassword]
+  );
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -106,21 +108,21 @@ export default function Home() {
             <div
               className={`profile_card ${focusedIndex === i ? "selected" : ""}`}
               key={i}
-              onClick={e => {
+              onClick={(e) => {
                 // Only allow click if not editing and click is inside the card
                 if (!isEditing && e.target === e.currentTarget) {
                   user(prof);
                 }
               }}
-              style={{ position: 'relative' }}
-              onMouseDown={e => {
+              style={{ position: "relative" }}
+              onMouseDown={(e) => {
                 if (!isEditing) {
                   pressTimer = setTimeout(() => handleEditClick(i), 600);
                 }
               }}
               onMouseUp={() => clearTimeout(pressTimer)}
               onMouseLeave={() => clearTimeout(pressTimer)}
-              onTouchStart={e => {
+              onTouchStart={(e) => {
                 if (!isEditing) {
                   pressTimer = setTimeout(() => handleEditClick(i), 600);
                 }
@@ -135,48 +137,119 @@ export default function Home() {
                   {/* Modal background overlay to block outside clicks */}
                   <div
                     style={{
-                      position: 'fixed',
+                      position: "fixed",
                       top: 0,
                       left: 0,
-                      width: '100vw',
-                      height: '100vh',
-                      background: 'rgba(0,0,0,0.2)',
-                      zIndex: 9
+                      width: "100vw",
+                      height: "100vh",
+                      background: "rgba(0,0,0,0.2)",
+                      zIndex: 9,
                     }}
                     onClick={handleEditCancel}
                   />
-                  <div className="edit-profile-modal" style={{ position: 'absolute', top: 40, right: 10, background: '#23283a', color: '#fff', padding: 20, borderRadius: 8, zIndex: 10, minWidth: 220 }}>
-                    <label style={{ display: 'block', marginBottom: 8 }}>
+                  <div
+                    className="edit-profile-modal"
+                    style={{
+                      position: "absolute",
+                      top: 40,
+                      right: 10,
+                      background: "#23283a",
+                      color: "#fff",
+                      padding: 20,
+                      borderRadius: 8,
+                      zIndex: 10,
+                      minWidth: 220,
+                    }}
+                  >
+                    <label style={{ display: "block", marginBottom: 8 }}>
                       Name:
                       <input
                         name="profile"
-                        value={editData.profile || ''}
+                        value={editData.profile || ""}
                         onChange={handleEditChange}
-                        style={{ width: '100%', marginTop: 4, marginBottom: 12 }}
+                        style={{
+                          width: "100%",
+                          marginTop: 4,
+                          marginBottom: 12,
+                        }}
                       />
                     </label>
-                    <label style={{ display: 'block', marginBottom: 8 }}>
+                    <label style={{ display: "block", marginBottom: 8 }}>
                       Username:
                       <input
                         name="user_info.username"
-                        value={editData.user_info?.username || ''}
-                        onChange={e => setEditData({ ...editData, user_info: { ...editData.user_info, username: e.target.value } })}
-                        style={{ width: '100%', marginTop: 4, marginBottom: 12 }}
+                        value={editData.user_info?.username || ""}
+                        onChange={(e) =>
+                          setEditData({
+                            ...editData,
+                            user_info: {
+                              ...editData.user_info,
+                              username: e.target.value,
+                            },
+                          })
+                        }
+                        style={{
+                          width: "100%",
+                          marginTop: 4,
+                          marginBottom: 12,
+                        }}
                       />
                     </label>
-                    <label style={{ display: 'block', marginBottom: 8 }}>
+                    <label style={{ display: "block", marginBottom: 8 }}>
                       Password:
                       <input
                         name="user_info.password"
                         type="password"
-                        value={editData.user_info?.password || ''}
-                        onChange={e => setEditData({ ...editData, user_info: { ...editData.user_info, password: e.target.value } })}
-                        style={{ width: '100%', marginTop: 4, marginBottom: 12 }}
+                        value={editData.user_info?.password || ""}
+                        onChange={(e) =>
+                          setEditData({
+                            ...editData,
+                            user_info: {
+                              ...editData.user_info,
+                              password: e.target.value,
+                            },
+                          })
+                        }
+                        style={{
+                          width: "100%",
+                          marginTop: 4,
+                          marginBottom: 12,
+                        }}
                       />
                     </label>
-                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                      <button onClick={handleEditSave} style={{ background: '#4f8cff', color: '#fff', border: 'none', borderRadius: 4, padding: '6px 14px', cursor: 'pointer' }}>Save</button>
-                      <button onClick={handleEditCancel} style={{ background: '#888', color: '#fff', border: 'none', borderRadius: 4, padding: '6px 14px', cursor: 'pointer' }}>Cancel</button>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <button
+                        onClick={handleEditSave}
+                        style={{
+                          background: "#4f8cff",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 4,
+                          padding: "6px 14px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleEditCancel}
+                        style={{
+                          background: "#888",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 4,
+                          padding: "6px 14px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 </>
@@ -197,4 +270,3 @@ export default function Home() {
     </div>
   );
 }
-
