@@ -9,7 +9,6 @@
 
   .live-categories-list {
     width: 30%;
-    height: 100%;
     overflow: hidden auto;
     background: rgba(35, 40, 58, 0.95);
     backdrop-filter: blur(10px);
@@ -45,7 +44,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 1.2rem;
+        padding: 0.5rem 1.2rem;
         background: rgba(255, 255, 255, 0.03);
         border-radius: 12px;
         border: 2px solid transparent;
@@ -92,7 +91,6 @@
 
   .live-streams-container {
     width: 30%;
-    height: 100%;
     overflow: hidden auto;
     background: rgba(35, 40, 58, 0.95);
     backdrop-filter: blur(10px);
@@ -221,6 +219,7 @@
     .iptv-player {
       position: relative;
       width: 100%;
+      height: auto;
 
       background-color: black;
       video {
@@ -238,7 +237,6 @@
         align-items: center;
         background: linear-gradient(0deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
         padding: 5px 10px;
-        border-radius: 5;
         color: white;
         z-index: 10;
       }
@@ -253,6 +251,12 @@
         color: white;
       }
     }
+  }
+
+  @media ((min-width: 1920px) and (min-height: 1080px)) {
+    width: 92%;
+    height: 100vh;
+    left: 8%;
   }
 
   @media (max-width: 768px) {

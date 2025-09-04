@@ -1,4 +1,9 @@
-.App {
+  html{
+    scroll-behavior: smooth;
+    background: linear-gradient(180deg, #23283a 0%, #252525 100%);
+    width: 100%;
+    height: 100%;
+  }.App {
   display: flex;
   color: #ffffff;
   background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
@@ -6,10 +11,11 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 
   * {
-    box-sizing: border-box;
     transition: all 0.2s ease-in-out;
 
   }
+
+
 
 
   .selected {
@@ -20,9 +26,10 @@
 
   .focused {
     background: rgba(255, 0, 0, 0.1);
-    border: 1px solid rgba(255, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: #ffffff;
-    transform: translateX(4px);
+    border: #ffffff 5px solid;
+    
   }
 
   button, input {
@@ -41,7 +48,6 @@
       transform: translateY(-2px);
     }
   }
-
 
   // Custom scrollbar styling
   ::-webkit-scrollbar {

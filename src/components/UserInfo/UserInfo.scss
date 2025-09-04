@@ -5,7 +5,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: linear-gradient(180deg, #23283a 0%, #252525 100%);
+
   position: relative;
   left: 10%;
 
@@ -54,6 +55,10 @@
     i {
       margin-right: 8px;
     }
+  }
+  .focused {
+      background-color: #e60000;
+
   }
 }
 

@@ -1,107 +1,158 @@
-import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from "react";
 import { Context } from "../../Util/createContext";
 import { inFavorite, handelFavorite } from "../../Util/helperfunction";
 import Logo from "../../assets/logo.png";
 import star from "../../assets/star.png";
 import fillStar from "../../assets/fillStar.png";
 
-const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fullScreen, setCategories }) => {
+const LiveStreamsList = ({
+  categoryId,
+  favoriteList,
+  setUrel,
+  isFocused,
+  fullScreen,
+  setCategories,
+}) => {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [selectedStream, setSelectedStream] = useState(null);
   const [liveStreams, setLiveStreams] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(20);
   const itemRefs = useRef([]);
+  const prevCategoryRef = useRef(null); // للتأكد أن الفetch ينفذ فقط عند تغير الـ category
 
-  const { serverUrl, username, password, setError, setLoading } = useContext(Context);
+  const { serverUrl, username, password, setError, setLoading } =
+    useContext(Context);
 
-  // Memoized function to handle stream click
   const handleStreamClick = useCallback(
     (stream) => {
-      // Check if the clicked stream is the same as the selected stream
       if (selectedStream === stream.num) {
-        fullScreen()
+        fullScreen();
         return;
       }
       setLoading(true);
       setError(null);
       setUrel(null);
-      // Also clear any video error in parent
-      if (typeof window.setLiveCategoriesListErr === 'function') {
+
+      if (typeof window.setLiveCategoriesListErr === "function") {
         window.setLiveCategoriesListErr(null);
       }
-      setUrel({stream_id: stream.stream_id,
+
+      setUrel({
+        stream_id: stream.stream_id,
         name: stream.name,
         stream_icon: stream.stream_icon || Logo,
-        ext : stream.ext || "m3u8",});
+        ext: stream.ext || "m3u8",
+      });
       setSelectedStream(stream.num);
     },
-    [username, password, serverUrl, setError, setLoading, setUrel, selectedStream, fullScreen]
+    [selectedStream, setLoading, setError, setUrel, fullScreen]
   );
 
   const fetchData = useCallback(async () => {
-    if (categoryId === 1) {
+    // ما تعيد التحميل إلا إذا تغيرت الكاتيجوري
+    if (prevCategoryRef.current === categoryId) return;
+    prevCategoryRef.current = categoryId;
+
+    if (categoryId === "1") {
       setLiveStreams(favoriteList);
+      setCategories(favoriteList);
+      return;
+    }
+
+    if (categoryId === "2") {
+      // recenty added
+      const url = `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=0`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        setLiveStreams(data.slice(-30));
+        setCategories(data.slice(-30));
+      } catch (error) {
+        console.error(error);
+        setError("Error fetching live streams");
+      }
       return;
     }
 
     const url = `${serverUrl}/player_api.php?username=${username}&password=${password}&action=get_live_streams&category_id=${categoryId}`;
-    
+
     try {
       const response = await fetch(url);
       const data = await response.json();
       setLiveStreams(data);
       setCategories(data);
     } catch (error) {
-      setError("Error fetching live streams:", error);
+      console.error(error);
+      setError("Error fetching live streams");
     }
-  }, [categoryId, serverUrl, username, password, setError, favoriteList]);
+  }, [
+    categoryId,
+    serverUrl,
+    username,
+    password,
+    favoriteList,
+    setError,
+    setCategories,
+  ]);
 
   useEffect(() => {
-    fetchData(); 
+    fetchData();
   }, [fetchData]);
 
-  const handleKeyDown = useCallback((event) => {
-    if (isFocused !== 2) return;
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (isFocused !== 2) return;
 
-    // Prevent default behavior for navigation keys
-    if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
-      event.preventDefault();
-    }
+      if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
+        event.preventDefault();
+      }
 
-    switch (event.key) {
-      case "ArrowDown":
-        setFocusedIndex((prevIndex) => {
-          const newIndex = Math.min(prevIndex + 1, liveStreams.length - 1);
-          // Smooth scroll into view
-          itemRefs.current[newIndex]?.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
+      switch (event.key) {
+        case "ArrowDown":
+          setFocusedIndex((prevIndex) => {
+            const newIndex = Math.min(prevIndex + 1, liveStreams.length - 1);
+            itemRefs.current[newIndex]?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+
+            if (newIndex + 1 >= visibleCount - 10) {
+              setVisibleCount((prev) => prev + 10);
+            }
+
+            return newIndex;
           });
-          return newIndex;
-        });
-        break;
-      case "ArrowUp":
-        setFocusedIndex((prevIndex) => {
-          const newIndex = Math.max(prevIndex - 1, 0);
-          // Smooth scroll into view
-          itemRefs.current[newIndex]?.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
+          break;
+        case "ArrowUp":
+          setFocusedIndex((prevIndex) => {
+            const newIndex = Math.max(prevIndex - 1, 0);
+            itemRefs.current[newIndex]?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+            return newIndex;
           });
-          return newIndex;
-        });
-        break;
-      case "Enter":
-        if (liveStreams[focusedIndex]) {
-          handleStreamClick(liveStreams[focusedIndex]);
-        }
-        break;
-      default:
-        break;
-    }
-  }, [isFocused, focusedIndex, liveStreams, handleStreamClick]);
+          break;
+        case "Enter":
+          if (liveStreams[focusedIndex]) {
+            handleStreamClick(liveStreams[focusedIndex]);
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    [isFocused, focusedIndex, liveStreams, handleStreamClick, visibleCount]
+  );
 
   useEffect(() => {
-    // Use capture phase to handle events before they bubble
     document.addEventListener("keydown", handleKeyDown, true);
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
@@ -109,28 +160,32 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
   }, [handleKeyDown]);
 
   return (
-    <div className="live-stream-item" role="region" aria-label="Live Streams List">
-      <ul className="live-streams" role="listbox" 
+    <div
+      className="live-stream-item"
+      role="region"
+      aria-label="Live Streams List"
+    >
+      <ul
+        className="live-streams"
+        role="listbox"
         tabIndex={0}
-        aria-activedescendant={`stream-${focusedIndex}`}>
-        {liveStreams.map((stream, i) => (
+        aria-activedescendant={`stream-${focusedIndex}`}
+      >
+        {liveStreams.slice(0, visibleCount).map((stream, i) => (
           <li
-            ref={el => (itemRefs.current[i] = el)}
+            ref={(el) => (itemRefs.current[i] = el)}
             key={stream.stream_id}
             onClick={() => handleStreamClick(stream)}
-            className={`stream-item ${focusedIndex === i && isFocused === 2 ? "focused" : ""} ${
-              selectedStream === stream.num ? "selected" : ""
-            }`}
+
+            className={`stream-item ${
+              focusedIndex === i && isFocused === 2 ? "focused" : ""
+            } ${selectedStream === stream.num ? "selected" : ""}`}
             role="option"
             aria-selected={selectedStream === stream.num}
             id={`stream-${i}`}
             tabIndex={focusedIndex === i && isFocused === 2 ? 0 : -1}
-            
           >
-            <span aria-hidden="true">
-              {stream.num}
-            </span>
-
+            <span aria-hidden="true">{stream.num}</span>
             <span>
               <img
                 src={stream.stream_icon || Logo}
@@ -138,17 +193,19 @@ const LiveStreamsList = ({ categoryId, favoriteList = [], setUrel, isFocused, fu
                 height="100"
                 alt="Stream Icon"
                 aria-hidden="true"
-                lazyload="lazy"
+                loading="lazy"
               />
               {stream.name}
             </span>
-            <span 
+            <span
               onClick={(e) => {
                 e.stopPropagation();
                 handelFavorite(stream, "Live", favoriteList);
               }}
               role="button"
-              aria-label={`${inFavorite(stream, favoriteList) ? 'Remove from' : 'Add to'} favorites`}
+              aria-label={`${
+                inFavorite(stream, favoriteList) ? "Remove from" : "Add to"
+              } favorites`}
             >
               <img
                 src={inFavorite(stream, favoriteList) ? fillStar : star}

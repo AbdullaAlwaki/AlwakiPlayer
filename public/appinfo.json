@@ -1,5 +1,5 @@
 {
-    "id": "com.mycompany.app.appname",
+    "id": "com.alwaki.app.alwakiplayer",
     "title": "Alwaki",
     "main": "index.html",
     "icon": "logo192.png",
@@ -15,7 +15,7 @@
     "closeOnRotation": false,
     "disableBackHistoryAPI": false,
     "handlesRelaunch": false,
-    "splashBackground": "logo512.png",
+    "splashBackground": "splashBackground.png",
     "splashColor": "#111111",
     "splashFitModeOnPortrait": "width",
     "requiredMemory": 20,

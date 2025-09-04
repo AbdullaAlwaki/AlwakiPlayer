@@ -59,6 +59,27 @@
   background-color: #fff;
   color: #252525;
 }
+
+  @media (max-height: 1080px) {
+    .iptv-container{
+      h1{
+        font-size: 2.5rem;
+        margin-bottom: 2.5rem;
+      }
+      .profile_con {
+        gap: 2.5rem;
+        
+      
+      .profile_card {
+        padding: 2rem;
+        h2 {
+          font-size: 2rem;
+        }
+
+      }
+    }
+  }}
+
 @media (max-width: 900px) {
   .iptv-container{
     .profile_con {
@@ -80,8 +101,6 @@
   }
 }
 @media (max-width: 600px) {
-  .iptv-container {
-  }
   h1{
     font-size: 1.5rem;
     margin-bottom: 1rem;

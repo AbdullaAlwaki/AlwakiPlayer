@@ -46,6 +46,9 @@ function LivePlayer({ url, isFocused, playerContainerRef, categories }) {
       if (document.fullscreenElement) {
         if (e.key === "ArrowUp") nextChannel();
         if (e.key === "ArrowDown") prevChannel();
+        if (e.key === "Escape" || e.key === "Backspace") document.exitFullscreen?.();
+        if (e.key === "backspace") document.exitFullscreen?.();
+
       }
     };
     window.addEventListener("keydown", handleKey);

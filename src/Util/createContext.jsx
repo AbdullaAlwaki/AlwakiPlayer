@@ -17,7 +17,7 @@ function FetchData({ children }) {
     return localStorage.getItem("profileName") || "";
   });
   const [error, setError] = useState("");
-  const [urlPlayer, setUrlPlayer] = useState("");
+  const [urlPlayer, setUrlPlayer] = useState({} || "");
   const [loading, setLoading] = useState(false);
   const [closePlayer, setClosePlayer] = useState(false);
   const [played, setPlayed] = useState(0)

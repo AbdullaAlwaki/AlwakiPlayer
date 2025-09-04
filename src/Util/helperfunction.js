@@ -15,10 +15,10 @@ const fetchData = async (
       );
       const CategoriesData = await CategoriesResponse.json();
       CategoriesData.unshift(
-        { category_id: "0", category_name: "All" },
-        { category_id: "1", category_name: "Favorites" },
-        { category_id: "2", category_name: "Recently Add" },
-        { category_id: "3", category_name: "continue watching" },
+        { category_id: "0", category_name: "الكل" },
+        { category_id: "1", category_name: "المفضلة" },
+        { category_id: "2", category_name: "مضاف حديثا" },
+        { category_id: "3", category_name: "متابعة المشاهدة" },
 
       );
       setCategories(CategoriesData);
@@ -64,6 +64,7 @@ const fetchData = async (
     const isIn = favoriteList.some(
       (item) => item.stream_id === stream.stream_id
     );
+    
     if (isIn) {
       return true;
     } else {

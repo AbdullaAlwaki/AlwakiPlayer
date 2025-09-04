@@ -19,7 +19,6 @@ export async function liveCategoriesList() {
             parsed.liveCategories &&
             parsed.time &&
             now - parsed.time < oneDay
-            
           ) {
             resolve(parsed.liveCategories);
             return;
@@ -66,7 +65,6 @@ export async function liveCategoriesList() {
           result.time &&
           now - result.time < oneDay
         ) {
-        
           db.close();
           resolve(result.liveCategories);
         } else {
@@ -76,7 +74,9 @@ export async function liveCategoriesList() {
               `${server_info.server_protocol}://${server_info.url}:${server_info.port}/player_api.php?username=${user_info.username}&password=${user_info.password}&action=get_live_categories`
             );
             const text = await response.text();
+
             const data = JSON.parse(text);
+
             const writeTx = db.transaction(storeName, "readwrite");
             const writeStore = writeTx.objectStore(storeName);
             writeStore.put({
