@@ -14,6 +14,34 @@ import { useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import "./List.scss";
 
+// مكون صورة مع دعم للـ fallback عند فشل التحميل
+const ImageWithFallback = ({ src, alt, onError: customOnError }) => {
+  const [hasError, setHasError] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(src);
+  
+  useEffect(() => {
+    // عند تغيير مصدر الصورة، نعيد تعيين حالة الخطأ
+    setHasError(false);
+    setCurrentSrc(src);
+  }, [src]);
+
+  const handleError = useCallback(() => {
+    setHasError(true);
+    if (customOnError) {
+      customOnError();
+    }
+  }, [customOnError]);
+
+  return (
+    <img
+      src={hasError ? logo : currentSrc}
+      alt={alt}
+      loading="eager"
+      onError={handleError}
+    />
+  );
+};
+
 const CategoriesList = () => {
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
@@ -22,17 +50,21 @@ const CategoriesList = () => {
   const isMovie = location.pathname.startsWith("/movie");
 
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState("2"); // تغيير القيمة الافتراضية إلى 2
+
+  const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(0);
+  const [focusedItemIndex, setFocusedItemIndex] = useState(0);
+
+  const [isFocused, setIsFocused] = useState(1); // 0 = left menu, 1 = categories, 2 = items
   const [listItems, setListItems] = useState([]);
-  const [focusedIndex, setFocusedIndex] = useState(0);
-  const [isFocused, setIsFocused] = useState(1);
-  const [loadLimit, setLoadLimit] = useState(20);
 
   const dataListRef = useRef(null);
-  const itemRefs = useRef([]);
+  const catRefs = useRef([]);
   const listRef = useRef(null);
   const listCache = useRef({});
-  const loadingRef = useRef(null);
+  
+  // إنشاء ref لتخزين مرجع إلى fetchCategory
+  const fetchCategoryRef = useRef(null);
 
   const favoriteList = useMemo(
     () =>
@@ -51,10 +83,6 @@ const CategoriesList = () => {
       ),
     [isMovie]
   );
-
-  const displayList = useMemo(() => {
-    return listItems.slice(0, loadLimit);
-  }, [listItems, loadLimit]);
 
   useEffect(() => {
     if (storedCategories) {
@@ -94,15 +122,15 @@ const CategoriesList = () => {
     isMovie,
   ]);
 
+  // تعريف fetchCategory باستخدام useCallback
   const fetchCategory = useCallback(
     async (id) => {
       setSelectedCategory(id);
-      setFocusedIndex(0);
+      setFocusedItemIndex(0);
       setIsFocused(2);
 
       if (listCache.current[id]) {
         setListItems(listCache.current[id]);
-        setLoadLimit(20);
         return;
       }
 
@@ -121,27 +149,83 @@ const CategoriesList = () => {
           )
         ).json();
 
-        console.log(id);
-
         const filteredData =
           id === "2"
             ? data
-                .sort((a, b) => {
-                  const dateA = parseFloat(a.added);
-                  const dateB = parseFloat(b.added);
-                  return dateB - dateA;
-                })
+                .sort((a, b) => parseFloat(b.added) - parseFloat(a.added))
                 .slice(0, 30)
             : data;
+
         setListItems(filteredData);
         listCache.current[id] = filteredData;
-        setLoadLimit(20);
       } catch (err) {
         setError("Error fetching list: " + err.message);
       }
     },
     [serverUrl, username, password, setError, favoriteList, isMovie]
   );
+
+  // تحديث المرجع في كل مرة تتغير فيها fetchCategory
+  useEffect(() => {
+    fetchCategoryRef.current = fetchCategory;
+  }, [fetchCategory]);
+
+  // تحميل التصنيف الافتراضي (ID=2) عند تحميل المكون لأول مرة
+  useEffect(() => {
+    if (categories.length > 0) {
+      // البحث عن فهرس التصنيف ذو الـ ID=2
+      const index = categories.findIndex(c => c.category_id === "2");
+      
+      if (index !== -1) {
+        setFocusedCategoryIndex(index);
+        fetchCategoryRef.current("2");
+      } else {
+        // إذا لم يكن موجودًا، نستخدم التصنيف الأول
+        setFocusedCategoryIndex(0);
+        fetchCategoryRef.current(categories[0]?.category_id);
+      }
+    }
+  }, [categories]);
+
+  // تحسين Preloading للصور - تحميل تدريجي
+  useEffect(() => {
+    const preloadImage = (src) => {
+      return new Promise((resolve) => {
+        if (!src) {
+          resolve();
+          return;
+        }
+        
+        const img = new Image();
+        img.src = `${src}?w=200&h=300`;
+        img.onload = resolve;
+        img.onerror = resolve; // لا ننتظر وقتًا طويلًا للفشل
+      });
+    };
+
+    const loadImagesSequentially = async () => {
+      const batchSize = 5;
+      let index = 0;
+      
+      while (index < listItems.length) {
+        const batch = listItems.slice(index, index + batchSize);
+        await Promise.all(
+          batch.map((item) => {
+            const src = item.cover || item.stream_icon;
+            return src ? preloadImage(src) : Promise.resolve();
+          })
+        );
+        index += batchSize;
+        
+        // إعطاء فرصة للمتصفح لمعالجة الواجهة
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    };
+
+    if (listItems.length > 0) {
+      loadImagesSequentially();
+    }
+  }, [listItems]);
 
   const handleKey = useCallback(
     (e) => {
@@ -161,13 +245,15 @@ const CategoriesList = () => {
       if (isFocused === 1) {
         switch (e.key) {
           case "ArrowDown":
-            setFocusedIndex((i) => Math.min(i + 1, categories.length - 1));
+            setFocusedCategoryIndex((i) =>
+              Math.min(i + 1, categories.length - 1)
+            );
             break;
           case "ArrowUp":
-            setFocusedIndex((i) => Math.max(i - 1, 0));
+            setFocusedCategoryIndex((i) => Math.max(i - 1, 0));
             break;
           case "Enter":
-            fetchCategory(categories[focusedIndex]?.category_id);
+            fetchCategoryRef.current(categories[focusedCategoryIndex]?.category_id);
             break;
           case "ArrowLeft":
             setIsFocused(0);
@@ -180,26 +266,30 @@ const CategoriesList = () => {
         switch (e.key) {
           case "Backspace":
             setIsFocused(1);
-            break; // Removed setClose(false)
+            break;
           case "ArrowDown":
-            setFocusedIndex((i) => Math.min(i + 5, displayList.length - 1));
+            setFocusedItemIndex((i) =>
+              Math.min(i + 5, listItems.length - 1)
+            );
             break;
           case "ArrowUp":
-            setFocusedIndex((i) => Math.max(i - 5, 0));
+            setFocusedItemIndex((i) => Math.max(i - 5, 0));
             break;
           case "ArrowLeft":
-            if (focusedIndex % 5 === 0) {
+            if (focusedItemIndex % 5 === 0) {
               setIsFocused(1);
             } else {
-              setFocusedIndex((i) => i - 1);
+              setFocusedItemIndex((i) => i - 1);
             }
             break;
           case "ArrowRight":
-            setFocusedIndex((i) => Math.min(i + 1, displayList.length - 1));
+            setFocusedItemIndex((i) =>
+              Math.min(i + 1, listItems.length - 1)
+            );
             break;
           case "Enter":
-            if (displayList[focusedIndex]) {
-              const item = displayList[focusedIndex];
+            if (listItems[focusedItemIndex]) {
+              const item = listItems[focusedItemIndex];
               if (isMovie) {
                 navigate(`/movies/m${item.stream_id}`);
               } else {
@@ -209,27 +299,40 @@ const CategoriesList = () => {
             break;
         }
       } else if (isFocused === 0) {
-        switch (e.key) {
-          case "ArrowRight":
-            setIsFocused(1);
-            break;
+        if (e.key === "ArrowRight") {
+          setIsFocused(1);
         }
       }
 
-      if (listRef.current) {
-        const element = listRef.current.children[focusedIndex];
-        if (element) {
-          element.scrollIntoView({ block: "nearest", behavior: "auto" });
+      // تحسين التمرير
+      if (isFocused === 2 && listRef.current) {
+        const itemsPerRow = 5;
+        const currentRow = Math.floor(focusedItemIndex / itemsPerRow);
+        const visibleRows = 3; // عدد الصفوف المرئية في الشاشة
+        
+        const containerHeight = dataListRef.current?.clientHeight || 0;
+        const itemHeight = 250; // ارتفاع العنصر تقريباً
+        const totalVisibleHeight = itemHeight * visibleRows;
+        
+        const scrollPosition = dataListRef.current?.scrollTop || 0;
+        const itemTopPosition = focusedItemIndex * (itemHeight / itemsPerRow);
+        
+        // إذا كان العنصر خارج النطاق المرئي، قم بالتمرير
+        if (itemTopPosition < scrollPosition || 
+            itemTopPosition > scrollPosition + totalVisibleHeight - itemHeight) {
+          dataListRef.current?.scrollTo({
+            top: itemTopPosition - (totalVisibleHeight / 2),
+            behavior: 'smooth'
+          });
         }
       }
     },
     [
       categories,
-      focusedIndex,
+      focusedCategoryIndex,
+      focusedItemIndex,
       isFocused,
-      selectedCategory,
-      fetchCategory,
-      displayList,
+      listItems,
       isMovie,
       navigate,
     ]
@@ -240,63 +343,30 @@ const CategoriesList = () => {
     return () => document.removeEventListener("keydown", handleKey, true);
   }, [handleKey]);
 
-  useEffect(() => {
-    if (isFocused === 1 && itemRefs.current[focusedIndex]) {
-      itemRefs.current[focusedIndex].scrollIntoView({
-        block: "nearest",
-        behavior: "auto",
-      });
-    }
-  }, [focusedIndex, isFocused]);
-
-  useEffect(() => {
-    if (loadingRef.current && displayList.length < listItems.length) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            setLoadLimit((prev) => Math.min(prev + 20, listItems.length));
-          }
-        },
-        { threshold: 1.0 }
-      );
-      observer.observe(loadingRef.current);
-      return () => observer.disconnect();
-    }
-  }, [displayList, listItems.length]);
-
   return (
     <>
       <ListDivision isFocused={isFocused === 0} />
 
-      <div
-        className="categories_container"
-        role="region"
-        aria-label="Categories"
-      >
+      <div className="categories_container">
         <div className="categories_list_container">
-          <ul className="categories" role="listbox">
+          <ul className="categories">
             {categories?.map((category, index) => (
               <li
                 key={category.category_id}
-                ref={(el) => (itemRefs.current[index] = el)}
+                ref={(el) => (catRefs.current[index] = el)}
                 className={`category ${
-                  focusedIndex === index && isFocused === 1 ? "focused" : ""
+                  focusedCategoryIndex === index && isFocused === 1
+                    ? "focused"
+                    : ""
                 } ${
                   selectedCategory === category.category_id ? "selected" : ""
                 }`}
-                onClick={() => fetchCategory(category.category_id)}
-                role="option"
-                aria-selected={selectedCategory === category.category_id}
+                onClick={() => fetchCategoryRef.current(category.category_id)}
               >
                 <h1 className="category-name">
                   {category.category_name}
                   {category.count !== undefined && (
-                    <span
-                      className="category-count"
-                      aria-label={`${category.count} items`}
-                    >
-                      {category.count}
-                    </span>
+                    <span className="category-count">{category.count}</span>
                   )}
                 </h1>
               </li>
@@ -304,18 +374,13 @@ const CategoriesList = () => {
           </ul>
         </div>
 
-        <div
-          className="data_list"
-          role="region"
-          aria-label="Items List"
-          ref={dataListRef}
-        >
+        <div className="data_list" ref={dataListRef}>
           <ul ref={listRef} className="list">
-            {displayList.map((item, idx) => (
+            {listItems.map((item, idx) => (
               <li
                 key={item.series_id || item.stream_id || idx}
                 className={`categorie ${
-                  focusedIndex === idx && isFocused === 2 ? "focused" : ""
+                  focusedItemIndex === idx && isFocused === 2 ? "focused" : ""
                 }`}
                 onClick={() => {
                   if (isMovie) {
@@ -324,35 +389,18 @@ const CategoriesList = () => {
                     navigate(`/series/s${item.series_id}`);
                   }
                 }}
-                role="option"
-                aria-selected={focusedIndex === idx && isFocused === 2}
                 onMouseEnter={() => {
-                  setFocusedIndex(idx);
+                  setFocusedItemIndex(idx);
                   setIsFocused(2);
                 }}
               >
-                <img
-                  src={`${
-                    item.cover || item.stream_icon
-                      ? item.cover || item.stream_icon
-                      : logo
-                  }?w=200&h=300`}
+                <ImageWithFallback
+                  src={`${item.cover || item.stream_icon}`}
                   alt={item.name || item.title}
                 />
-
                 <span className="name">{item.name || item.title}</span>
               </li>
             ))}
-
-            {displayList.length < listItems.length && (
-              <li ref={loadingRef} className="loading-indicator">
-                جاري التحميل...
-              </li>
-            )}
-
-            {listItems.length === 0 && (
-              <li className="no-items">لا توجد عناصر في هذه الفئة</li>
-            )}
           </ul>
         </div>
       </div>
