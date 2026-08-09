@@ -5,6 +5,7 @@ import {
   useContext,
   useRef,
   useMemo,
+  memo,
 } from "react";
 import { Context } from "../../Util/createContext";
 import ListDivision from "../ListDivision";
@@ -18,7 +19,7 @@ import useFetchCategory from "./useFetchCategory";
 import useStoredCategories from "./useStoredCategories";
 import useCategoriesLoader from "./useCategoriesLoader";
 
-const CategoriesList = () => {
+const CategoriesList = memo(() => {
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
   const location = useLocation();
@@ -26,7 +27,7 @@ const CategoriesList = () => {
   const isMovie = location.pathname.startsWith("/movie");
 
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("2"); // تغيير القيمة الافتراضية إلى 2
+  const [selectedCategory, setSelectedCategory] = useState("2");
 
   const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(0);
   const [focusedItemIndex, setFocusedItemIndex] = useState(0);
@@ -39,7 +40,6 @@ const CategoriesList = () => {
   const listRef = useRef(null);
   const listCache = useRef({});
   
-  // إنشاء ref لتخزين مرجع إلى fetchCategory
   const fetchCategoryRef = useRef(null);
 
   const favoriteList = useMemo(
@@ -80,15 +80,12 @@ const CategoriesList = () => {
     setError,
   });
 
-  // تحديث المرجع في كل مرة تتغير فيها fetchCategory
   useEffect(() => {
     fetchCategoryRef.current = fetchCategory;
   }, [fetchCategory]);
 
-  // تحميل التصنيف الافتراضي (ID=2) عند تحميل المكون لأول مرة
   useDefaultCategoryEffect(categories, setFocusedCategoryIndex, fetchCategoryRef);
 
-  // تحسين Preloading للصور - تحميل تدريجي
   usePreloadImages(listItems);
 
   const handleKey = useCategoriesKeyHandler({
@@ -175,6 +172,6 @@ const CategoriesList = () => {
       </div>
     </>
   );
-};
+});
 
 export default CategoriesList;
