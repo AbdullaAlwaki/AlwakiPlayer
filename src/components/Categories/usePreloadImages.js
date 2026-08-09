@@ -1,23 +1,31 @@
 // usePreloadImages.js
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function usePreloadImages(listItems) {
+  const loadedImagesRef = useRef(new Set());
+  
   useEffect(() => {
     const preloadImage = (src) => {
       return new Promise((resolve) => {
-        if (!src) {
+        if (!src || loadedImagesRef.current.has(src)) {
           resolve();
           return;
         }
         const img = new Image();
         img.src = `${src}?w=200&h=300`;
-        img.onload = resolve;
-        img.onerror = resolve;
+        img.onload = () => {
+          loadedImagesRef.current.add(src);
+          resolve();
+        };
+        img.onerror = () => {
+          loadedImagesRef.current.add(src);
+          resolve();
+        };
       });
     };
 
     const loadImagesSequentially = async () => {
-      const batchSize = 5;
+      const batchSize = 3;
       let index = 0;
       while (index < listItems.length) {
         const batch = listItems.slice(index, index + batchSize);
@@ -28,7 +36,7 @@ export default function usePreloadImages(listItems) {
           })
         );
         index += batchSize;
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
     };
 

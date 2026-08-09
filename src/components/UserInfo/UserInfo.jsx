@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ListDivision from "../ListDivision";
 import "./UserInfo.scss";
 
 const UserInfo = () => {
-  const [isFocused, setIsFocused] = useState(0); // 0 = ListDivision, 1 = Button
-  const userInfo =
-    JSON.parse(sessionStorage.getItem("currentProfile"))?.user_info || {};
+  const [isFocused, setIsFocused] = useState(0);
+  
+  // Memoize user info parsing to avoid recalculation
+  const userInfo = useMemo(() => {
+    const profile = JSON.parse(sessionStorage.getItem("currentProfile"));
+    return profile?.user_info || {};
+  }, []);
 
   if (!userInfo || Object.keys(userInfo).length === 0) {
     return (
@@ -24,7 +28,6 @@ const UserInfo = () => {
     localStorage.setItem("user", JSON.stringify(updatedProfiles));
     sessionStorage.removeItem("currentProfile");
 
-    // Redirect to login or home page
     window.location.href = "/login";
   };
 
@@ -52,7 +55,6 @@ const UserInfo = () => {
 
   return (
     <div className="user-info-container">
-      {/* focus على ListDivision إذا isFocused = 0 */}
       <ListDivision isFocused={isFocused === 0} />
 
       <div className="user-info-card">

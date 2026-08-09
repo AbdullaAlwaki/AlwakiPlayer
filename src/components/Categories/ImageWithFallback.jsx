@@ -1,19 +1,19 @@
 import logo from "../../assets/logo.png";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, memo } from "react";
 
-
-const ImageWithFallback = ({ src, alt, onError: customOnError }) => {
+const ImageWithFallback = memo(({ src, alt, onError: customOnError }) => {
   const [hasError, setHasError] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(null); // null initially
+  const [currentSrc, setCurrentSrc] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef();
-
+  
   useEffect(() => {
     setHasError(false);
     setCurrentSrc(null);
     setIsLoaded(false);
     setIsVisible(false);
+    
     const observer = new window.IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -24,9 +24,11 @@ const ImageWithFallback = ({ src, alt, onError: customOnError }) => {
       },
       { threshold: 0.01 }
     );
+    
     if (imgRef.current) {
       observer.observe(imgRef.current);
     }
+    
     return () => observer.disconnect();
   }, [src]);
 
@@ -43,7 +45,18 @@ const ImageWithFallback = ({ src, alt, onError: customOnError }) => {
   }, []);
 
   return (
-    <div style={{ minHeight: 100, minWidth: 70, background: "#222", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div 
+      className="image-with-fallback"
+      style={{ 
+        minHeight: 100, 
+        minWidth: 70, 
+        background: "#222", 
+        position: "relative", 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center" 
+      }}
+    >
       {!isLoaded && (
         <img
           src={logo}
@@ -67,6 +80,7 @@ const ImageWithFallback = ({ src, alt, onError: customOnError }) => {
         src={hasError ? logo : currentSrc}
         alt={alt}
         loading="lazy"
+        decoding="async"
         onError={handleError}
         onLoad={handleLoad}
         style={{
@@ -82,6 +96,6 @@ const ImageWithFallback = ({ src, alt, onError: customOnError }) => {
       />
     </div>
   );
-};
+});
 
 export default ImageWithFallback;
