@@ -19,21 +19,58 @@ import useCategoriesLoader from "./useCategoriesLoader";
 
 const DEFAULT_CATEGORY_ID = "2";
 
+const getStoredCategoryState = (isMovie) => {
+  try {
+    const raw = sessionStorage.getItem(
+      isMovie ? "movieCategoryState" : "seriesCategoryState"
+    );
+
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch (err) {
+    console.warn("Failed to parse stored category state:", err);
+    return null;
+  }
+};
+
 const CategoriesList = () => {
   const { serverUrl, username, password, setError, setLoading } =
     useContext(Context);
   const location = useLocation();
   const navigate = useNavigate();
   const isMovie = location.pathname.startsWith("/movie");
+  const categoryStateKey = isMovie ? "movieCategoryState" : "seriesCategoryState";
+
+  const savedState = getStoredCategoryState(isMovie);
 
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(DEFAULT_CATEGORY_ID);
+  const [selectedCategory, setSelectedCategory] = useState(
+    savedState?.selectedCategory || DEFAULT_CATEGORY_ID
+  );
 
   const [focusedCategoryIndex, setFocusedCategoryIndex] = useState(0);
-  const [focusedItemIndex, setFocusedItemIndex] = useState(0);
+  const [focusedItemIndex, setFocusedItemIndex] = useState(
+    savedState?.focusedItemIndex || 0
+  );
+  const [selectedItemId, setSelectedItemId] = useState(
+    savedState?.selectedItemId || null
+  );
+  const [scrollTop, setScrollTop] = useState(savedState?.scrollTop || 0);
 
   const [isFocused, setIsFocused] = useState(1); // 0 = left menu, 1 = categories, 2 = items
-  const [listItems, setListItems] = useState([]);
+  const [listItems, setListItems] = useState(savedState?.listItems || []);
+
+  useEffect(() => {
+    const nextState = getStoredCategoryState(isMovie);
+    setSelectedCategory(nextState?.selectedCategory || DEFAULT_CATEGORY_ID);
+    setFocusedItemIndex(nextState?.focusedItemIndex || 0);
+    setSelectedItemId(nextState?.selectedItemId || null);
+    setScrollTop(nextState?.scrollTop || 0);
+    setIsFocused(1);
+    setListItems(nextState?.listItems || []);
+    setCategories([]);
+  }, [isMovie]);
   const [favoriteList, setFavoriteList] = useState(() => {
     try {
       const raw = localStorage.getItem(
@@ -106,11 +143,16 @@ const CategoriesList = () => {
   }, [fetchCategory]);
 
   const handleCategorySelect = useCallback((categoryId) => {
+    setSelectedItemId(null);
+    setIsFocused(2);
     fetchCategoryRef.current?.(categoryId);
   }, []);
 
   const handleItemOpen = useCallback(
     (item) => {
+      const itemId = isMovie ? item.stream_id : item.series_id;
+      setSelectedItemId(itemId);
+
       if (isMovie) {
         navigate(`/movies/m${item.stream_id}`);
       } else {
@@ -155,8 +197,66 @@ const CategoriesList = () => {
     listItemRefs.current.length = listItems.length;
   }, [listItems]);
 
-  // تحميل التصنيف الافتراضي (ID=2) عند تحميل المكون لأول مرة
-  useDefaultCategoryEffect(categories, setFocusedCategoryIndex, fetchCategoryRef);
+  useEffect(() => {
+    const container = dataListRef.current;
+    if (!container || !listItems.length) return;
+
+    if (Math.abs(container.scrollTop - scrollTop) > 1) {
+      container.scrollTop = scrollTop;
+    }
+  }, [listItems, scrollTop]);
+
+  useEffect(() => {
+    const container = dataListRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      setScrollTop(container.scrollTop);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [listItems]);
+
+  useEffect(() => {
+    if (!listItems.length) return;
+
+    if (selectedItemId) {
+      const nextIndex = listItems.findIndex((item) => {
+        const itemId = isMovie ? item.stream_id : item.series_id;
+        return itemId === selectedItemId;
+      });
+
+      if (nextIndex >= 0) {
+        setFocusedItemIndex(nextIndex);
+        setIsFocused(2);
+      }
+    }
+  }, [isMovie, listItems, selectedItemId]);
+
+  useEffect(() => {
+    if (!selectedCategory && !listItems.length) return;
+
+    const stateToSave = {
+      selectedCategory,
+      focusedItemIndex,
+      selectedItemId,
+      listItems,
+      scrollTop,
+    };
+
+    sessionStorage.setItem(categoryStateKey, JSON.stringify(stateToSave));
+  }, [categoryStateKey, focusedItemIndex, listItems, scrollTop, selectedCategory, selectedItemId]);
+
+  // Restore the last selected category on revisit instead of reloading default data.
+  useDefaultCategoryEffect({
+    categories,
+    selectedCategory,
+    setFocusedCategoryIndex,
+    fetchCategoryRef,
+    listItems,
+    setListItems,
+  });
 
   const handleKey = useCategoriesKeyHandler({
     categories,
