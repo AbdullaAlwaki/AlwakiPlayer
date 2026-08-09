@@ -1,5 +1,5 @@
 // useFetchCategory.js
-import { useCallback } from "react";
+import { useCallback, useRef, useEffect } from "react";
 
 export default function useFetchCategory({
   setSelectedCategory,
@@ -14,8 +14,21 @@ export default function useFetchCategory({
   password,
   setError,
 }) {
+  const controllerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (controllerRef.current) controllerRef.current.abort();
+    };
+  }, []);
+
   return useCallback(
     async (id) => {
+      // abort previous pending request to avoid races
+      if (controllerRef.current) controllerRef.current.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+
       setSelectedCategory(id);
       setFocusedItemIndex(0);
       setIsFocused(2);
@@ -34,11 +47,14 @@ export default function useFetchCategory({
       const catId = id === "2" ? 0 : id;
 
       try {
-        const data = await (
-          await fetch(
-            `${serverUrl}/player_api.php?username=${username}&password=${password}&action=${action}&category_id=${catId}&sort_by=added&sort_dir=desc`
-          )
-        ).json();
+        const res = await fetch(
+          `${serverUrl}/player_api.php?username=${username}&password=${password}&action=${action}&category_id=${catId}&sort_by=added&sort_dir=desc`,
+          { signal: controller.signal }
+        );
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
 
         const filteredData =
           id === "2"
@@ -50,7 +66,8 @@ export default function useFetchCategory({
         setListItems(filteredData);
         listCache.current[id] = filteredData;
       } catch (err) {
-        setError("Error fetching list: " + err.message);
+        if (err.name === "AbortError") return;
+        setError("Error fetching list: " + (err.message || err));
       }
     },
     [

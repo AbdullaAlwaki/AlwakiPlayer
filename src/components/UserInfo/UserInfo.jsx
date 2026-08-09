@@ -32,13 +32,20 @@ const UserInfo = () => {
     const handleKeyDown = (event) => {
       switch (event.key) {
         case "ArrowRight":
-          if (isFocused === 0) setIsFocused(1);
+          if (isFocused === 0) {
+            event.preventDefault();
+            setIsFocused(1);
+          }
           break;
         case "ArrowLeft":
-          if (isFocused === 1) setIsFocused(0);
+          if (isFocused === 1) {
+            event.preventDefault();
+            setIsFocused(0);
+          }
           break;
         case "Enter":
           if (isFocused === 1) {
+            event.preventDefault();
             handleDeleteProfile();
           }
           break;
@@ -46,9 +53,10 @@ const UserInfo = () => {
           break;
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isFocused]);
+
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [isFocused, handleDeleteProfile]);
 
   return (
     <div className="user-info-container">
@@ -92,8 +100,10 @@ const UserInfo = () => {
 
       <div>
         <button
+          type="button"
           className={`delete-profile-btn ${isFocused === 1 ? "focused" : ""}`}
           onClick={handleDeleteProfile}
+          aria-label="Delete profile"
         >
           Delete Profile
         </button>

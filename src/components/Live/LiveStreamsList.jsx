@@ -22,7 +22,7 @@ const LiveStreamsList = ({
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [selectedStream, setSelectedStream] = useState(null);
   const [liveStreams, setLiveStreams] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(20);
+  const [visibleCount, setVisibleCount] = useState(12);
   const itemRefs = useRef([]);
   const prevCategoryRef = useRef(null); // للتأكد أن الفetch ينفذ فقط عند تغير الـ category
 
@@ -123,8 +123,8 @@ const LiveStreamsList = ({
               block: "center",
             });
 
-            if (newIndex + 1 >= visibleCount - 10) {
-              setVisibleCount((prev) => prev + 10);
+            if (newIndex + 1 >= visibleCount - 6) {
+              setVisibleCount((prev) => prev + 6);
             }
 
             return newIndex;

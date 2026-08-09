@@ -6,12 +6,9 @@ function TrailerPlayer() {
   const navigate = useNavigate();
 
   useEffect(() => {
-
     const handleKeyDown = (e) => {
-      console.log(e.key);
-      
       if (e.key === "Escape" || e.key === "Backspace") {
-        navigate(-1); // الرجوع عند ضغط Escape
+        navigate(-1);
       }
     };
 
@@ -20,7 +17,7 @@ function TrailerPlayer() {
   }, [navigate]);
 
   return (
-    <div className="trailer-player" style={{ width: "100%", height: "100vh" }}>
+    <div className="trailer-player">
       <iframe
         width="100%"
         height="100%"

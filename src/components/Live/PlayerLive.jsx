@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
-import Hls from "hls.js";
 import { Context } from "../../Util/createContext";
 
 function LivePlayer({ url, isFocused, playerContainerRef, categories }) {
@@ -62,16 +61,41 @@ function LivePlayer({ url, isFocused, playerContainerRef, categories }) {
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-    if (Hls.isSupported() && !isIOS && streamUrl.endsWith(".m3u8")) {
-      const hls = new Hls();
-      hls.attachMedia(video);
-      hls.loadSource(streamUrl);
+    let isMounted = true;
 
+    const initHls = async () => {
       if (!currentChannel.stream_id) {
         setErr("No channel selected.");
         setLoading?.(false);
         return;
       }
+
+      const hlsModule = await import("hls.js");
+      const Hls = hlsModule.default ?? hlsModule;
+
+      if (!Hls.isSupported() || isIOS || !streamUrl.endsWith(".m3u8") || !isMounted) {
+        video.src = streamUrl;
+        video.addEventListener("error", () => {
+          setErr("Error loading stream directly in video tag.");
+          setLoading?.(false);
+        });
+        return;
+      }
+
+      const hls = new Hls({
+        enableWorker: false,
+        liveSyncDurationCount: 3,
+        maxBufferLength: 8,
+        maxMaxBufferLength: 20,
+        backBufferLength: 10,
+        liveBackBufferLength: 10,
+        manifestLoadingMaxRetry: 2,
+        fragLoadingMaxRetry: 2,
+        fragLoadingTimeOut: 10000,
+      });
+
+      hls.attachMedia(video);
+      hls.loadSource(streamUrl);
 
       hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
@@ -94,15 +118,12 @@ function LivePlayer({ url, isFocused, playerContainerRef, categories }) {
       });
 
       hlsInstance.current = hls;
-    } else {
-      video.src = streamUrl;
-      video.addEventListener("error", () => {
-        setErr("Error loading stream directly in video tag.");
-        setLoading?.(false);
-      });
-    }
+    };
+
+    initHls();
 
     return () => {
+      isMounted = false;
       hlsInstance.current?.destroy();
       hlsInstance.current = null;
     };

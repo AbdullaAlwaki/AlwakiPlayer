@@ -57,6 +57,11 @@ export default function Series_dataInfo({
       `favoriteList${whatType}`,
       JSON.stringify(updatedFavoriteList)
     );
+    window.dispatchEvent(
+      new CustomEvent("favorites-updated", {
+        detail: { key: `favoriteList${whatType}` },
+      })
+    );
   };
 
   useEffect(() => {

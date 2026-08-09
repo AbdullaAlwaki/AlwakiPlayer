@@ -39,6 +39,7 @@ export default function Login() {
       case "ArrowDown":
       case "Down":
       case 40:
+        event.preventDefault();
         setIsSelected((prevIndex) => Math.min(prevIndex + 1, loginOptions.length - 1));
         break;
       case "ArrowLeft":
@@ -47,14 +48,17 @@ export default function Login() {
       case "ArrowUp":
       case "Up":
       case 38:
+        event.preventDefault();
         setIsSelected((prevIndex) => Math.max(prevIndex - 1, 0));
         break;
       case "Enter":
       case 13:
+        event.preventDefault();
         handleEnter();
         break;
       case "Backspace":
       case 8:
+        event.preventDefault();
         navigate(-1);
         break;
       default:

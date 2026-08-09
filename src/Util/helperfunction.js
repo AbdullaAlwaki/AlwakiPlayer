@@ -82,7 +82,13 @@ const fetchData = async (
     } else {
       favoriteList.push(stream);
     }
+
     localStorage.setItem(`favoriteList${live}`, JSON.stringify(favoriteList));
+    window.dispatchEvent(
+      new CustomEvent("favorites-updated", {
+        detail: { key: `favoriteList${live}` },
+      })
+    );
   };
 
 export {fetchData, inFavorite, handelFavorite}

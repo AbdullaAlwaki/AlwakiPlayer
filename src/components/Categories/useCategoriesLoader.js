@@ -42,7 +42,7 @@ export default function useCategoriesLoader({
     }
   }, [
     storedCategories,
-    favoriteList.length,
+    favoriteList,
     serverUrl,
     username,
     password,

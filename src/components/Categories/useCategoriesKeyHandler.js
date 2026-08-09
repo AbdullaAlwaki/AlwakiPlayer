@@ -13,8 +13,6 @@ export default function useCategoriesKeyHandler({
   isMovie,
   navigate,
   fetchCategoryRef,
-  dataListRef,
-  listRef,
 }) {
   return useCallback(
     (e) => {
@@ -57,14 +55,17 @@ export default function useCategoriesKeyHandler({
             setIsFocused(1);
             break;
           case "ArrowDown":
+            if (!listItems.length) break;
             setFocusedItemIndex((i) =>
               Math.min(i + 5, listItems.length - 1)
             );
             break;
           case "ArrowUp":
+            if (!listItems.length) break;
             setFocusedItemIndex((i) => Math.max(i - 5, 0));
             break;
           case "ArrowLeft":
+            if (!listItems.length) break;
             if (focusedItemIndex % 5 === 0) {
               setIsFocused(1);
             } else {
@@ -72,6 +73,7 @@ export default function useCategoriesKeyHandler({
             }
             break;
           case "ArrowRight":
+            if (!listItems.length) break;
             setFocusedItemIndex((i) =>
               Math.min(i + 1, listItems.length - 1)
             );
@@ -93,28 +95,6 @@ export default function useCategoriesKeyHandler({
         }
       }
 
-      // تحسين التمرير
-      if (isFocused === 2 && listRef.current) {
-        const itemsPerRow = 5;
-        const currentRow = Math.floor(focusedItemIndex / itemsPerRow);
-        const visibleRows = 3; // عدد الصفوف المرئية في الشاشة
-        
-        const containerHeight = dataListRef.current?.clientHeight || 0;
-        const itemHeight = 250; // ارتفاع العنصر تقريباً
-        const totalVisibleHeight = itemHeight * visibleRows;
-        
-        const scrollPosition = dataListRef.current?.scrollTop || 0;
-        const itemTopPosition = focusedItemIndex * (itemHeight / itemsPerRow);
-        
-        // إذا كان العنصر خارج النطاق المرئي، قم بالتمرير
-        if (itemTopPosition < scrollPosition || 
-            itemTopPosition > scrollPosition + totalVisibleHeight - itemHeight) {
-          dataListRef.current?.scrollTo({
-            top: itemTopPosition - (totalVisibleHeight / 2),
-            behavior: 'smooth'
-          });
-        }
-      }
     },
     [
       categories,
@@ -125,8 +105,6 @@ export default function useCategoriesKeyHandler({
       isMovie,
       navigate,
       fetchCategoryRef,
-      dataListRef,
-      listRef,
     ]
   );
 }

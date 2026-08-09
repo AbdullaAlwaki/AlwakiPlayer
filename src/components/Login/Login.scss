@@ -12,6 +12,7 @@
   left: 0;
   z-index: 998;
   background: linear-gradient(135deg, #23283a 0%, #252525 100%);
+  contain: layout paint;
 
   form {
     width: 100%;
@@ -25,34 +26,34 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
-    margin-top: 1.5rem;
+    gap: 1.2rem;
+    margin-top: 1rem;
 
     .log_card {
-      width: 260px;
-      height: 260px;
-      margin: 1rem;
+      width: 210px;
+      height: 210px;
+      margin: 0.7rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       background: #23283a;
-      border-radius: 1.2rem;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.13);
+      border-radius: 0.9rem;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
       border: 2px solid transparent;
-      transition: border 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+      transition: border 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, color 0.16s ease;
       cursor: pointer;
       &:hover,
       &.selected {
         background: #fff;
         color: #252525;
-        border: 2.5px solid #4f8cff;
-        box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.1);
+        border: 2px solid #4f8cff;
+        box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.12);
       }
       img {
-        width: 120px;
-        height: 120px;
-        margin-bottom: 1.2rem;
+        width: 96px;
+        height: 96px;
+        margin-bottom: 0.9rem;
         border-radius: 0.7rem;
         object-fit: contain;
       }
@@ -66,7 +67,7 @@
   }
 
   .selected_input {
-    width: 25%;
+    width: min(28rem, 92vw);
     max-width: 400px;
     border: 3px solid #4f8cff;
     background-color: #eaf2ff;
@@ -88,17 +89,17 @@
     color: #fff;
   }
   div {
-    margin-bottom: 20px;
-    width: 25%;
-    min-width: 350px;
+    margin-bottom: 16px;
+    width: min(28rem, 92vw);
+    min-width: 0;
     input {
       width: 100%;
-      min-width: 120px;
+      min-width: 0;
       max-width: 400px;
       height: 40px;
       border: 1.5px solid #ccc;
-      border-radius: 7px;
-      padding: 0 12px;
+      border-radius: 6px;
+      padding: 0 10px;
       font-size: 1rem;
       background: #23283a; // Match main bg
       color: #fff; // White text for contrast
@@ -118,9 +119,9 @@
       width: 100%;
       min-width: 120px;
       max-width: 400px;
-      height: 42px;
+      height: 40px;
       border: none;
-      border-radius: 7px;
+      border-radius: 6px;
       background-color: #4f8cff;
       color: #fff;
       font-size: 1rem;

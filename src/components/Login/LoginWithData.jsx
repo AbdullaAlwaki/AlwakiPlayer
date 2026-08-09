@@ -70,19 +70,23 @@ export default function LoginWithUrl({ isSelected }) {
         case "ArrowDown":
         case "Down":
         case 40:
+          event.preventDefault();
           setFocusedIndex((prevIndex) => Math.min(prevIndex + 1, inputs.length));
           break;
         case "ArrowUp":
         case "Up":
         case 38:
+          event.preventDefault();
           setFocusedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
           break;
         case "Enter":
         case 13:
+          event.preventDefault();
           handleEnter(event);
           break;
         case "Backspace":
         case 8:
+          event.preventDefault();
           if (isInputField && isEmpty) {
             activeElement.blur();
           } else if (!isInputField || isEmpty) {
