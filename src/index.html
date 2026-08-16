@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alwaki Player</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen active">
+            <div class="logo-container">
+                <div class="logo-spinner"></div>
+                <h1 class="app-title">Alwaki Player</h1>
+                <p class="loading-text">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen">
+            <header class="header">
+                <div class="header-content">
+                    <h2 class="page-title">Home</h2>
+                    <div class="search-container">
+                        <input type="text" id="search-input" class="search-input" placeholder="Search videos...">
+                        <button id="search-btn" class="icon-btn search-btn">🔍</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content">
+                <section class="categories">
+                    <div class="category-tabs" id="category-tabs">
+                        <button class="tab-btn active" data-category="all">All</button>
+                        <button class="tab-btn" data-category="music">Music</button>
+                        <button class="tab-btn" data-category="movies">Movies</button>
+                        <button class="tab-btn" data-category="sports">Sports</button>
+                        <button class="tab-btn" data-category="news">News</button>
+                    </div>
+                </section>
+
+                <section class="video-grid">
+                    <div class="grid-header">
+                        <h3 class="section-title">Recommended</h3>
+                        <button class="view-all-btn">View All</button>
+                    </div>
+                    <div class="video-list" id="video-list">
+                        <!-- Videos will be dynamically inserted here -->
+                    </div>
+                </section>
+            </main>
+
+            <nav class="bottom-nav">
+                <button class="nav-item active" data-screen="home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Home</span>
+                </button>
+                <button class="nav-item" data-screen="favorites">
+                    <span class="nav-icon">❤️</span>
+                    <span class="nav-label">Favorites</span>
+                </button>
+                <button class="nav-item" data-screen="history">
+                    <span class="nav-icon">🕒</span>
+                    <span class="nav-label">History</span>
+                </button>
+                <button class="nav-item" data-screen="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Settings</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Video Player Screen -->
+        <div id="player-screen" class="screen">
+            <div class="player-container">
+                <video id="video-player" class="video-element" controls>
+                    Your browser does not support the video tag.
+                </video>
+                
+                <div class="player-controls" id="player-controls">
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar">
+                            <div class="progress-filled" id="progress-filled"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="controls-row">
+                        <div class="left-controls">
+                            <button id="play-pause-btn" class="control-btn">▶️</button>
+                            <button id="stop-btn" class="control-btn">⏹️</button>
+                            <div class="time-display">
+                                <span id="current-time">0:00</span>
+                                <span>/</span>
+                                <span id="duration">0:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="center-controls">
+                            <button id="rewind-btn" class="control-btn">⏪</button>
+                            <button id="forward-btn" class="control-btn">⏩</button>
+                        </div>
+                        
+                        <div class="right-controls">
+                            <button id="volume-btn" class="control-btn">🔊</button>
+                            <div class="volume-slider" id="volume-slider">
+                                <div class="volume-track">
+                                    <div class="volume-filled" id="volume-filled"></div>
+                                </div>
+                            </div>
+                            <button id="fullscreen-btn" class="control-btn">⛶</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="back-to-home" class="back-btn">← Back</button>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settings-screen" class="screen">
+            <header class="header">
+                <div class="header-content">
+                    <button id="settings-back-btn" class="back-arrow">←</button>
+                    <h2 class="page-title">Settings</h2>
+                </div>
+            </header>
+
+            <main class="content settings-content">
+                <div class="settings-group">
+                    <h3 class="group-title">Playback</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">Auto-play</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoplay-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">Video Quality</label>
+                        <select id="quality-select" class="setting-select">
+                            <option value="auto">Auto</option>
+                            <option value="1080p">1080p</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="group-title">Appearance</h3>
+                    <div class="setting-item">
+                        <label class="setting-label">Dark Mode</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="darkmode-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="group-title">About</h3>
+                    <div class="about-info">
+                        <p class="app-version">Version 1.0.0</p>
+                        <p class="app-desc">Alwaki Player - Native webOS Video Player</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+    "id": "com.alwaki.player",
+    "version": "1.0.0",
+    "vendor": "Alwaki",
+    "type": "web",
+    "main": "index.html",
+    "title": "Alwaki Player",
+    "icon": "assets/icons/icon.png",
+    "largeIcon": "assets/icons/icon-large.png",
+    "splashBackground": "assets/images/splash.png",
+    "description": "A fast, clean native video player for webOS",
+    "supportURL": "",
+    "fullscreen": true,
+    "requiredPermissions": [
+        "activities.read",
+        "activities.write",
+        "network.status"
+    ],
+    "deviceProfile": ["standard"],
+    "uiResolution": "1920x1080",
+    "orientation": "landscape"
+}

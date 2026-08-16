@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="splashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f0f0f;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#splashGrad)"/>
+  <circle cx="960" cy="540" r="150" fill="#0078d4" opacity="0.2"/>
+  <circle cx="960" cy="540" r="100" fill="#0078d4" opacity="0.4"/>
+  <polygon points="860,440 860,640 1060,540" fill="white"/>
+</svg>
