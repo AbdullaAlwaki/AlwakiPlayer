@@ -1,0 +1,16 @@
+{
+    "id": "com.alwaki.player",
+    "version": "1.0.0",
+    "vendor": "Alwaki",
+    "type": "web",
+    "main": "index.html",
+    "title": "Alwaki Player",
+    "icon": "icon.png",
+    "largeIcon": "largeIcon.png",
+    "supportGIP": true,
+    "supportTouchMode": false,
+    "requiredPermissions": ["activity.query", "app.launch"],
+    "uiHandleTap": false,
+    "bgColor": "#0f0f1a",
+    "splashBackground": "#0f0f1a"
+}

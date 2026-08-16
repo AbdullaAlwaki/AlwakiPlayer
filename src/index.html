@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alwaki Player</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">Alwaki Player</div>
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search videos...">
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Categories -->
+            <section class="categories" id="categories">
+                <button class="category-btn active" data-category="all">All</button>
+                <button class="category-btn" data-category="movies">Movies</button>
+                <button class="category-btn" data-category="series">Series</button>
+                <button class="category-btn" data-category="documentaries">Documentaries</button>
+                <button class="category-btn" data-category="kids">Kids</button>
+            </section>
+
+            <!-- Video Grid -->
+            <section class="video-grid" id="videoGrid">
+                <!-- Videos will be injected here -->
+            </section>
+        </main>
+
+        <!-- Video Player Modal -->
+        <div id="playerModal" class="modal hidden">
+            <div class="modal-content">
+                <button class="close-btn" id="closePlayer">&times;</button>
+                <video id="videoPlayer" class="video-player" controls autoplay></video>
+                <div class="video-info">
+                    <h2 id="videoTitle"></h2>
+                    <p id="videoDescription"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <section class="history-section" id="historySection">
+            <h3>Watch History</h3>
+            <div class="history-grid" id="historyGrid"></div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
