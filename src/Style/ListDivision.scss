@@ -1,0 +1,122 @@
+.list-division {
+  width: 7%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background: #23283a;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+
+  .logo {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
+    cursor: pointer;
+
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      transition: transform 0.15s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
+  }
+
+  .division {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #bfc9d9;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    gap: 0.5rem;
+    border-left: 3px solid transparent;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover,
+    &.focused {
+      background: rgba(255, 0, 0, 0.08);
+      color: #fff;
+      border-left: 3px solid #ff0000;
+    }
+
+    img {
+      width: 60px;
+      height: 60px;
+      transition: transform 0.15s ease;
+    }
+
+    span {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  }
+
+  @media ((min-width: 1920px) and (min-height: 1080px)) {
+    width: 8%;
+    .division {
+      height: 140px;
+      img {
+        width: 70px;
+        height: 70px;
+      }
+      span {
+        font-size: 1rem;
+      }
+    }
+  }
+
+
+  @media (max-width: 768px) {
+    width: 100%;
+    height: 12%;
+    flex-direction: row;
+    justify-content: space-around;
+    bottom: 0;
+    top: auto;
+    background: #23283a;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+
+    .logo {
+      display: none;
+    }
+
+    .division {
+      width: 20%;
+      height: 100%;
+      border-left: none;
+      border-top: 3px solid transparent;
+
+      &:hover,
+      &.focused,
+      &.selected {
+        background: rgba(255, 0, 0, 0.08);
+        border-top: 3px solid #ff0000;
+      }
+
+      img {
+        width: 26px;
+        height: 26px;
+      }
+
+      span {
+        font-size: 0.7rem;
+      }
+    }
+  }
+}

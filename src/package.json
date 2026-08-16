@@ -1,0 +1,16 @@
+{
+  "name": "alwaki-player",
+  "version": "1.0.0",
+  "description": "Fast, clean native video player for webOS - Vanilla JS",
+  "main": "index.html",
+  "scripts": {
+    "build": "node build.js",
+    "package": "node build.js && ares-package dist",
+    "install": "ares-install com.alwaki.player_1.0.0_all.ipk",
+    "launch": "ares-launch com.alwaki.player",
+    "dev": "npx serve src"
+  },
+  "keywords": ["webos", "video-player", "vanilla-js", "native"],
+  "author": "Alwaki",
+  "license": "MIT"
+}

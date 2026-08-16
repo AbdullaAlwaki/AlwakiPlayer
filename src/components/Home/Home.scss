@@ -1,0 +1,131 @@
+.iptv-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 998;
+  background: linear-gradient(135deg, #23283a 0%, #252525 100%);
+  .profile_con {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    .profile_card {
+      width: 140px;
+      height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #23283a;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      border: 2px solid transparent;
+      transition: border 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+      outline: none;
+      margin: 0.5rem;
+      &:hover,
+      &.selected,
+      &:focus {
+        border: 2.5px solid #4f8cff;
+        background: #fff;
+        color: #252525;
+        box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.1);
+      }
+      h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: inherit;
+        text-align: center;
+      }
+      img {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 1rem;
+        object-fit: cover;
+      }
+    }
+  }
+}
+.selected {
+  background-color: #fff;
+  color: #252525;
+}
+
+  @media (max-height: 1080px) {
+    .iptv-container{
+      h1{
+        font-size: 2.5rem;
+        margin-bottom: 2.5rem;
+      }
+      .profile_con {
+        gap: 2.5rem;
+        
+      
+      .profile_card {
+        padding: 2rem;
+        h2 {
+          font-size: 2rem;
+        }
+
+      }
+    }
+  }}
+
+@media (max-width: 900px) {
+  .iptv-container{
+    .profile_con {
+    gap: 1.2rem;
+    
+  }
+  } 
+  .iptv-container .profile_card {
+    width: 110px;
+    height: 110px;
+    padding: 0.7rem 0.5rem;
+  }
+  .iptv-container .profile_card img {
+    width: 44px;
+    height: 44px;
+  }
+  .iptv-container .profile_card h2 {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 600px) {
+  h1{
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .profile_con {
+    gap: 1.2rem;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+  .profile_card {
+    width: 90vw;
+    max-width: 400px;
+    min-width: 160px;
+    height: 80px;
+    min-height: 60px;
+    margin: 0 auto;
+    border-radius: 0.7rem;
+    padding: 0.7rem 0.5rem;
+    font-size: 1.1rem;
+  }
+  .profile_card img {
+    width: 40px;
+    height: 40px;
+  }
+  .profile_card h2 {
+    font-size: 1rem;
+  }
+}
