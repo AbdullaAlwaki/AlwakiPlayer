@@ -1,0 +1,312 @@
+.live-categories-container {
+  width: 90%;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  left: 10%;
+  background: linear-gradient(135deg, #23283a 0%, #252525 100%);
+
+  .live-categories-list {
+    width: 30%;
+    overflow: hidden auto;
+    background: rgba(35, 40, 58, 0.95);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+
+    /* Hide scrollbar but keep functionality */
+    &::-webkit-scrollbar {
+      width: 6px;
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 0, 0, 0.5);
+      border-radius: 3px;
+
+      &:hover {
+        background: rgba(255, 0, 0, 0.8);
+      }
+    }
+
+    .live-categories {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.5rem;
+
+      .category-item {
+        position: relative;
+        min-height: 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 1.2rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 2px solid transparent;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.06);
+        }
+
+        &.focused {
+          background: rgba(255, 0, 0, 0.15);
+          border-color: #ff0000;
+          transform: translateX(10px) scale(1.02);
+          box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+          z-index: 1;
+        }
+
+        &.selected {
+          background: linear-gradient(90deg, #ff0000, #ff2b2b);
+          border-color: rgba(255, 255, 255, 0.2);
+          transform: translateX(10px);
+        }
+
+        .category-name {
+          font-size: 1.1rem;
+          font-weight: 500;
+          flex-grow: 1;
+        }
+
+        .category-count {
+          background: rgba(255, 255, 255, 0.1);
+          padding: 0.4rem 1rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          min-width: 40px;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .live-streams-container {
+    width: 30%;
+    overflow: hidden auto;
+    background: rgba(35, 40, 58, 0.95);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+
+    /* Hide scrollbar but keep functionality */
+    &::-webkit-scrollbar {
+      width: 6px;
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 0, 0, 0.5);
+      border-radius: 3px;
+
+      &:hover {
+        background: rgba(255, 0, 0, 0.8);
+      }
+    }
+
+    .live-stream-item {
+      width: 100%;
+
+      .live-streams {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        scroll-behavior: smooth;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem;
+
+        &:focus {
+          outline: none;
+        }
+
+        .stream-item {
+          &.focused {
+            transform: scale(1.02);
+            transition: transform 0.2s ease;
+          }
+        }
+      }
+
+      .stream-item {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        border: 1px solid transparent;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        span {
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+
+          &:first-child {
+            min-width: 40px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+          }
+
+          &:nth-child(2) {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        &:hover,
+        &.focused {
+          background: rgba(255, 0, 0, 0.1);
+          border-color: rgba(255, 0, 0, 0.3);
+          transform: translateX(4px);
+        }
+
+        &.selected {
+          background: linear-gradient(90deg, #ff0000, #ff2b2b);
+          border-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
+        }
+
+        img {
+          aspect-ratio: 1/1;
+          object-fit: fit;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+          width: 32px;
+          height: 32px;
+        }
+
+        .add-favorite {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(255, 255, 255, 0.1);
+          padding: 0.4rem 0.8rem;
+          border-radius: 12px;
+          font-size: 0.9rem;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+          }
+        }
+      }
+    }
+  }
+
+  .iptv-player-container {
+    width: 40%;
+    background: rgba(35, 40, 58, 0.95);
+
+    .iptv-player {
+      position: relative;
+      width: 100%;
+      height: auto;
+
+      background-color: black;
+      video {
+        width: 100%;
+        object-fit: contain;
+        max-height: 100vh;
+      }
+      .channel-overlay {
+        width: 100%;
+        height: 20%;
+        position: absolute;
+        font: 1em sans-serif;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
+        padding: 5px 10px;
+        color: white;
+        z-index: 10;
+      }
+      &.selected {
+        box-shadow: inset 0 0 0 3px #ff0000;
+      }
+      .error-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+      }
+    }
+  }
+
+  @media ((min-width: 1920px) and (min-height: 1080px)) {
+    width: 92%;
+    height: 100vh;
+    left: 8%;
+  }
+
+  @media (max-width: 768px) {
+    position: relative;
+    left: 0;
+    width: 100%;
+    height: 90vh;
+    flex-direction: column;
+
+    .iptv-player-container {
+      order: -1;
+      width: 100%;
+      height: 30vh;
+      .iptv-player {
+        height: 100%;
+      }
+    }
+
+    .live-categories-list,
+    .live-streams-container {
+      width: 100%;
+      height: 32vh;
+      border-right: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+.iptv-player:-webkit-full-screen,
+.iptv-player:-moz-full-screen,
+.iptv-player:-ms-fullscreen,
+.iptv-player:fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.iptv-player:-webkit-full-screen video,
+.iptv-player:-moz-full-screen video,
+.iptv-player:-ms-fullscreen video,
+.iptv-player:fullscreen video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* أو cover حسب رغبتك */
+}
