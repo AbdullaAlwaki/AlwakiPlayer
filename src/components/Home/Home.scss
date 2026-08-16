@@ -5,127 +5,136 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 998;
-  background: linear-gradient(135deg, #23283a 0%, #252525 100%);
+  position: relative;
+  padding: 48px 20px 60px;
+  background:
+    radial-gradient(circle at top, rgba(34, 211, 238, 0.12), transparent 18%),
+    radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.18), transparent 22%),
+    linear-gradient(180deg, #040b16 0%, #091522 100%);
+
+  h1 {
+    margin: 0 0 2.2rem;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    text-align: center;
+    color: #effbff;
+    text-shadow: 0 0 26px rgba(34, 211, 238, 0.18);
+  }
+
   .profile_con {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
+    width: min(1100px, 100%);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1.25rem;
     justify-content: center;
-    align-items: center;
-    gap: 2rem;
+    align-items: stretch;
+
     .profile_card {
-      width: 140px;
-      height: 140px;
+      min-height: 180px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: #23283a;
-      border-radius: 1rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-      border: 2px solid transparent;
-      transition: border 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 22px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 20px 35px rgba(2, 6, 23, 0.45);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
       outline: none;
-      margin: 0.5rem;
+      padding: 1.2rem 1rem;
+      position: relative;
+      overflow: hidden;
+
+      &:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), transparent 35%, rgba(168, 85, 247, 0.1));
+        pointer-events: none;
+      }
+
       &:hover,
       &.selected,
       &:focus {
-        border: 2.5px solid #4f8cff;
-        background: #fff;
-        color: #252525;
-        box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.1);
+        border-color: rgba(103, 232, 249, 0.4);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(168, 85, 247, 0.08));
+        box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.2), 0 16px 34px rgba(34, 211, 238, 0.15);
+        transform: translateY(-3px);
       }
+
       h2 {
+        position: relative;
+        z-index: 1;
         margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: inherit;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #effbff;
         text-align: center;
       }
+
       img {
-        width: 60px;
-        height: 60px;
+        position: relative;
+        z-index: 1;
+        width: 62px;
+        height: 62px;
         margin-bottom: 1rem;
-        object-fit: cover;
+        object-fit: contain;
+        filter: drop-shadow(0 0 18px rgba(103, 232, 249, 0.2));
       }
     }
   }
 }
+
 .selected {
-  background-color: #fff;
-  color: #252525;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(168, 85, 247, 0.18));
+  color: #06131d;
 }
-
-  @media (max-height: 1080px) {
-    .iptv-container{
-      h1{
-        font-size: 2.5rem;
-        margin-bottom: 2.5rem;
-      }
-      .profile_con {
-        gap: 2.5rem;
-        
-      
-      .profile_card {
-        padding: 2rem;
-        h2 {
-          font-size: 2rem;
-        }
-
-      }
-    }
-  }}
 
 @media (max-width: 900px) {
-  .iptv-container{
+  .iptv-container {
+    padding-top: 32px;
+
     .profile_con {
-    gap: 1.2rem;
-    
-  }
-  } 
-  .iptv-container .profile_card {
-    width: 110px;
-    height: 110px;
-    padding: 0.7rem 0.5rem;
-  }
-  .iptv-container .profile_card img {
-    width: 44px;
-    height: 44px;
-  }
-  .iptv-container .profile_card h2 {
-    font-size: 1rem;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+
+      .profile_card {
+        min-height: 150px;
+        padding: 1rem 0.75rem;
+      }
+    }
   }
 }
+
 @media (max-width: 600px) {
-  h1{
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  .profile_con {
-    gap: 1.2rem;
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-  .profile_card {
-    width: 90vw;
-    max-width: 400px;
-    min-width: 160px;
-    height: 80px;
-    min-height: 60px;
-    margin: 0 auto;
-    border-radius: 0.7rem;
-    padding: 0.7rem 0.5rem;
-    font-size: 1.1rem;
-  }
-  .profile_card img {
-    width: 40px;
-    height: 40px;
-  }
-  .profile_card h2 {
-    font-size: 1rem;
+  .iptv-container {
+    padding: 32px 14px 48px;
+
+    h1 {
+      margin-bottom: 1.5rem;
+    }
+
+    .profile_con {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+
+      .profile_card {
+        min-height: 130px;
+        border-radius: 18px;
+        padding: 0.85rem 0.7rem;
+
+        img {
+          width: 48px;
+          height: 48px;
+          margin-bottom: 0.7rem;
+        }
+
+        h2 {
+          font-size: 0.8rem;
+        }
+      }
+    }
   }
 }

@@ -5,6 +5,7 @@ export default defineConfig({
   base: './',
   plugins: [react()],
   build: {
+    target: ['es2017'],
     rollupOptions: {
       output: {
         manualChunks: {
